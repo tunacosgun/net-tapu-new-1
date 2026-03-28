@@ -31,7 +31,7 @@
   }
 
   *, ::before, ::after {
-    border-color: transparent;
+    border-color: rgb(241 245 249 / 0.5);
   }
 
   body {
