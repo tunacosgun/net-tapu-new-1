@@ -26,7 +26,27 @@ export function HeaderPro() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [notificationCount] = useState(3);
+  const [notificationCount, setNotificationCount] = useState(0);
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [notifOpen, setNotifOpen] = useState(false);
+
+  // Fetch real notification count
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    const fetchNotifs = async () => {
+      try {
+        const { default: apiClient } = await import('@/lib/api-client');
+        const { data } = await apiClient.get('/notifications', { params: { limit: 10, unreadOnly: true } });
+        const items = data?.data || data || [];
+        setNotifications(Array.isArray(items) ? items : []);
+        const unread = Array.isArray(items) ? items.filter((n: any) => !n.isRead).length : 0;
+        setNotificationCount(unread);
+      } catch { setNotificationCount(0); }
+    };
+    fetchNotifs();
+    const iv = setInterval(fetchNotifs, 30000);
+    return () => clearInterval(iv);
+  }, [isAuthenticated]);
 
   useEffect(() => {
     function onScroll() { setScrolled(window.scrollY > 20); }

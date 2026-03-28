@@ -2,14 +2,14 @@
 
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuthStore } from '@/stores/auth-store';
 import NotificationBell from '@/components/admin/NotificationBell';
 import {
   LayoutDashboard, BarChart3, Users, ShieldBan, Map, Gavel,
   CreditCard, Landmark, ClipboardList, Phone, CalendarDays,
   HandCoins, FileText, HelpCircle, Trophy, MessageSquare,
-  Target, Handshake, Settings, Bell,
+  Target, Handshake, Settings, Bell, Menu, X,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
@@ -113,58 +113,90 @@ export default function AdminLayout({
     return null;
   }
 
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Close sidebar on route change (mobile)
+  useEffect(() => { setSidebarOpen(false); }, [pathname]);
+
+  const SidebarContent = () => (
+    <>
+      <div className="flex items-center gap-2 px-3 py-2">
+        <div className="flex h-7 w-7 items-center justify-center rounded bg-brand-500">
+          <span className="text-xs font-bold text-white">NT</span>
+        </div>
+        <span className="text-sm font-bold text-brand-500">Admin Panel</span>
+      </div>
+      <nav className="mt-4 space-y-4">
+        {navSections.map((section, i) => (
+          <div key={i}>
+            {section.title && (
+              <p className="px-3 text-xs font-semibold uppercase tracking-wider text-[var(--muted-foreground)]">
+                {section.title}
+              </p>
+            )}
+            <div className="mt-1 space-y-0.5">
+              {section.items.map((item) => {
+                const Icon = item.icon;
+                const isActive =
+                  item.href === '/admin'
+                    ? pathname === '/admin'
+                    : pathname.startsWith(item.href);
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setSidebarOpen(false)}
+                    className={`flex items-center gap-2.5 rounded-md px-3 py-2 text-sm cursor-pointer transition-colors duration-150 ${
+                      isActive
+                        ? 'bg-brand-50 text-brand-700 font-medium dark:bg-brand-950/20 dark:text-brand-400'
+                        : 'text-[var(--foreground)] hover:bg-[var(--background)]'
+                    }`}
+                  >
+                    <Icon className="h-4 w-4 shrink-0" />
+                    {item.label}
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+      </nav>
+    </>
+  );
+
   return (
     <div className="flex flex-1">
-      {/* Sidebar */}
-      <aside className="hidden w-64 shrink-0 border-r border-[var(--border)] bg-[var(--muted)] p-4 lg:block">
-        <div className="flex items-center gap-2 px-3 py-2">
-          <div className="flex h-7 w-7 items-center justify-center rounded bg-brand-500">
-            <span className="text-xs font-bold text-white">NT</span>
-          </div>
-          <span className="text-sm font-bold text-brand-500">Admin Panel</span>
-        </div>
-        <nav className="mt-4 space-y-4">
-          {navSections.map((section, i) => (
-            <div key={i}>
-              {section.title && (
-                <p className="px-3 text-xs font-semibold uppercase tracking-wider text-[var(--muted-foreground)]">
-                  {section.title}
-                </p>
-              )}
-              <div className="mt-1 space-y-0.5">
-                {section.items.map((item) => {
-                  const Icon = item.icon;
-                  const isActive =
-                    item.href === '/admin'
-                      ? pathname === '/admin'
-                      : pathname.startsWith(item.href);
-                  return (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      className={`flex items-center gap-2.5 rounded-md px-3 py-2 text-sm cursor-pointer transition-colors duration-150 ${
-                        isActive
-                          ? 'bg-brand-50 text-brand-700 font-medium dark:bg-brand-950/20 dark:text-brand-400'
-                          : 'text-[var(--foreground)] hover:bg-[var(--background)]'
-                      }`}
-                    >
-                      <Icon className="h-4 w-4 shrink-0" />
-                      {item.label}
-                    </Link>
-                  );
-                })}
-              </div>
+      {/* Mobile sidebar overlay */}
+      {sidebarOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          <div className="absolute inset-0 bg-black/50" onClick={() => setSidebarOpen(false)} />
+          <aside className="absolute left-0 top-0 bottom-0 w-72 bg-[var(--muted)] p-4 overflow-y-auto shadow-xl">
+            <div className="flex justify-end mb-2">
+              <button onClick={() => setSidebarOpen(false)} className="p-1 rounded hover:bg-slate-200">
+                <X className="h-5 w-5" />
+              </button>
             </div>
-          ))}
-        </nav>
+            <SidebarContent />
+          </aside>
+        </div>
+      )}
+
+      {/* Desktop sidebar */}
+      <aside className="hidden w-64 shrink-0 border-r border-[var(--border)] bg-[var(--muted)] p-4 lg:block overflow-y-auto">
+        <SidebarContent />
       </aside>
 
       {/* Main content */}
       <div className="flex-1 min-w-0">
-        <div className="border-b border-[var(--border)] px-6 py-2 flex items-center justify-between bg-[var(--muted)]/50">
-          <span className="text-xs text-[var(--muted-foreground)]">
-            Admin: {user.email}
-          </span>
+        <div className="border-b border-[var(--border)] px-4 lg:px-6 py-2 flex items-center justify-between bg-[var(--muted)]/50">
+          <div className="flex items-center gap-3">
+            <button onClick={() => setSidebarOpen(true)} className="lg:hidden p-1.5 rounded-md hover:bg-slate-200 transition-colors">
+              <Menu className="h-5 w-5" />
+            </button>
+            <span className="text-xs text-[var(--muted-foreground)]">
+              Admin: {user.email}
+            </span>
+          </div>
           <div className="flex items-center gap-4">
             <NotificationBell />
             <Link href="/" className="text-xs text-brand-500 hover:underline cursor-pointer transition-colors duration-150">
@@ -172,7 +204,7 @@ export default function AdminLayout({
             </Link>
           </div>
         </div>
-        <main className="p-6">{children}</main>
+        <main className="p-3 sm:p-4 lg:p-6">{children}</main>
       </div>
     </div>
   );
