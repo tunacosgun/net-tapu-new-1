@@ -168,11 +168,17 @@ export default function AdminLayout({
     <div className="flex flex-1">
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden">
-          <div className="absolute inset-0 bg-black/50" onClick={() => setSidebarOpen(false)} />
-          <aside className="absolute left-0 top-0 bottom-0 w-72 bg-[var(--muted)] p-4 overflow-y-auto shadow-xl">
-            <div className="flex justify-end mb-2">
-              <button onClick={() => setSidebarOpen(false)} className="p-1 rounded hover:bg-slate-200">
+        <div className="fixed inset-0 z-[9999] lg:hidden" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}>
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setSidebarOpen(false)} />
+          <aside className="fixed left-0 top-0 bottom-0 w-72 bg-white p-4 overflow-y-auto shadow-2xl z-[10000]">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <div className="flex h-7 w-7 items-center justify-center rounded bg-brand-500">
+                  <span className="text-xs font-bold text-white">NT</span>
+                </div>
+                <span className="text-sm font-bold text-brand-500">Admin</span>
+              </div>
+              <button onClick={() => setSidebarOpen(false)} className="p-1.5 rounded-md hover:bg-slate-100 transition-colors">
                 <X className="h-5 w-5" />
               </button>
             </div>
