@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { IBM_Plex_Sans, Inter } from 'next/font/google';
+import { Inter } from 'next/font/google';
 import { AuthProvider } from '@/providers/auth-provider';
 import { SiteSettingsProvider } from '@/providers/site-settings-provider';
 import { ErrorBoundary } from '@/components/error-boundary';
@@ -15,19 +15,11 @@ import { MobileBottomNav } from '@/components/layout/mobile-bottom-nav';
 import { Toaster } from 'sonner';
 import './globals.css';
 
-// Professional Typography System
-const ibmPlexSans = IBM_Plex_Sans({
+// Professional Typography System - Inter
+const inter = Inter({
   subsets: ['latin', 'latin-ext'],
-  weight: ['400', '500', '600'],
-  variable: '--font-ibm-plex',
-  display: 'swap',
-});
-
-// Using Inter as heading font (similar to Cabinet Grotesk)
-const interDisplay = Inter({
-  subsets: ['latin', 'latin-ext'],
-  weight: ['300', '500', '800'],
-  variable: '--font-cabinet',
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-inter',
   display: 'swap',
 });
 
@@ -93,7 +85,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="tr" className={`${ibmPlexSans.variable} ${interDisplay.variable}`}>
+    <html lang="tr" className={inter.variable}>
       <head>
         <OrganizationJsonLd />
         <WebSiteJsonLd />
