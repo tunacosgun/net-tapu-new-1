@@ -642,15 +642,17 @@ function AuctionCard({ auction }: { auction: Auction }) {
         {/* Price info */}
         <div className="space-y-3">
           <div className="flex justify-between items-baseline">
-            <span className="text-sm text-slate-500">Güncel Fiyat</span>
+            <span className="text-sm text-slate-500">{auction.currentPrice ? 'Güncel Fiyat' : 'Başlangıç Fiyatı'}</span>
             <span className="text-2xl font-heading font-extrabold text-emerald-600 tracking-tight">
-              {formatPrice(auction.currentPrice)}
+              {formatPrice(auction.currentPrice || auction.startingPrice)}
             </span>
           </div>
-          <div className="flex justify-between text-sm">
-            <span className="text-slate-400">Başlangıç</span>
-            <span className="text-slate-600 font-medium">{formatPrice(auction.startingPrice)}</span>
-          </div>
+          {auction.currentPrice && (
+            <div className="flex justify-between text-sm">
+              <span className="text-slate-400">Başlangıç</span>
+              <span className="text-slate-600 font-medium">{formatPrice(auction.startingPrice)}</span>
+            </div>
+          )}
         </div>
 
         {/* Stats */}
