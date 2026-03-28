@@ -22,9 +22,12 @@ interface BadgeProps {
 }
 
 export function Badge({ variant = 'default', className, children }: BadgeProps) {
+  // If className contains bg-/text- overrides, skip variant classes
+  const hasCustomBg = className?.includes('bg-');
+  const baseVariant = hasCustomBg ? '' : (variantClasses[variant] ?? variantClasses.default);
   return (
     <span
-      className={`rounded-full px-2.5 py-1 text-xs font-semibold ${variantClasses[variant] ?? variantClasses.default} ${className ?? ''}`}
+      className={`rounded-full px-2.5 py-1 text-xs font-semibold ${baseVariant} ${className ?? ''}`}
     >
       {children}
     </span>
