@@ -521,11 +521,11 @@ function BulkPriceModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
-      <div className="w-full max-w-md rounded-lg bg-[var(--background)] p-6 shadow-xl">
-        <h3 className="text-lg font-semibold">Toplu Fiyat Güncelleme</h3>
+      <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl border border-slate-200">
+        <h3 className="text-lg font-semibold text-slate-900">Toplu Fiyat Güncelleme</h3>
         <p className="mt-1 text-sm text-[var(--muted-foreground)]">
           {selectedIds.length} arsa için fiyat güncellemesi yapın.
         </p>
@@ -537,7 +537,7 @@ function BulkPriceModal({
         ) : (
           <form onSubmit={handleSubmit} className="mt-4 space-y-4">
             <div>
-              <label className="block text-sm font-medium">Yüzde Değişim (%)</label>
+              <label className="block text-sm font-medium text-slate-700">Yüzde Değişim (%)</label>
               <input
                 type="number"
                 step="0.1"
@@ -552,7 +552,7 @@ function BulkPriceModal({
               </p>
             </div>
             <div>
-              <label className="block text-sm font-medium">Yuvarlama (TL)</label>
+              <label className="block text-sm font-medium text-slate-700">Yuvarlama (TL)</label>
               <select
                 value={roundTo}
                 onChange={(e) => setRoundTo(e.target.value)}
@@ -615,11 +615,11 @@ function ImportModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
-      <div className="w-full max-w-lg rounded-lg bg-[var(--background)] p-6 shadow-xl">
-        <h3 className="text-lg font-semibold">Excel / CSV İçe Aktar</h3>
+      <div className="w-full max-w-lg rounded-xl bg-white p-6 shadow-2xl border border-slate-200">
+        <h3 className="text-lg font-semibold text-slate-900">Excel / CSV İçe Aktar</h3>
         <p className="mt-1 text-sm text-[var(--muted-foreground)]">
           Excel (.xlsx) veya CSV dosyasından arsa verilerini içe aktarın.
         </p>

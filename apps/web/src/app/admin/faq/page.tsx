@@ -124,12 +124,12 @@ export default function AdminFaqPage() {
 
       {/* Form Modal */}
       {showForm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-lg rounded-xl bg-[var(--background)] p-6 shadow-xl">
-            <h3 className="text-lg font-bold">{editing ? 'Soruyu Düzenle' : 'Yeni Soru'}</h3>
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={(e) => e.target === e.currentTarget && resetForm()}>
+          <div className="w-full max-w-lg rounded-xl bg-white p-6 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto">
+            <h3 className="text-lg font-bold text-slate-900">{editing ? 'Soruyu Düzenle' : 'Yeni Soru'}</h3>
             <form onSubmit={handleSave} className="mt-4 space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1">Soru *</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Soru *</label>
                 <input
                   type="text"
                   value={question}
@@ -139,7 +139,7 @@ export default function AdminFaqPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Cevap *</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Cevap *</label>
                 <textarea
                   value={answer}
                   onChange={(e) => setAnswer(e.target.value)}
@@ -150,7 +150,7 @@ export default function AdminFaqPage() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1">Kategori</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Kategori</label>
                   <input
                     type="text"
                     value={category}
@@ -160,7 +160,7 @@ export default function AdminFaqPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">Sıra</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Sıra</label>
                   <input
                     type="number"
                     value={sortOrder}

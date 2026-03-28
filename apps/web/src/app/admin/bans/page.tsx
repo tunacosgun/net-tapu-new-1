@@ -381,10 +381,10 @@ function BanModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
-      <div className="w-full max-w-md rounded-xl bg-[var(--background)] p-6 shadow-2xl border border-[var(--border)]">
+      <div className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-xl bg-white p-6 shadow-2xl border border-slate-200 text-slate-900">
         <div className="flex items-center gap-3 mb-5">
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-100 text-red-600">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -392,7 +392,7 @@ function BanModal({
             </svg>
           </div>
           <div>
-            <h3 className="text-lg font-semibold">IP Engelle</h3>
+            <h3 className="text-lg font-semibold text-slate-900">IP Engelle</h3>
             {prefillEmail && (
               <p className="text-xs text-[var(--muted-foreground)]">
                 {prefillEmail} kullanıcısının IP adresi
@@ -404,7 +404,7 @@ function BanModal({
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* IP */}
           <div>
-            <label className="block text-sm font-medium mb-1">IP Adresi</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1">IP Adresi</label>
             <input
               type="text"
               value={prefillIp ? displayIp : ip}
@@ -418,7 +418,7 @@ function BanModal({
 
           {/* Duration */}
           <div>
-            <label className="block text-sm font-medium mb-1">Engel Süresi</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Engel Süresi</label>
             <div className="grid grid-cols-3 gap-2">
               {BAN_DURATIONS.map((d) => (
                 <button
@@ -439,7 +439,7 @@ function BanModal({
 
           {/* Feature restrictions */}
           <div>
-            <label className="block text-sm font-medium mb-1">Kısıtlanan Özellikler</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Kısıtlanan Özellikler</label>
             <div className="grid grid-cols-2 gap-2">
               {FEATURE_OPTIONS.map((f) => (
                 <button
@@ -463,7 +463,7 @@ function BanModal({
 
           {/* Reason */}
           <div>
-            <label className="block text-sm font-medium mb-1">Engel Sebebi</label>
+            <label className="block text-sm font-medium text-slate-700 mb-1">Engel Sebebi</label>
             <div className="space-y-2">
               {BAN_REASONS.map((r) => (
                 <label
@@ -491,7 +491,7 @@ function BanModal({
           {/* Custom reason */}
           {reasonKey === 'other' && (
             <div>
-              <label className="block text-sm font-medium mb-1">Özel Sebep</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Özel Sebep</label>
               <textarea
                 value={customReason}
                 onChange={(e) => setCustomReason(e.target.value)}

@@ -117,12 +117,12 @@ export default function AdminReferencesPage() {
 
       {/* Form Modal */}
       {showForm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-lg rounded-xl bg-[var(--background)] p-6 shadow-xl max-h-[90vh] overflow-y-auto">
-            <h3 className="text-lg font-bold">{editing ? 'Referans Düzenle' : 'Yeni Referans'}</h3>
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={(e) => e.target === e.currentTarget && resetForm()}>
+          <div className="w-full max-w-lg rounded-xl bg-white p-6 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto">
+            <h3 className="text-lg font-bold text-slate-900">{editing ? 'Referans Düzenle' : 'Yeni Referans'}</h3>
             <form onSubmit={handleSave} className="mt-4 space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1">Başlık *</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Başlık *</label>
                 <input
                   type="text"
                   value={title}
@@ -132,7 +132,7 @@ export default function AdminReferencesPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Açıklama</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Açıklama</label>
                 <textarea
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
@@ -142,7 +142,7 @@ export default function AdminReferencesPage() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1">Tür *</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Tür *</label>
                   <select
                     value={referenceType}
                     onChange={(e) => setReferenceType(e.target.value)}
@@ -154,7 +154,7 @@ export default function AdminReferencesPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">Sıra</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Sıra</label>
                   <input
                     type="number"
                     value={sortOrder}
@@ -164,7 +164,7 @@ export default function AdminReferencesPage() {
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Resim URL</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Resim URL</label>
                 <input
                   type="url"
                   value={imageUrl}
@@ -174,7 +174,7 @@ export default function AdminReferencesPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Website URL</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Website URL</label>
                 <input
                   type="url"
                   value={websiteUrl}

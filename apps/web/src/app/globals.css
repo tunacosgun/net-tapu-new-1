@@ -10,6 +10,14 @@
     --font-heading: 'Manrope', system-ui, sans-serif;
     --font-body: 'IBM Plex Sans', system-ui, sans-serif;
     
+    /* Variables for admin panel UI compatibility */
+    --background: #ffffff;
+    --foreground: #0f172a;
+    --muted: #f8fafc;
+    --muted-foreground: #64748b;
+    --input: #e2e8f0;
+    --border: #e2e8f0;
+    
     /* Colors */
     --color-primary: 5 150 105;
     --color-primary-hover: 4 120 87;
@@ -190,7 +198,21 @@
   }
 }
 
-/* Override Tailwind preflight border-color: currentColor → very light gray */
+/*
+ * Override Tailwind preflight border-color: currentColor → slate-200.
+ * This rule sits outside @layer so it beats Tailwind's @layer base preflight,
+ * but Tailwind utility classes (border-red-500 etc.) still win because
+ * utility classes have higher specificity in Tailwind v3+.
+ */
 *, *::before, *::after {
-  border-color: #f1f5f9;
+  border-color: #e2e8f0;
+}
+
+/* Admin modal overlay - ensure modals are always on top */
+.admin-modal-overlay {
+  @apply fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4;
+}
+
+.admin-modal-content {
+  @apply bg-white rounded-xl shadow-2xl border border-slate-200 text-slate-900;
 }

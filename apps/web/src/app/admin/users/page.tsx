@@ -117,7 +117,7 @@ export default function AdminUsersPage() {
       header: 'Roller',
       accessor: (u) => (
         <div className="flex flex-wrap gap-1">
-          {u.roles.map((r) => (
+          {(u.roles || []).map((r) => (
             <Badge key={r} variant={r === 'admin' || r === 'superadmin' ? 'warning' : 'default'}>
               {roleLabels[r] || r}
             </Badge>
@@ -320,14 +320,14 @@ function UserDetailModal({ user, onClose, onRefresh }: { user: UserRow; onClose:
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
-      <div className="w-full max-w-3xl max-h-[85vh] overflow-y-auto rounded-xl bg-[var(--background)] p-6 shadow-xl border border-[var(--border)]">
+      <div className="w-full max-w-3xl max-h-[85vh] overflow-y-auto rounded-xl bg-white p-6 shadow-2xl border border-slate-200 text-slate-900">
         {/* User Info */}
         <div className="flex items-start justify-between">
           <div>
-            <h2 className="text-xl font-bold">{user.firstName} {user.lastName}</h2>
+            <h2 className="text-xl font-bold text-slate-900">{user.firstName} {user.lastName}</h2>
             <p className="text-sm text-[var(--muted-foreground)]">{user.email}</p>
             {user.phone && <p className="text-sm text-[var(--muted-foreground)]">{user.phone}</p>}
           </div>
@@ -337,7 +337,7 @@ function UserDetailModal({ user, onClose, onRefresh }: { user: UserRow; onClose:
         </div>
 
         <div className="mt-3 flex flex-wrap gap-2">
-          {user.roles.map((r) => (
+          {(user.roles || []).map((r) => (
             <Badge key={r} variant={r === 'admin' || r === 'superadmin' ? 'warning' : 'default'}>
               {roleLabels[r] || r}
             </Badge>
@@ -354,7 +354,7 @@ function UserDetailModal({ user, onClose, onRefresh }: { user: UserRow; onClose:
         </div>
 
         {/* Action Buttons */}
-        <div className="mt-5 flex flex-wrap gap-2 rounded-lg border border-[var(--border)] bg-[var(--muted)]/30 p-3">
+        <div className="mt-5 flex flex-wrap gap-2 rounded-lg border border-slate-200 bg-slate-50 p-3">
           <button
             onClick={handleToggleActive}
             disabled={actionLoading}
@@ -471,7 +471,7 @@ function UserDetailModal({ user, onClose, onRefresh }: { user: UserRow; onClose:
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <span className={`h-2 w-2 rounded-full ${s.isActive ? 'bg-green-500' : 'bg-gray-300'}`} />
-                      <span className="text-sm font-medium">{parseUserAgent(s.deviceInfo)}</span>
+                      <span className="text-sm font-medium text-slate-800">{parseUserAgent(s.deviceInfo)}</span>
                     </div>
                     <Badge variant={s.isActive ? 'success' : 'default'}>
                       {s.isActive ? 'Aktif' : s.revokedAt ? 'İptal Edildi' : 'Süresi Doldu'}

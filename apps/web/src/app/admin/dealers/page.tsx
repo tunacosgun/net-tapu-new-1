@@ -249,14 +249,14 @@ function AddDealerModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
-      <div className="w-full max-w-md rounded-lg bg-[var(--background)] p-6 shadow-xl">
-        <h3 className="text-lg font-semibold">Yeni Danışman Ekle</h3>
+      <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl border border-slate-200">
+        <h3 className="text-lg font-semibold text-slate-900">Yeni Danışman Ekle</h3>
         <form onSubmit={handleSubmit} className="mt-4 space-y-4">
           <div>
-            <label className="block text-sm font-medium">E-posta *</label>
+            <label className="block text-sm font-medium text-slate-700">E-posta *</label>
             <input
               type="email"
               value={email}
@@ -267,7 +267,7 @@ function AddDealerModal({
           </div>
           <div className="grid gap-4 grid-cols-2">
             <div>
-              <label className="block text-sm font-medium">Ad</label>
+              <label className="block text-sm font-medium text-slate-700">Ad</label>
               <input
                 type="text"
                 value={firstName}
@@ -276,7 +276,7 @@ function AddDealerModal({
               />
             </div>
             <div>
-              <label className="block text-sm font-medium">Soyad</label>
+              <label className="block text-sm font-medium text-slate-700">Soyad</label>
               <input
                 type="text"
                 value={lastName}
@@ -286,7 +286,7 @@ function AddDealerModal({
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium">Telefon</label>
+            <label className="block text-sm font-medium text-slate-700">Telefon</label>
             <input
               type="tel"
               value={phone}
@@ -295,7 +295,7 @@ function AddDealerModal({
             />
           </div>
           <div>
-            <label className="block text-sm font-medium">Komisyon Oranı (%)</label>
+            <label className="block text-sm font-medium text-slate-700">Komisyon Oranı (%)</label>
             <input
               type="number"
               step="0.1"
