@@ -45,8 +45,8 @@ const statusLabels: Record<string, string> = {
 };
 
 const statusColors: Record<string, string> = {
-  live: 'bg-auction-live', ending: 'bg-auction-ending', scheduled: 'bg-auction-scheduled',
-  deposit_open: 'bg-blue-500', ended: 'bg-auction-ended', settled: 'bg-auction-ended',
+  live: 'bg-emerald-500', ending: 'bg-orange-500', scheduled: 'bg-blue-500',
+  deposit_open: 'bg-sky-500', ended: 'bg-gray-500', settled: 'bg-gray-500',
 };
 
 /* ─── main page ─── */
