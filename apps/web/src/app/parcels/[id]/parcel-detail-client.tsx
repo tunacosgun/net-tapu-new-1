@@ -573,21 +573,21 @@ export default function ParcelDetailClient() {
           {/* Details table - sahibinden style */}
           <div className="rounded-lg border border-slate-200 bg-white overflow-hidden">
             <div className="bg-slate-50 border-b border-slate-200 px-4 py-2">
-              <h2 className="text-sm font-bold text-slate-900">Ilan Bilgileri</h2>
+              <h2 className="text-sm font-bold text-slate-900">İlan Bilgileri</h2>
             </div>
             <table className="w-full text-sm">
               <tbody>
-                <DetailRow label="Ilan No" value={parcel.listingId || '-'} highlight />
-                {parcel.listedAt && parcel.showListingDate !== false && <DetailRow label="Ilan Tarihi" value={new Date(parcel.listedAt).toLocaleDateString('tr-TR', { day: '2-digit', month: 'long', year: 'numeric' })} />}
-                <DetailRow label="Emlak Tipi" value="Satilik Arsa" highlight={!parcel.listedAt} />
-                {parcel.zoningStatus && <DetailRow label="Imar Durumu" value={parcel.zoningStatus} />}
+                <DetailRow label="İlan No" value={parcel.listingId || '-'} highlight />
+                {parcel.listedAt && parcel.showListingDate !== false && <DetailRow label="İlan Tarihi" value={new Date(parcel.listedAt).toLocaleDateString('tr-TR', { day: '2-digit', month: 'long', year: 'numeric' })} />}
+                <DetailRow label="Emlak Tipi" value="Satılık Arsa" highlight={!parcel.listedAt} />
+                {parcel.zoningStatus && <DetailRow label="İmar Durumu" value={parcel.zoningStatus} />}
                 {parcel.areaM2 && <DetailRow label="m²" value={`${Number(parcel.areaM2).toLocaleString('tr-TR')}`} />}
-                {pricePerM2 && <DetailRow label="m² Fiyati" value={formatPrice(String(pricePerM2))} />}
+                {pricePerM2 && <DetailRow label="m² Fiyatı" value={formatPrice(String(pricePerM2))} />}
                 {parcel.ada && <DetailRow label="Ada No" value={parcel.ada} />}
                 {parcel.parsel && <DetailRow label="Parsel No" value={parcel.parsel} />}
-                {parcel.landType && <DetailRow label="Arazi Turu" value={parcel.landType} />}
-                {parcel.isAuctionEligible && <DetailRow label="Acik Artirma" value="Uygun" />}
-                {parcel.isFeatured && <DetailRow label="One Cikan" value="Evet" />}
+                {parcel.landType && <DetailRow label="Arazi Türü" value={parcel.landType} />}
+                {parcel.isAuctionEligible && <DetailRow label="Açık Artırma" value="Uygun" />}
+                {parcel.isFeatured && <DetailRow label="Öne Çıkan" value="Evet" />}
               </tbody>
             </table>
           </div>
@@ -604,7 +604,7 @@ export default function ParcelDetailClient() {
               {liveViewerCount > 0 && (
                 <span className="flex items-center gap-1 rounded-full bg-blue-50 px-2.5 py-1 text-blue-600 font-medium">
                   <span className="relative flex h-2 w-2"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" /><span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500" /></span>
-                  {liveViewerCount} kisi bakiyor
+                  {liveViewerCount} kişi bakıyor
                 </span>
               )}
             </div>
@@ -683,7 +683,7 @@ export default function ParcelDetailClient() {
                   className="flex w-full items-center justify-center gap-2 rounded-lg border border-brand-200 bg-brand-50 px-4 py-2.5 text-sm font-semibold text-brand-700 hover:bg-brand-100 transition-colors mb-2"
                 >
                   <MessageCircle className="h-4 w-4" />
-                  Mesaj Gonder
+                  Mesaj Gönder
                 </button>
                 <Link
                   href={`/parcels?consultant=${consultant.id}`}
@@ -749,11 +749,11 @@ export default function ParcelDetailClient() {
               {parcel.status === 'active' && (
                 <>
                   <div className="h-px bg-slate-200 my-2" />
-                  <button onClick={async () => { try { await apiClient.post(`/parcels/${parcel.id}/price-alert`, {}); alert('Fiyat dusus bildirimi aktif edildi!'); } catch { alert('Giris yapmaniz gerekiyor.'); } }}
+                  <button onClick={async () => { try { await apiClient.post(`/parcels/${parcel.id}/price-alert`, {}); alert('Fiyat düşüş bildirimi aktif edildi!'); } catch { alert('Giriş yapmanız gerekiyor.'); } }}
                     className="flex w-full items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors"
                   >
                     <Bell className="h-3.5 w-3.5 text-amber-500" />
-                    Fiyat Dusunce Haber Ver
+                    Fiyat Düşünce Haber Ver
                   </button>
                 </>
               )}
@@ -768,7 +768,7 @@ export default function ParcelDetailClient() {
           {/* Description */}
           {parcel.description && (
             <div className="rounded-xl border border-slate-200 bg-white p-6">
-              <h2 className="text-lg font-bold text-slate-900 mb-3">Aciklama</h2>
+              <h2 className="text-lg font-bold text-slate-900 mb-3">Açıklama</h2>
               <p className="text-sm leading-relaxed text-slate-600 whitespace-pre-wrap">{parcel.description}</p>
             </div>
           )}
@@ -777,12 +777,12 @@ export default function ParcelDetailClient() {
           <div className="flex gap-2 flex-wrap">
             {parcel.isAuctionEligible && (
               <span className="flex items-center gap-1.5 rounded-full bg-brand-50 border border-brand-200 px-4 py-2 text-sm font-medium text-brand-700">
-                Acik Artirmaya Uygun
+                Açık Artırmaya Uygun
               </span>
             )}
             {parcel.isFeatured && (
               <span className="flex items-center gap-1.5 rounded-full bg-yellow-50 border border-yellow-200 px-4 py-2 text-sm font-medium text-yellow-700">
-                One Cikan Ilan
+                Öne Çıkan İlan
               </span>
             )}
           </div>
@@ -829,23 +829,23 @@ export default function ParcelDetailClient() {
             </p>
             {parcel.price && (
               <p className="text-sm text-slate-500 mb-4">
-                Ilan fiyati: <span className="font-bold text-brand-500">{formatPrice(parcel.price)}</span>
+                İlan fiyatı: <span className="font-bold text-brand-500">{formatPrice(parcel.price)}</span>
               </p>
             )}
 
             <div className="space-y-4">
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-slate-900">Teklif Tutari (TL) *</label>
+                <label className="mb-1.5 block text-sm font-medium text-slate-900">Teklif Tutarı (TL) *</label>
                 <input
                   type="text"
                   value={offerAmount}
                   onChange={(e) => setOfferAmount(e.target.value.replace(/[^0-9.,]/g, ''))}
-                  placeholder="Orn: 5000000"
+                  placeholder="Örn: 5000000"
                   className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
                 />
               </div>
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-slate-900">Mesajiniz (opsiyonel)</label>
+                <label className="mb-1.5 block text-sm font-medium text-slate-900">Mesajınız (opsiyonel)</label>
                 <textarea
                   value={offerMessage}
                   onChange={(e) => setOfferMessage(e.target.value)}
@@ -862,10 +862,10 @@ export default function ParcelDetailClient() {
                 {offerSubmitting ? (
                   <span className="flex items-center gap-2">
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    Gonderiliyor...
+                    Gönderiliyor...
                   </span>
                 ) : (
-                  'Teklif Gonder'
+                  'Teklif Gönder'
                 )}
               </button>
             </div>

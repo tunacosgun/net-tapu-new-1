@@ -140,7 +140,7 @@ export function ProjectsContent() {
               href="/auctions"
               className="rounded-lg border border-gray-300 px-6 py-2.5 text-sm font-semibold text-gray-700 hover:bg-white transition-colors"
             >
-              Ihalelere Katil
+              İhalelere Katıl
             </Link>
           </div>
         </div>

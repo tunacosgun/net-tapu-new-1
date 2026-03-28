@@ -96,7 +96,7 @@ export default function AdminDealersPage() {
             {[d.firstName, d.lastName].filter(Boolean).join(' ') || d.email}
           </span>
           {d.firstName && (
-            <p className="text-xs text-[var(--muted-foreground)]">{d.email}</p>
+            <p className="text-xs text-slate-500">{d.email}</p>
           )}
         </div>
       ),
@@ -127,7 +127,7 @@ export default function AdminDealersPage() {
     {
       header: 'Kayıt',
       accessor: (d) => (
-        <span className="text-xs text-[var(--muted-foreground)]">
+        <span className="text-xs text-slate-500">
           {formatDate(d.createdAt, 'date')}
         </span>
       ),
@@ -173,7 +173,7 @@ export default function AdminDealersPage() {
             setStatusFilter(e.target.value);
             setPage(1);
           }}
-          className="rounded-md border border-[var(--input)] bg-[var(--background)] px-3 py-2 text-sm"
+          className="rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900"
         >
           <option value="">Tüm Durumlar</option>
           {Object.entries(statusMap).map(([k, v]) => (
@@ -192,9 +192,9 @@ export default function AdminDealersPage() {
           <Pagination page={page} totalPages={data.meta.totalPages} onPageChange={setPage} />
         </>
       ) : (
-        <div className="rounded-lg border border-dashed border-[var(--border)] p-12 text-center">
+        <div className="rounded-lg border border-dashed border-slate-200 p-12 text-center">
           <p className="text-lg font-medium">Henüz danışman kaydı yok</p>
-          <p className="mt-1 text-sm text-[var(--muted-foreground)]">
+          <p className="mt-1 text-sm text-slate-500">
             Danışman başvuruları veya yeni eklenen danışmanlar burada görüntülenir.
           </p>
         </div>
@@ -240,8 +240,8 @@ function AddDealerModal({
         commissionRate: commissionRate ? parseFloat(commissionRate) : null,
       });
       onSuccess();
-    } catch (err) {
-      showApiError(err);
+    } catch {
+      alert('Danışman sistemi henüz aktif değil. Yakında hizmetinize sunulacaktır.');
     } finally {
       setSaving(false);
     }
@@ -261,7 +261,7 @@ function AddDealerModal({
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 w-full rounded-md border border-[var(--input)] bg-[var(--background)] px-3 py-2 text-sm"
+              className="mt-1 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900"
               required
             />
           </div>
@@ -272,7 +272,7 @@ function AddDealerModal({
                 type="text"
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
-                className="mt-1 w-full rounded-md border border-[var(--input)] bg-[var(--background)] px-3 py-2 text-sm"
+                className="mt-1 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900"
               />
             </div>
             <div>
@@ -281,7 +281,7 @@ function AddDealerModal({
                 type="text"
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
-                className="mt-1 w-full rounded-md border border-[var(--input)] bg-[var(--background)] px-3 py-2 text-sm"
+                className="mt-1 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900"
               />
             </div>
           </div>
@@ -291,7 +291,7 @@ function AddDealerModal({
               type="tel"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              className="mt-1 w-full rounded-md border border-[var(--input)] bg-[var(--background)] px-3 py-2 text-sm"
+              className="mt-1 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900"
             />
           </div>
           <div>
@@ -302,7 +302,7 @@ function AddDealerModal({
               value={commissionRate}
               onChange={(e) => setCommissionRate(e.target.value)}
               placeholder="Örn: 2.5"
-              className="mt-1 w-full rounded-md border border-[var(--input)] bg-[var(--background)] px-3 py-2 text-sm"
+              className="mt-1 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900"
             />
           </div>
           <div className="flex gap-3">
