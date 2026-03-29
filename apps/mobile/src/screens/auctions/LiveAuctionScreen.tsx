@@ -168,14 +168,14 @@ export default function LiveAuctionScreen() {
     setTimeout(() => setSubmitting(false), 1500);
   }, [bidAmount, currentPrice, auctionId]);
 
-  const minBidIncrement = auction?.minimumIncrement ? parseFloat(auction.minimumIncrement) : (auction as any)?.minBidIncrement ? parseFloat((auction as any).minBidIncrement) : 1000;
+  const minimumIncrement = auction?.minimumIncrement ? parseFloat(auction.minimumIncrement) : (auction as any)?.minimumIncrement ? parseFloat((auction as any).minimumIncrement) : 1000;
   const currentPriceNum = currentPrice ? parseFloat(currentPrice) : 0;
 
   const suggestedBids = currentPrice
     ? [
-        { label: `+${formatPrice(String(minBidIncrement))}`, amount: String(currentPriceNum + minBidIncrement) },
-        { label: `+${formatPrice(String(minBidIncrement * 5))}`, amount: String(currentPriceNum + minBidIncrement * 5) },
-        { label: `+${formatPrice(String(minBidIncrement * 10))}`, amount: String(currentPriceNum + minBidIncrement * 10) },
+        { label: `+${formatPrice(String(minimumIncrement))}`, amount: String(currentPriceNum + minimumIncrement) },
+        { label: `+${formatPrice(String(minimumIncrement * 5))}`, amount: String(currentPriceNum + minimumIncrement * 5) },
+        { label: `+${formatPrice(String(minimumIncrement * 10))}`, amount: String(currentPriceNum + minimumIncrement * 10) },
       ]
     : [];
 
@@ -399,10 +399,10 @@ export default function LiveAuctionScreen() {
                 <Text style={[styles.infoLabel, { color: theme.colors.textSecondary }]}>Başlangıç Fiyatı</Text>
                 <Text style={[styles.infoValue, { color: theme.colors.text }]}>{formatPrice(auction.startingPrice)}</Text>
               </View>
-              {auction.minBidIncrement && (
+              {auction.minimumIncrement && (
                 <View style={styles.infoRow}>
                   <Text style={[styles.infoLabel, { color: theme.colors.textSecondary }]}>Min. Artış</Text>
-                  <Text style={[styles.infoValue, { color: theme.colors.text }]}>{formatPrice(auction.minBidIncrement)}</Text>
+                  <Text style={[styles.infoValue, { color: theme.colors.text }]}>{formatPrice(auction.minimumIncrement)}</Text>
                 </View>
               )}
               {(auction as any).depositAmount && (

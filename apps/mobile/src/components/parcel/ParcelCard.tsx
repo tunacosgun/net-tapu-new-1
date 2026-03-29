@@ -12,9 +12,10 @@ interface ParcelCardProps {
   onPress: () => void;
   compact?: boolean;
   featured?: boolean;
+  vitrin?: boolean;
 }
 
-export function ParcelCard({ parcel, onPress, compact = false, featured = false }: ParcelCardProps) {
+export function ParcelCard({ parcel, onPress, compact = false, featured = false, vitrin = false }: ParcelCardProps) {
   const { colors: c, isDark } = useTheme();
   const scale = useRef(new Animated.Value(1)).current;
   const coverImage = parcel.images?.find((i) => i.isCover) || parcel.images?.[0];
@@ -58,6 +59,44 @@ export function ParcelCard({ parcel, onPress, compact = false, featured = false 
             <Text style={[styles.compactPrice, { color: c.text }]}>{formatPrice(parcel.price)}</Text>
           </View>
           <Ionicons name="chevron-forward" size={16} color={c.textMuted} style={{ marginRight: 14 }} />
+        </TouchableOpacity>
+      </Animated.View>
+    );
+  }
+
+  // ── Vitrin variant (2-column square) ──
+  if (vitrin) {
+    return (
+      <Animated.View style={{ transform: [{ scale }], width: '100%' }}>
+        <TouchableOpacity onPress={onPress} onPressIn={onPressIn} onPressOut={onPressOut}
+          activeOpacity={0.9}
+          style={[styles.vitrinCard, {
+            backgroundColor: isDark ? c.card : '#fff',
+            borderColor: isDark ? '#1e293b' : '#e2e8f0',
+          }]}
+        >
+          <View style={styles.vitrinImageWrap}>
+            {imageUrl ? (
+              <Image source={{ uri: imageUrl }} style={styles.vitrinImage} />
+            ) : (
+              <View style={[styles.vitrinImage, styles.placeholder, { backgroundColor: isDark ? c.surface : '#f1f5f9' }]}>
+                <Ionicons name="image-outline" size={24} color={c.textMuted} />
+              </View>
+            )}
+            <View style={{ position: 'absolute', top: 6, left: 6 }}>
+               <StatusBadge status={parcel.status} size="sm" />
+            </View>
+          </View>
+          <View style={styles.vitrinInfo}>
+            <Text style={[styles.vitrinPrice, { color: isDark ? c.primaryLight : '#166534' }]} numberOfLines={1}>{formatPrice(parcel.price)}</Text>
+            <Text style={[styles.vitrinTitle, { color: c.text }]} numberOfLines={2}>{parcel.title}</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2, marginTop: 4 }}>
+              <Ionicons name="location-outline" size={10} color={c.textMuted} />
+              <Text style={[styles.vitrinLoc, { color: c.textMuted }]} numberOfLines={1}>
+                {parcel.city}, {parcel.district}
+              </Text>
+            </View>
+          </View>
         </TouchableOpacity>
       </Animated.View>
     );
@@ -262,6 +301,20 @@ const styles = StyleSheet.create({
   compactTitle: { fontSize: 15, fontWeight: '700', letterSpacing: -0.1 },
   compactLoc: { fontSize: 12, fontWeight: '400' },
   compactPrice: { fontSize: 18, fontWeight: '800', letterSpacing: -0.3, marginTop: 3 },
+
+  // ── Vitrin variant ──
+  vitrinCard: {
+    borderRadius: 8,
+    borderWidth: 1,
+    overflow: 'hidden',
+    marginBottom: 12,
+  },
+  vitrinImageWrap: { position: 'relative' },
+  vitrinImage: { width: '100%', aspectRatio: 1, resizeMode: 'cover' },
+  vitrinInfo: { padding: 10, gap: 2 },
+  vitrinPrice: { fontSize: 15, fontWeight: '800', letterSpacing: -0.3 },
+  vitrinTitle: { fontSize: 12, fontWeight: '500', lineHeight: 16 },
+  vitrinLoc: { fontSize: 11, fontWeight: '400' },
 
   // ── Featured variant ──
   featuredCard: {
