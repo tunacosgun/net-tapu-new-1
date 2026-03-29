@@ -85,4 +85,8 @@ export class CreateParcelDto {
   @IsBoolean()
   @IsOptional()
   isFeatured?: boolean;
+
+  @IsBoolean()
+  @IsOptional()
+  showListingDate?: boolean;
 }
