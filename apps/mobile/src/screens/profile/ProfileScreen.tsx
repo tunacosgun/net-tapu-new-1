@@ -9,11 +9,18 @@ import { useTheme } from '../../theme';
 import { useAuthStore } from '../../stores/auth-store';
 import apiClient from '../../api/client';
 
+interface ProfileData {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  phone?: string;
+}
+
 export default function ProfileScreen() {
   const navigation = useNavigation<any>();
-  const { colors: c, isDark } = useTheme();
+  const { colors: c, isDark, shadows, borderRadius: br, spacing: sp } = useTheme();
   const { user, isAuthenticated, clearTokens, avatarUrl } = useAuthStore();
-  const [profile, setProfile] = useState<any>(null);
+  const [profile, setProfile] = useState<ProfileData | null>(null);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -22,9 +29,9 @@ export default function ProfileScreen() {
   }, [isAuthenticated]);
 
   const handleLogout = () => {
-    Alert.alert('Çıkış Yap', 'Hesabınızdan çıkmak istediğinize emin misiniz?', [
-      { text: 'Vazgeç', style: 'cancel' },
-      { text: 'Çıkış Yap', style: 'destructive', onPress: () => clearTokens() },
+    Alert.alert('\u00C7\u0131k\u0131\u015F Yap', 'Hesab\u0131n\u0131zdan \u00E7\u0131kmak istedi\u011Finize emin misiniz?', [
+      { text: 'Vazge\u00E7', style: 'cancel' },
+      { text: '\u00C7\u0131k\u0131\u015F Yap', style: 'destructive', onPress: () => clearTokens() },
     ]);
   };
 
@@ -32,19 +39,19 @@ export default function ProfileScreen() {
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: c.background }}>
         <View style={styles.loginPrompt}>
-          <View style={[styles.loginIconWrap, { backgroundColor: isDark ? c.surface : '#f0fdf4' }]}>
+          <View style={[styles.loginIconWrap, { backgroundColor: isDark ? c.surface : c.primaryBg }]}>
             <Ionicons name="person-outline" size={40} color={c.primary} />
           </View>
-          <Text style={[styles.loginTitle, { color: c.text }]}>Hesabınıza giriş yapın</Text>
-          <Text style={[styles.loginDesc, { color: c.textSecondary }]}>
-            İlanları favorileyin, ihalelere katılın ve daha fazlası
+          <Text style={[styles.loginTitle, { color: c.text }]}>Hesab\u0131n\u0131za giri\u015F yap\u0131n</Text>
+          <Text style={{ fontSize: 14, color: c.textSecondary, textAlign: 'center', lineHeight: 20 }}>
+            \u0130lanlar\u0131 favorileyin, ihalelere kat\u0131l\u0131n ve daha fazlas\u0131
           </Text>
           <TouchableOpacity
             onPress={() => navigation.navigate('Login')}
             activeOpacity={0.85}
             style={[styles.loginBtn, { backgroundColor: c.primary }]}
           >
-            <Text style={styles.loginBtnText}>Giriş Yap</Text>
+            <Text style={{ color: '#fff', fontWeight: '700', fontSize: 16 }}>Giri\u015F Yap</Text>
             <Ionicons name="arrow-forward" size={16} color="#fff" />
           </TouchableOpacity>
         </View>
@@ -54,72 +61,100 @@ export default function ProfileScreen() {
 
   const displayName = profile
     ? `${profile.firstName || ''} ${profile.lastName || ''}`.trim()
-    : user?.name || 'Kullanıcı';
+    : user?.name || 'Kullan\u0131c\u0131';
   const initial = (displayName || user?.email || '?')[0].toUpperCase();
 
-  const menuItems = [
-    { icon: 'heart-outline', label: 'Favorilerim', screen: 'Favorites' },
-    { icon: 'document-text-outline', label: 'Tekliflerim', screen: 'Offers' },
-    { icon: 'card-outline', label: 'Ödemelerim', screen: 'Payments' },
-    { icon: 'notifications-outline', label: 'Bildirimler', screen: 'Notifications' },
-    { icon: 'settings-outline', label: 'Ayarlar', screen: 'Settings' },
+  const menuSections = [
+    {
+      title: 'Hesab\u0131m',
+      items: [
+        { icon: 'heart-outline', label: 'Favorilerim', screen: 'Favorites', color: c.error },
+        { icon: 'document-text-outline', label: 'Tekliflerim', screen: 'Offers', color: c.warning },
+        { icon: 'flash-outline', label: '\u0130hale Ge\u00E7mi\u015Fim', screen: 'Offers', color: c.primary },
+        { icon: 'card-outline', label: '\u00D6deme Ge\u00E7mi\u015Fim', screen: 'Payments', color: c.success },
+      ],
+    },
+    {
+      title: 'Ayarlar',
+      items: [
+        { icon: 'search-outline', label: 'Kay\u0131tl\u0131 Aramalar', screen: 'Settings', color: c.info },
+        { icon: 'notifications-outline', label: 'Bildirim Ayarlar\u0131', screen: 'Notifications', color: c.warning },
+        { icon: 'shield-checkmark-outline', label: 'G\u00FCvenlik', screen: 'Settings', color: c.primary },
+      ],
+    },
   ];
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: c.background }} edges={['top']}>
       <ScrollView contentContainerStyle={{ paddingBottom: 110 }} showsVerticalScrollIndicator={false}>
-        {/* Simple centered profile header */}
+        {/* Profile Header */}
         <View style={styles.header}>
-          {avatarUrl ? (
-            <Image source={{ uri: avatarUrl }} style={[styles.avatar, { borderColor: c.border }]} />
-          ) : (
-            <View style={[styles.avatar, styles.avatarPlaceholder, {
-              backgroundColor: isDark ? c.surface : c.primaryBg,
-              borderColor: c.border,
-            }]}>
-              <Text style={[styles.avatarInitial, { color: c.primary }]}>{initial}</Text>
+          <TouchableOpacity activeOpacity={0.8} style={{ position: 'relative' }}>
+            {avatarUrl ? (
+              <Image source={{ uri: avatarUrl }} style={[styles.avatar, { borderColor: c.border }]} />
+            ) : (
+              <View style={[styles.avatar, styles.avatarPlaceholder, {
+                backgroundColor: isDark ? c.surface : c.primaryBg,
+                borderColor: c.border,
+              }]}>
+                <Text style={[styles.avatarInitial, { color: c.primary }]}>{initial}</Text>
+              </View>
+            )}
+            {/* Camera icon */}
+            <View style={[styles.cameraIcon, { backgroundColor: c.primary, borderColor: c.background }]}>
+              <Ionicons name="camera" size={12} color="#fff" />
             </View>
-          )}
+          </TouchableOpacity>
           <Text style={[styles.profileName, { color: c.text }]}>{displayName}</Text>
-          <Text style={[styles.profileEmail, { color: c.textMuted }]}>{user?.email}</Text>
+          <Text style={{ fontSize: 14, color: c.textMuted }}>{user?.email}</Text>
+          {profile?.phone && (
+            <Text style={{ fontSize: 13, color: c.textMuted, marginTop: 2 }}>{profile.phone}</Text>
+          )}
         </View>
 
-        {/* Single menu card */}
-        <View style={[styles.menuCard, {
-          backgroundColor: isDark ? c.card : '#fff',
-          borderColor: isDark ? c.border : '#e2e8f0',
-        }]}>
-          {menuItems.map((item, i) => (
-            <TouchableOpacity
-              key={item.screen}
-              style={[styles.menuItem, i < menuItems.length - 1 && {
-                borderBottomWidth: 1,
-                borderBottomColor: isDark ? c.borderLight : '#f1f5f9',
-              }]}
-              onPress={() => navigation.navigate(item.screen)}
-              activeOpacity={0.6}
-            >
-              <Ionicons name={item.icon as any} size={20} color={c.textMuted} />
-              <Text style={[styles.menuLabel, { color: c.text }]}>{item.label}</Text>
-              <Ionicons name="chevron-forward" size={16} color={c.textMuted} />
-            </TouchableOpacity>
-          ))}
-        </View>
+        {/* Menu Sections */}
+        {menuSections.map((section) => (
+          <View key={section.title} style={{ marginBottom: sp.lg }}>
+            <Text style={[styles.sectionLabel, { color: c.textMuted }]}>{section.title}</Text>
+            <View style={[styles.menuCard, {
+              backgroundColor: c.card,
+              borderColor: c.border,
+            }, shadows.sm]}>
+              {section.items.map((item, i) => (
+                <TouchableOpacity
+                  key={item.label}
+                  style={[styles.menuItem, i < section.items.length - 1 && {
+                    borderBottomWidth: 1,
+                    borderBottomColor: isDark ? c.borderLight : '#f1f5f9',
+                  }]}
+                  onPress={() => navigation.navigate(item.screen)}
+                  activeOpacity={0.6}
+                >
+                  <View style={[styles.menuIconWrap, { backgroundColor: item.color + '12' }]}>
+                    <Ionicons name={item.icon as any} size={18} color={item.color} />
+                  </View>
+                  <Text style={[styles.menuLabel, { color: c.text }]}>{item.label}</Text>
+                  <Ionicons name="chevron-forward" size={16} color={c.textMuted} />
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+        ))}
 
         {/* Logout */}
         <TouchableOpacity
           style={[styles.logoutBtn, {
             borderColor: isDark ? 'rgba(220,38,38,0.15)' : '#fecaca',
-            backgroundColor: isDark ? 'rgba(220,38,38,0.05)' : '#fef2f2',
+            backgroundColor: isDark ? 'rgba(220,38,38,0.05)' : c.errorBg,
           }]}
           onPress={handleLogout}
           activeOpacity={0.7}
         >
           <Ionicons name="log-out-outline" size={18} color={c.error} />
-          <Text style={[styles.logoutText, { color: c.error }]}>Çıkış Yap</Text>
+          <Text style={{ fontWeight: '600', fontSize: 15, color: c.error }}>\u00C7\u0131k\u0131\u015F Yap</Text>
         </TouchableOpacity>
 
-        <Text style={[styles.version, { color: c.textMuted }]}>NetTapu v1.0.0</Text>
+        <Text style={{ textAlign: 'center', fontSize: 12, marginTop: 20, color: c.textMuted }}>NetTapu v1.0.0</Text>
       </ScrollView>
     </SafeAreaView>
   );
@@ -131,27 +166,36 @@ const styles = StyleSheet.create({
     width: 90, height: 90, borderRadius: 28, alignItems: 'center', justifyContent: 'center', marginBottom: 8,
   },
   loginTitle: { fontSize: 22, fontWeight: '700', letterSpacing: -0.3 },
-  loginDesc: { fontSize: 14, fontWeight: '400', textAlign: 'center', lineHeight: 20 },
   loginBtn: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
     paddingVertical: 16, borderRadius: 14, gap: 8, width: '100%', maxWidth: 260,
   },
-  loginBtnText: { color: '#fff', fontWeight: '700', fontSize: 16 },
 
   header: { alignItems: 'center', paddingTop: 24, paddingBottom: 28 },
   avatar: {
-    width: 80, height: 80, borderRadius: 26, borderWidth: 1, marginBottom: 14,
+    width: 90, height: 90, borderRadius: 28, borderWidth: 2, marginBottom: 14,
   },
   avatarPlaceholder: { alignItems: 'center', justifyContent: 'center' },
-  avatarInitial: { fontSize: 28, fontWeight: '700' },
-  profileName: { fontSize: 20, fontWeight: '700', letterSpacing: -0.3, marginBottom: 4 },
-  profileEmail: { fontSize: 14, fontWeight: '400' },
+  avatarInitial: { fontSize: 32, fontWeight: '700' },
+  cameraIcon: {
+    position: 'absolute', bottom: 12, right: -4,
+    width: 28, height: 28, borderRadius: 14, borderWidth: 3,
+    alignItems: 'center', justifyContent: 'center',
+  },
+  profileName: { fontSize: 22, fontWeight: '700', letterSpacing: -0.3, marginBottom: 4 },
 
+  sectionLabel: {
+    fontSize: 12, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.5,
+    paddingHorizontal: 20, marginBottom: 8,
+  },
   menuCard: {
     marginHorizontal: 20, borderRadius: 20, overflow: 'hidden', borderWidth: 1,
   },
   menuItem: {
-    flexDirection: 'row', alignItems: 'center', paddingVertical: 16, paddingHorizontal: 18, gap: 14,
+    flexDirection: 'row', alignItems: 'center', paddingVertical: 14, paddingHorizontal: 16, gap: 12,
+  },
+  menuIconWrap: {
+    width: 36, height: 36, borderRadius: 10, alignItems: 'center', justifyContent: 'center',
   },
   menuLabel: { flex: 1, fontSize: 15, fontWeight: '500' },
 
@@ -160,7 +204,4 @@ const styles = StyleSheet.create({
     marginHorizontal: 20, marginTop: 24, paddingVertical: 15,
     borderRadius: 14, borderWidth: 1, gap: 8,
   },
-  logoutText: { fontWeight: '600', fontSize: 15 },
-
-  version: { textAlign: 'center', fontSize: 12, marginTop: 20, fontWeight: '400' },
 });
