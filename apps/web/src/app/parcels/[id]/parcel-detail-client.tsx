@@ -515,15 +515,17 @@ export default function ParcelDetailClient() {
           {images.length > 0 ? (
             <div>
               <div
-                className="relative cursor-pointer overflow-hidden rounded-lg border border-slate-200 bg-white h-[300px] md:h-[500px]"
+                className="relative cursor-pointer overflow-hidden rounded-lg border border-slate-200 bg-white flex items-center justify-center h-[300px] md:h-[500px]"
                 onClick={() => { setSelectedImage(wmImages[selectedIdx] || resolveImageUrl(images[selectedIdx])); }}
               >
                 <img
                   src={wmImages[selectedIdx] || resolveImageUrl(images[selectedIdx])}
                   alt={parcel.title}
-                  className="h-full w-full object-contain"
+                  className="max-h-full max-w-full object-contain"
                 />
-                <Badge variant={status.variant} className="absolute top-3 left-3 text-xs px-2.5 py-1 shadow">{status.label}</Badge>
+                {/* Listing number - top left like sahibinden */}
+                <span className="absolute top-2 left-2 text-[11px] text-slate-500 font-mono z-10">#{(parcel.listingId || parcel.id).replace(/\D/g, '').padStart(10, '0').slice(0, 10)}</span>
+                <Badge variant={status.variant} className="absolute top-2 left-28 text-xs px-2.5 py-1 shadow">{status.label}</Badge>
                 <div className="absolute bottom-3 right-3 flex items-center gap-1.5 rounded-lg bg-black/60 px-3 py-1.5 text-white text-xs backdrop-blur-sm cursor-pointer">
                   <SearchIcon className="h-3.5 w-3.5" />
                   Büyük Fotoğraf

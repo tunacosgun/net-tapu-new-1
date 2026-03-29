@@ -43,26 +43,7 @@ export function burnWatermark(
           ctx.fillText(watermarkText, cx, cy);
           ctx.restore();
 
-          // Draw listing number in top-left corner
-          if (listingNumber) {
-            ctx.save();
-            const lnFontSize = Math.max(16, Math.min(canvas.width, canvas.height) * 0.025);
-            ctx.font = `bold ${lnFontSize}px Arial, sans-serif`;
-            ctx.textAlign = 'left';
-            ctx.textBaseline = 'top';
-            const text = `#${listingNumber}`;
-            const metrics = ctx.measureText(text);
-            const padX = 10;
-            const padY = 6;
-            // Semi-transparent background
-            ctx.fillStyle = 'rgba(0,0,0,0.5)';
-            ctx.fillRect(8, 8, metrics.width + padX * 2, lnFontSize + padY * 2);
-            // White text
-            ctx.fillStyle = '#ffffff';
-            ctx.globalAlpha = 0.9;
-            ctx.fillText(text, 8 + padX, 8 + padY);
-            ctx.restore();
-          }
+          // Listing number is now shown via CSS overlay, not burned into image
 
           URL.revokeObjectURL(blobUrl);
           try {
