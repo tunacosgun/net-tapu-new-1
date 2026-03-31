@@ -80,8 +80,11 @@ export class AuctionService {
 
     const [data, total] = await qb.getManyAndCount();
 
+    // Enrich auctions with parcel data (title, city, district, images)
+    const enriched = await this.enrichWithParcelData(data);
+
     return {
-      data,
+      data: enriched,
       meta: {
         total,
         page,
@@ -96,7 +99,64 @@ export class AuctionService {
     if (!auction) {
       throw new NotFoundException(`Auction ${id} not found`);
     }
-    return auction;
+    const [enriched] = await this.enrichWithParcelData([auction]);
+    return enriched;
+  }
+
+  private async enrichWithParcelData(auctions: Auction[]): Promise<any[]> {
+    if (auctions.length === 0) return [];
+
+    const parcelIds = [...new Set(auctions.map((a) => a.parcelId))];
+
+    // Fetch parcel basic info
+    const parcels: Array<{ id: string; title: string; city: string; district: string }> = await this.ds.query(
+      `SELECT id, title, city, district FROM listings.parcels WHERE id = ANY($1)`,
+      [parcelIds],
+    );
+
+    // Fetch parcel images (cover first, then by sort_order)
+    const images: Array<{
+      parcel_id: string;
+      original_url: string;
+      watermarked_url: string | null;
+      thumbnail_url: string | null;
+      is_cover: boolean;
+    }> = await this.ds.query(
+      `SELECT parcel_id, original_url, watermarked_url, thumbnail_url, is_cover
+       FROM listings.parcel_images
+       WHERE parcel_id = ANY($1) AND status = 'ready'
+       ORDER BY is_cover DESC, sort_order ASC`,
+      [parcelIds],
+    );
+
+    const parcelMap = new Map(parcels.map((p) => [p.id, p]));
+    const imageMap = new Map<string, typeof images>();
+    for (const img of images) {
+      const arr = imageMap.get(img.parcel_id) || [];
+      arr.push(img);
+      imageMap.set(img.parcel_id, arr);
+    }
+
+    return auctions.map((auction) => {
+      const parcel = parcelMap.get(auction.parcelId);
+      const parcelImages = imageMap.get(auction.parcelId) || [];
+      return {
+        ...auction,
+        parcel: parcel
+          ? {
+              title: parcel.title,
+              city: parcel.city,
+              district: parcel.district,
+              images: parcelImages.map((img) => ({
+                originalUrl: img.original_url,
+                watermarkedUrl: img.watermarked_url,
+                thumbnailUrl: img.thumbnail_url,
+                isCover: img.is_cover,
+              })),
+            }
+          : null,
+      };
+    });
   }
 
   async getMyParticipation(

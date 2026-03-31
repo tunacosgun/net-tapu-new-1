@@ -3,8 +3,9 @@
 import { Suspense, useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
+import Image from 'next/image';
 import apiClient from '@/lib/api-client';
-import { formatPrice } from '@/lib/format';
+import { formatPrice, resolveImageUrl } from '@/lib/format';
 import { Badge, Pagination, Alert, EmptyState, LoadingState } from '@/components/ui';
 import type { Auction, PaginatedResponse } from '@/types';
 
@@ -146,10 +147,28 @@ function AuctionsContent() {
                     <Link
                       key={auction.id}
                       href={`/auctions/${auction.id}`}
-                      className={`block rounded-lg border p-5 hover:shadow-md transition-shadow ${
+                      className={`block rounded-lg border overflow-hidden hover:shadow-md transition-shadow ${
                         isLive ? 'border-green-200 bg-green-50/30' : 'border-gray-200 bg-white'
                       }`}
                     >
+                      {/* Cover Image */}
+                      {(() => {
+                        const coverImg = (auction as any).parcel?.images?.[0];
+                        const imgUrl = coverImg ? resolveImageUrl(coverImg) : null;
+                        return imgUrl ? (
+                          <div className="relative h-44 w-full bg-gray-100">
+                            <Image src={imgUrl} alt={auction.title} fill className="object-cover" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" />
+                            {isLive && (
+                              <span className="absolute top-3 right-3 inline-flex items-center gap-1.5 bg-red-600 text-white text-xs font-bold px-2.5 py-1 rounded-md">
+                                <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
+                                CANLI
+                              </span>
+                            )}
+                          </div>
+                        ) : null;
+                      })()}
+
+                      <div className="p-5">
                       <div className="flex items-center justify-between">
                         <span className={`inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs font-semibold ${sc.bg}`}>
                           <span className={`h-1.5 w-1.5 rounded-full ${sc.dot} ${isLive ? 'animate-pulse' : ''}`} />
@@ -193,6 +212,7 @@ function AuctionsContent() {
                         <span>{auction.participantCount} katılımcı</span>
                         <span>{auction.bidCount} teklif</span>
                         <span>{auction.watcherCount} izleyici</span>
+                      </div>
                       </div>
                     </Link>
                   );
