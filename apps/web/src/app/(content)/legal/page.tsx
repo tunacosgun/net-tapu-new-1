@@ -3,11 +3,7 @@ import { LegalContent } from './client';
 
 export const metadata: Metadata = {
   title: 'Yasal Bilgiler — NetTapu',
-  description: 'NetTapu yasal bilgiler, cayma hakkı ve kullanım koşulları.',
-  openGraph: {
-    title: 'Yasal Bilgiler',
-    description: 'NetTapu yasal bilgiler, cayma hakkı ve kullanım koşulları.',
-  },
+  description: 'NetTapu yasal bilgiler, kullanım şartları ve gizlilik politikası.',
 };
 
 export default function LegalPage() {

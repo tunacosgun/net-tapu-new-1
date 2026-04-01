@@ -8,3 +8,4 @@ export { LoadingState, DetailPageSkeleton } from './loading-state';
 export { PageHeader } from './page-header';
 export { Pagination } from './pagination';
 export { StatCard } from './stat-card';
+export * from './premium';
