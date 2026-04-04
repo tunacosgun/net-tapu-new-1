@@ -12,6 +12,9 @@ const WATERMARK_OPACITY = 0.35;
 const THUMBNAIL_WIDTH = 400;
 const FULL_SIZE_MAX_WIDTH = 1600;
 
+/** Side padding (white bars) as fraction of original width */
+const SIDE_PADDING_RATIO = 0.06; // 6% each side → 12% total added width
+
 @Injectable()
 export class ImageProcessingService {
   private readonly logger = new Logger(ImageProcessingService.name);
@@ -28,43 +31,35 @@ export class ImageProcessingService {
     this.baseUrl = this.config.get<string>('UPLOADS_BASE_URL') || '/uploads';
   }
 
-  /**
-   * Process a parcel image: download from originalUrl, apply watermark, generate thumbnail.
-   * Updates the ParcelImage record with watermarkedUrl, thumbnailUrl, and status.
-   */
   async processImage(imageId: string): Promise<ParcelImage> {
     const image = await this.imageRepo.findOne({ where: { id: imageId } });
-    if (!image) {
-      throw new Error(`Image ${imageId} not found`);
-    }
+    if (!image) throw new Error(`Image ${imageId} not found`);
 
     try {
-      // Update status to processing
       image.status = 'processing';
       await this.imageRepo.save(image);
 
-      // Ensure upload directories exist
       const parcelDir = path.join(this.uploadsDir, 'parcels', image.parcelId);
       await fs.mkdir(parcelDir, { recursive: true });
 
-      // Download original image
       const imageBuffer = await this.downloadImage(image.originalUrl);
 
-      // Generate unique filename
       const hash = crypto.createHash('md5').update(imageId).digest('hex').slice(0, 8);
       const ext = this.getExtension(image.mimeType || 'image/jpeg');
 
-      // Process watermarked version
-      const watermarkedFilename = `${hash}-watermarked${ext}`;
-      const watermarkedPath = path.join(parcelDir, watermarkedFilename);
-      await this.applyWatermark(imageBuffer, watermarkedPath);
+      // Fetch listing ID for parcel number overlay
+      const listingId = await this.getListingId(image.parcelId);
 
-      // Generate thumbnail
+      // Watermarked version (with side padding + parcel no + diagonal text)
+      const watermarkedFilename = `${hash}-watermarked.jpg`;
+      const watermarkedPath = path.join(parcelDir, watermarkedFilename);
+      await this.applyWatermark(imageBuffer, watermarkedPath, listingId);
+
+      // Thumbnail (no watermark, no padding)
       const thumbnailFilename = `${hash}-thumb${ext}`;
       const thumbnailPath = path.join(parcelDir, thumbnailFilename);
       await this.generateThumbnail(imageBuffer, thumbnailPath);
 
-      // Update image record with new URLs
       const relativeDir = `parcels/${image.parcelId}`;
       image.watermarkedUrl = `${this.baseUrl}/${relativeDir}/${watermarkedFilename}`;
       image.thumbnailUrl = `${this.baseUrl}/${relativeDir}/${thumbnailFilename}`;
@@ -81,44 +76,103 @@ export class ImageProcessingService {
     }
   }
 
+  private async getListingId(parcelId: string): Promise<string | null> {
+    try {
+      const rows = await this.dataSource.query(
+        `SELECT listing_id FROM listings.parcels WHERE id = $1`,
+        [parcelId],
+      );
+      return rows?.[0]?.listing_id ?? null;
+    } catch {
+      return null;
+    }
+  }
+
   /**
-   * Apply watermark to the image. Uses admin-uploaded logo if available,
-   * otherwise falls back to text-based watermark.
+   * Apply watermark:
+   *  1. Add white side padding bars (left + right)
+   *  2. Render "#listingId" in top-left of the left padding bar
+   *  3. Tile diagonal "NetTapu" text (or logo) over the full canvas
    */
-  private async applyWatermark(buffer: Buffer, outputPath: string): Promise<void> {
-    const metadata = await sharp(buffer).metadata();
-    const width = Math.min(metadata.width || FULL_SIZE_MAX_WIDTH, FULL_SIZE_MAX_WIDTH);
-    const height = metadata.height
-      ? Math.round((width / (metadata.width || width)) * metadata.height)
-      : undefined;
+  private async applyWatermark(
+    buffer: Buffer,
+    outputPath: string,
+    listingId: string | null,
+  ): Promise<void> {
+    const meta = await sharp(buffer).metadata();
+    const srcW = Math.min(meta.width || FULL_SIZE_MAX_WIDTH, FULL_SIZE_MAX_WIDTH);
+    const srcH = meta.height
+      ? Math.round((srcW / (meta.width || srcW)) * meta.height)
+      : Math.round(srcW * 0.75);
 
-    // Try to load admin-uploaded watermark logo
-    const logoBuffer = await this.getWatermarkLogo();
+    // --- resize original to srcW x srcH ---
+    const resizedBuf = await sharp(buffer)
+      .resize(srcW, srcH, { fit: 'inside', withoutEnlargement: true })
+      .toFormat('png')
+      .toBuffer();
 
-    let watermarkInput: Buffer;
-    if (logoBuffer) {
-      watermarkInput = await this.createLogoWatermark(logoBuffer, width, height || 900);
-    } else {
-      const watermarkSvg = this.createTextWatermarkSvg(width, height || 900);
-      watermarkInput = Buffer.from(watermarkSvg);
+    const padW = Math.round(srcW * SIDE_PADDING_RATIO); // width of each white bar
+    const totalW = srcW + padW * 2;
+    const totalH = srcH;
+
+    // Build white canvas
+    const canvas = await sharp({
+      create: { width: totalW, height: totalH, channels: 3, background: { r: 255, g: 255, b: 255 } },
+    }).png().toBuffer();
+
+    // Composite: place resized image in centre (offset by padW from left)
+    const compositeOps: sharp.OverlayOptions[] = [
+      { input: resizedBuf, left: padW, top: 0 },
+    ];
+
+    // --- Parcel number overlay (top-left in left padding area) ---
+    if (listingId) {
+      const labelSvg = this.buildParcelLabelSvg(padW, totalH, listingId);
+      compositeOps.push({ input: Buffer.from(labelSvg), left: 0, top: 0 });
     }
 
-    await sharp(buffer)
-      .resize(width, height, { fit: 'inside', withoutEnlargement: true })
-      .composite([
-        {
-          input: watermarkInput,
-          gravity: 'center',
-        },
-      ])
+    // --- Diagonal watermark over entire canvas ---
+    const logoBuffer = await this.getWatermarkLogo();
+    let wmInput: Buffer;
+    if (logoBuffer) {
+      wmInput = await this.createLogoWatermark(logoBuffer, totalW, totalH);
+    } else {
+      wmInput = Buffer.from(this.createTextWatermarkSvg(totalW, totalH));
+    }
+    compositeOps.push({ input: wmInput, left: 0, top: 0 });
+
+    await sharp(canvas)
+      .composite(compositeOps)
       .jpeg({ quality: 85, mozjpeg: true })
       .toFile(outputPath);
   }
 
   /**
-   * Get the admin-uploaded watermark logo from system settings.
-   * Returns the logo as a Buffer, or null if not configured.
+   * Build an SVG that renders the parcel number vertically centred
+   * in the left padding strip, rotated 90° (reads bottom-to-top).
    */
+  private buildParcelLabelSvg(padW: number, imgH: number, listingId: string): string {
+    const fontSize = Math.max(11, Math.round(padW * 0.28));
+    const label = `#${listingId}`;
+    // Rotate text -90deg around the centre of the left padding strip
+    const cx = Math.round(padW / 2);
+    const cy = Math.round(imgH / 2);
+
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="${padW}" height="${imgH}">
+      <text
+        x="${cx}" y="${cy}"
+        font-family="DejaVu Sans Mono, Courier New, monospace"
+        font-size="${fontSize}"
+        font-weight="bold"
+        fill="#1a1a1a"
+        text-anchor="middle"
+        dominant-baseline="middle"
+        transform="rotate(-90, ${cx}, ${cy})"
+        opacity="0.85"
+      >${label}</text>
+    </svg>`;
+  }
+
   private async getWatermarkLogo(): Promise<Buffer | null> {
     try {
       const result = await this.dataSource.query(
@@ -126,15 +180,9 @@ export class ImageProcessingService {
       );
       if (!result?.[0]?.value) return null;
 
-      // JSONB value: pg driver returns parsed JSON. Could be string directly or object.
       let logoUrl: string = result[0].value;
-      // If it's still an object (shouldn't happen for a string), stringify
-      if (typeof logoUrl !== 'string') {
-        logoUrl = String(logoUrl);
-      }
-      // Strip any surrounding quotes
+      if (typeof logoUrl !== 'string') logoUrl = String(logoUrl);
       logoUrl = logoUrl.replace(/^"|"$/g, '').trim();
-
       if (!logoUrl || logoUrl === 'null' || logoUrl.length < 5) return null;
 
       this.logger.log(`Loading watermark logo from: ${logoUrl}`);
@@ -145,17 +193,12 @@ export class ImageProcessingService {
     }
   }
 
-  /**
-   * Create a tiled watermark overlay using the logo image.
-   * The logo is repeated across the image with transparency.
-   */
   private async createLogoWatermark(
     logoBuffer: Buffer,
     width: number,
     height: number,
   ): Promise<Buffer> {
-    // Resize logo to a reasonable watermark size
-    const logoSize = Math.max(60, Math.round(width * 0.1));
+    const logoSize = Math.max(60, Math.round(width * 0.09));
     const resizedLogo = await sharp(logoBuffer)
       .resize(logoSize, logoSize, { fit: 'inside', withoutEnlargement: true })
       .ensureAlpha()
@@ -166,10 +209,8 @@ export class ImageProcessingService {
     const lw = logoMeta.width || logoSize;
     const lh = logoMeta.height || logoSize;
 
-    // Make logo semi-transparent by compositing with an alpha mask
-    const opacity = WATERMARK_OPACITY;
     const alphaMask = await sharp({
-      create: { width: lw, height: lh, channels: 4, background: { r: 255, g: 255, b: 255, alpha: opacity } },
+      create: { width: lw, height: lh, channels: 4, background: { r: 255, g: 255, b: 255, alpha: WATERMARK_OPACITY } },
     }).png().toBuffer();
 
     const semiTransparentLogo = await sharp(resizedLogo)
@@ -177,7 +218,6 @@ export class ImageProcessingService {
       .png()
       .toBuffer();
 
-    // Tile logos across the canvas
     const spacingX = Math.round(lw * 2.5);
     const spacingY = Math.round(lh * 2.5);
     const compositeOps: { input: Buffer; left: number; top: number }[] = [];
@@ -193,7 +233,6 @@ export class ImageProcessingService {
     }
 
     if (compositeOps.length === 0) {
-      // At least put one in center
       compositeOps.push({
         input: semiTransparentLogo,
         left: Math.round((width - lw) / 2),
@@ -201,20 +240,33 @@ export class ImageProcessingService {
       });
     }
 
-    // Limit to avoid memory issues
-    const ops = compositeOps.slice(0, 50);
-
     return sharp({
       create: { width, height, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } },
     })
-      .composite(ops)
+      .composite(compositeOps.slice(0, 50))
       .png()
       .toBuffer();
   }
 
   /**
-   * Generate a thumbnail image.
+   * Diagonal tiled "NetTapu" text over full canvas.
+   * Text is skewed/slanted — rotate(-35) for a bold watermark feel.
    */
+  private createTextWatermarkSvg(width: number, height: number): string {
+    const opacity = WATERMARK_OPACITY;
+    const fontSize = Math.max(20, Math.round(width * 0.038));
+    const spacing = Math.round(fontSize * 5.5);
+
+    let textElements = '';
+    for (let y = -spacing; y < height + spacing * 2; y += spacing) {
+      for (let x = -spacing; x < width + spacing * 2; x += spacing) {
+        textElements += `<text x="${x}" y="${y}" transform="rotate(-35, ${x}, ${y})" font-family="DejaVu Sans, Liberation Sans, Arial, sans-serif" font-size="${fontSize}" font-weight="bold" fill="#222222" fill-opacity="${opacity}" letter-spacing="2">NetTapu</text>`;
+      }
+    }
+
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">${textElements}</svg>`;
+  }
+
   private async generateThumbnail(buffer: Buffer, outputPath: string): Promise<void> {
     await sharp(buffer)
       .resize(THUMBNAIL_WIDTH, undefined, { fit: 'inside', withoutEnlargement: true })
@@ -222,32 +274,7 @@ export class ImageProcessingService {
       .toFile(outputPath);
   }
 
-  /**
-   * Create an SVG watermark with "NetTapu" text rendered diagonally and tiled.
-   * Used as fallback when no logo is uploaded.
-   */
-  private createTextWatermarkSvg(width: number, height: number): string {
-    const opacity = WATERMARK_OPACITY;
-    const fontSize = Math.max(24, Math.round(width * 0.04));
-    const spacing = Math.round(fontSize * 5);
-
-    let textElements = '';
-    for (let y = -spacing; y < height + spacing; y += spacing) {
-      for (let x = -spacing; x < width + spacing; x += spacing) {
-        textElements += `<text x="${x}" y="${y}" transform="rotate(-30, ${x}, ${y})" font-family="DejaVu Sans, Liberation Sans, Arial, sans-serif" font-size="${fontSize}" font-weight="bold" fill="white" opacity="${opacity}">NetTapu</text>`;
-      }
-    }
-
-    return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
-      ${textElements}
-    </svg>`;
-  }
-
-  /**
-   * Download image from URL and return as buffer.
-   */
   private async downloadImage(url: string): Promise<Buffer> {
-    // Handle local file URLs (e.g. /uploads/parcels/{id}/file.jpg)
     if (url.startsWith('/uploads/')) {
       const relativePath = url.replace('/uploads/', '');
       const filePath = path.join(this.uploadsDir, relativePath);
@@ -259,15 +286,10 @@ export class ImageProcessingService {
       return fs.readFile(filePath);
     }
 
-    // Handle remote URLs
-    const response = await fetch(url, {
-      signal: AbortSignal.timeout(30000),
-    });
-
+    const response = await fetch(url, { signal: AbortSignal.timeout(30000) });
     if (!response.ok) {
       throw new Error(`Failed to download image: ${response.status} ${response.statusText}`);
     }
-
     const arrayBuffer = await response.arrayBuffer();
     return Buffer.from(arrayBuffer);
   }
