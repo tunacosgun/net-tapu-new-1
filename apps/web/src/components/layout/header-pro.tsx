@@ -299,7 +299,10 @@ export function HeaderPro() {
         <div className="mx-auto flex h-[72px] max-w-7xl items-center justify-between px-6">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3 group" data-testid="header-logo">
-            {resolvedLogo ? (
+            {!(s as any)._loaded ? (
+              /* Skeleton while settings load — no flash of wrong logo */
+              <div className="h-10 w-32 animate-pulse rounded-lg bg-slate-100" />
+            ) : resolvedLogo ? (
               <img
                 src={resolvedLogo}
                 alt={s.site_title || 'NetTapu'}

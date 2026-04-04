@@ -5,13 +5,13 @@ import apiClient from '@/lib/api-client';
 import { SiteSettingsContext, type SiteSettings } from '@/hooks/use-site-settings';
 
 export function SiteSettingsProvider({ children }: { children: ReactNode }) {
-  const [settings, setSettings] = useState<SiteSettings>({});
+  const [settings, setSettings] = useState<SiteSettings & { _loaded?: boolean }>({ _loaded: false });
 
   useEffect(() => {
     apiClient
       .get<Record<string, string>>('/content/site-settings')
       .then(({ data }) => {
-        setSettings(data || {});
+        setSettings({ ...(data || {}), _loaded: true });
         // Dynamically set favicon from admin settings
         if (data?.site_favicon) {
           let link = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
@@ -23,7 +23,9 @@ export function SiteSettingsProvider({ children }: { children: ReactNode }) {
           link.href = data.site_favicon;
         }
       })
-      .catch(() => {});
+      .catch(() => {
+        setSettings({ _loaded: true });
+      });
   }, []);
 
   return (
