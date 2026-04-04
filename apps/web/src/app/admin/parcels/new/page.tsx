@@ -9,12 +9,25 @@ import { showApiError } from '@/components/api-error-toast';
 import { parcelSchema, type ParcelFormData } from '@/lib/validators';
 import { FormField, FormTextarea, FormCheckbox, FormSelect } from '@/components/form-field';
 import { AddressGeocoder } from '@/components/address-geocoder';
+import { ImageUpload } from '@/components/image-upload';
 import { useRateLimit } from '@/hooks/use-rate-limit';
 import { Button } from '@/components/ui';
+
+interface ParcelImage {
+  id: string;
+  originalUrl: string;
+  thumbnailUrl: string | null;
+  watermarkedUrl: string | null;
+  status: string;
+  sortOrder: number;
+  isCover: boolean;
+}
 
 export default function AdminNewParcelPage() {
   const router = useRouter();
   const { cooldown, isLimited, checkRateLimit } = useRateLimit();
+  const [createdParcelId, setCreatedParcelId] = useState<string | null>(null);
+  const [parcelImages, setParcelImages] = useState<ParcelImage[]>([]);
 
   const {
     register,
@@ -176,11 +189,42 @@ export default function AdminNewParcelPage() {
     };
 
     try {
-      await apiClient.post('/parcels', body);
-      router.push('/admin/parcels');
+      const { data } = await apiClient.post<{ id: string }>('/parcels', body);
+      // Stay on page to allow image upload, then redirect
+      setCreatedParcelId(data.id);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err) {
       if (!checkRateLimit(err)) showApiError(err);
     }
+  }
+
+  // If parcel was just created, show success + image upload
+  if (createdParcelId) {
+    return (
+      <div className="max-w-2xl space-y-6">
+        <div className="rounded-xl border border-brand-200 bg-brand-50 p-4 flex items-center gap-3">
+          <svg className="h-5 w-5 text-brand-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+          <p className="text-sm font-semibold text-brand-800">Arsa başarıyla oluşturuldu! Şimdi görsel ekleyebilirsiniz.</p>
+        </div>
+
+        <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
+          <h2 className="mb-4 text-lg font-bold text-gray-900">Görseller</h2>
+          <ImageUpload
+            parcelId={createdParcelId}
+            images={parcelImages}
+          />
+        </div>
+
+        <div className="flex gap-3">
+          <Button onClick={() => router.push(`/admin/parcels/${createdParcelId}`)}>
+            İlana Git
+          </Button>
+          <Button variant="secondary" onClick={() => router.push('/admin/parcels')}>
+            İlan Listesine Dön
+          </Button>
+        </div>
+      </div>
+    );
   }
 
   return (
