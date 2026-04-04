@@ -185,7 +185,7 @@ export function HeaderPro() {
       if (Array.isArray(parsed) && parsed.length > 0) {
         // Merge icon from DEFAULT_CORPORATE_ITEMS by matching href when icon is missing
         corporateItems = parsed.map((item: NavDropdownItem) => {
-          if (!item.icon) {
+          if (!item.icon || item.icon === '') {
             const def = DEFAULT_CORPORATE_ITEMS.find(d => d.href === item.href);
             if (def?.icon) return { ...item, icon: def.icon };
           }
