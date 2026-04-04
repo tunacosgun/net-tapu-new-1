@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   AlertTriangle,
@@ -17,8 +17,6 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 
-/* ─── types ─────────────────────────────────────────── */
-
 interface Section {
   id: string;
   label: string;
@@ -29,8 +27,6 @@ interface AccordionItem {
   question: string;
   answer: string;
 }
-
-/* ─── constants ─────────────────────────────────────── */
 
 const SECTIONS: Section[] = [
   { id: '14-gun', label: '14 Günlük Cayma Hakkı' },
@@ -74,8 +70,6 @@ const FAQ_ITEMS: AccordionItem[] = [
   },
 ];
 
-/* ─── helpers ─────────────────────────────────────── */
-
 function useActiveSection(ids: string[]): string {
   const [active, setActive] = useState(ids[0] ?? '');
 
@@ -102,8 +96,6 @@ function useActiveSection(ids: string[]): string {
   return active;
 }
 
-/* ─── sub-components ────────────────────────────────── */
-
 function SidebarNav({ sections, active }: { sections: Section[]; active: string }) {
   return (
     <nav className="space-y-1">
@@ -113,7 +105,7 @@ function SidebarNav({ sections, active }: { sections: Section[]; active: string 
           href={`#${s.id}`}
           className={`block rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 ${
             active === s.id
-              ? 'bg-indigo-50 text-indigo-700 border-l-2 border-indigo-500 pl-2.5'
+              ? 'bg-emerald-50 text-emerald-700 border-l-2 border-emerald-500 pl-2.5'
               : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
           }`}
         >
@@ -133,7 +125,7 @@ function MobileTabs({ sections, active }: { sections: Section[]; active: string 
           href={`#${s.id}`}
           className={`shrink-0 rounded-full px-4 py-1.5 text-xs font-semibold transition-all duration-200 ${
             active === s.id
-              ? 'bg-indigo-600 text-white shadow-md shadow-indigo-200'
+              ? 'bg-emerald-600 text-white shadow-md shadow-emerald-200'
               : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
           }`}
         >
@@ -157,7 +149,7 @@ function AccordionItem({
     <div
       className={`overflow-hidden rounded-xl border transition-all duration-200 ${
         isOpen
-          ? 'border-indigo-200 bg-indigo-50/60'
+          ? 'border-emerald-200 bg-emerald-50/60'
           : 'border-slate-200 bg-white hover:border-slate-300'
       }`}
     >
@@ -172,7 +164,7 @@ function AccordionItem({
           className="mt-0.5 shrink-0"
         >
           <ChevronDown
-            className={`h-5 w-5 transition-colors ${isOpen ? 'text-indigo-500' : 'text-slate-400'}`}
+            className={`h-5 w-5 transition-colors ${isOpen ? 'text-emerald-600' : 'text-slate-400'}`}
           />
         </motion.div>
       </button>
@@ -185,7 +177,7 @@ function AccordionItem({
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.28, ease: 'easeInOut' }}
           >
-            <div className="border-t border-indigo-100 px-5 pb-4 pt-3">
+            <div className="border-t border-emerald-100 px-5 pb-4 pt-3">
               <p className="text-sm leading-relaxed text-slate-600">{item.answer}</p>
             </div>
           </motion.div>
@@ -206,8 +198,6 @@ function SectionHeading({ id, title }: { id: string; title: string }) {
   );
 }
 
-/* ─── main ─────────────────────────────────────────── */
-
 export function WithdrawalRightsContent() {
   const sectionIds = SECTIONS.map((s) => s.id);
   const activeSection = useActiveSection(sectionIds);
@@ -215,29 +205,29 @@ export function WithdrawalRightsContent() {
 
   return (
     <div className="min-h-screen bg-white text-slate-900">
-      {/* ── HERO ──────────────────────────────────────── */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-indigo-900 via-indigo-800 to-slate-900 px-6 py-10 sm:py-12">
-        <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-indigo-500/20 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-10 left-10 h-48 w-48 rounded-full bg-violet-600/15 blur-3xl" />
+      {/* HERO */}
+      <div className="relative overflow-hidden bg-gradient-to-br from-emerald-700 via-emerald-600 to-teal-600 px-6 py-10 sm:py-12">
+        <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-10 left-10 h-48 w-48 rounded-full bg-white/10 blur-3xl" />
         <div className="relative mx-auto max-w-3xl">
-          <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-indigo-200">
+          <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/20 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-white">
             <Shield className="h-3 w-3" />
             Tüketici Hakları
           </div>
           <h1 className="text-3xl font-extrabold leading-tight text-white sm:text-4xl">
             Cayma Hakkı
           </h1>
-          <p className="mt-2 max-w-xl text-sm leading-relaxed text-indigo-200 sm:text-base">
+          <p className="mt-2 max-w-xl text-sm leading-relaxed text-white/80 sm:text-base">
             6502 sayılı Tüketicinin Korunması Hakkında Kanun kapsamındaki cayma hakkı
             bilgileri ve NetTapu&apos;ya özgü uygulama koşulları.
           </p>
-          <p className="mt-3 text-xs text-indigo-300/80">
+          <p className="mt-3 text-xs text-white/60">
             Son güncelleme: Ocak 2025 &nbsp;·&nbsp; Yürürlük tarihi: 01.01.2025
           </p>
         </div>
       </div>
 
-      {/* ── BODY ──────────────────────────────────────── */}
+      {/* BODY */}
       <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
         <div className="lg:flex lg:gap-10">
           {/* Desktop sticky sidebar */}
@@ -247,14 +237,14 @@ export function WithdrawalRightsContent() {
                 İçindekiler
               </p>
               <SidebarNav sections={SECTIONS} active={activeSection} />
-              <div className="mt-6 rounded-xl border border-amber-200 bg-amber-50 p-4">
-                <p className="text-xs font-semibold text-amber-800">Yardıma mı ihtiyacınız var?</p>
-                <p className="mt-1 text-xs text-amber-700">
+              <div className="mt-6 rounded-xl border border-emerald-100 bg-emerald-50 p-4">
+                <p className="text-xs font-semibold text-emerald-800">Yardıma mı ihtiyacınız var?</p>
+                <p className="mt-1 text-xs text-emerald-700">
                   Destek ekibimiz Pzt–Cum 09:00–18:00 arasında hizmetinizde.
                 </p>
                 <Link
                   href="/contact"
-                  className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-amber-700 hover:text-amber-900"
+                  className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 hover:text-emerald-900"
                 >
                   İletişime Geç <ArrowRight className="h-3 w-3" />
                 </Link>
@@ -270,10 +260,9 @@ export function WithdrawalRightsContent() {
             </div>
 
             <div className="space-y-12">
-              {/* ── SECTION 1: 14 Günlük Cayma Hakkı ──── */}
+              {/* SECTION 1: 14 Günlük Cayma Hakkı */}
               <section>
                 <SectionHeading id="14-gun" title="14 Günlük Cayma Hakkı" />
-                {/* Amber highlight */}
                 <div className="mb-5 flex gap-3 rounded-xl border border-amber-200 bg-amber-50 p-5">
                   <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-500" />
                   <div>
@@ -299,7 +288,7 @@ export function WithdrawalRightsContent() {
                 </div>
               </section>
 
-              {/* ── SECTION 2: Koşullar ─────────────────── */}
+              {/* SECTION 2: Koşullar */}
               <section>
                 <SectionHeading id="kosullar" title="Cayma Hakkı Kullanım Koşulları" />
                 <p className="mb-4 text-sm leading-relaxed text-slate-600">
@@ -329,7 +318,7 @@ export function WithdrawalRightsContent() {
                     },
                   ].map((item) => (
                     <li key={item.n} className="flex gap-3 text-sm text-slate-700">
-                      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-xs font-bold text-indigo-700">
+                      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-700">
                         {item.n}
                       </span>
                       <span className="pt-0.5 leading-relaxed">{item.text}</span>
@@ -338,13 +327,12 @@ export function WithdrawalRightsContent() {
                 </ol>
               </section>
 
-              {/* ── SECTION 3: İstisnalar ───────────────── */}
+              {/* SECTION 3: İstisnalar */}
               <section>
                 <SectionHeading id="istisnalar" title="Cayma Hakkı İstisnaları" />
                 <p className="mb-4 text-sm leading-relaxed text-slate-600">
                   Aşağıdaki durumlarda cayma hakkı kullanılamaz:
                 </p>
-                {/* Red box — auction exception */}
                 <div className="mb-4 flex gap-3 rounded-xl border border-red-200 bg-red-50 p-5">
                   <XCircle className="mt-0.5 h-5 w-5 shrink-0 text-red-500" />
                   <div>
@@ -391,7 +379,7 @@ export function WithdrawalRightsContent() {
                 </div>
               </section>
 
-              {/* ── SECTION 4: Nasıl Kullanılır ─────────── */}
+              {/* SECTION 4: Nasıl Kullanılır */}
               <section>
                 <SectionHeading id="nasil-kullanilir" title="Nasıl Kullanılır?" />
                 <p className="mb-6 text-sm leading-relaxed text-slate-600">
@@ -404,7 +392,7 @@ export function WithdrawalRightsContent() {
                       icon: FileText,
                       title: 'Bildirim',
                       desc: '14 gün içinde destek@nettapu.com adresine veya platform içi form aracılığıyla yazılı bildirim yapın. Sözleşme numarası ve cayma gerekçenizi belirtin.',
-                      color: 'from-indigo-500 to-violet-600',
+                      color: 'from-emerald-500 to-teal-600',
                     },
                     {
                       step: 2,
@@ -418,7 +406,7 @@ export function WithdrawalRightsContent() {
                       icon: RefreshCcw,
                       title: 'İade',
                       desc: 'Geçerli bildirim alındıktan sonra ödeme 14 gün içinde iade edilir. Genellikle 5-10 iş günü içinde hesabınıza yansır.',
-                      color: 'from-emerald-500 to-teal-500',
+                      color: 'from-blue-500 to-indigo-600',
                     },
                   ].map(({ step, icon: Icon, title, desc, color }) => (
                     <div
@@ -440,10 +428,9 @@ export function WithdrawalRightsContent() {
                 </div>
               </section>
 
-              {/* ── SECTION 5: İade Süreci ───────────────── */}
+              {/* SECTION 5: İade Süreci */}
               <section>
                 <SectionHeading id="iade-sureci" title="İade Süreci" />
-                {/* Green box */}
                 <div className="mb-5 flex gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-5">
                   <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-500" />
                   <div>
@@ -456,7 +443,6 @@ export function WithdrawalRightsContent() {
                     </p>
                   </div>
                 </div>
-                {/* Timeline */}
                 <div className="relative ml-3">
                   <div className="absolute left-3.5 top-0 h-full w-px bg-slate-200" />
                   {[
@@ -486,11 +472,11 @@ export function WithdrawalRightsContent() {
                     },
                   ].map(({ day, title, desc, icon: Icon }, i) => (
                     <div key={i} className="relative mb-6 flex items-start gap-5 pl-10">
-                      <div className="absolute left-0 flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-indigo-600 shadow-sm">
+                      <div className="absolute left-0 flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-emerald-600 shadow-sm">
                         <Icon className="h-3.5 w-3.5 text-white" />
                       </div>
                       <div>
-                        <p className="text-xs font-bold uppercase tracking-widest text-indigo-500">
+                        <p className="text-xs font-bold uppercase tracking-widest text-emerald-600">
                           {day}
                         </p>
                         <p className="font-semibold text-slate-900">{title}</p>
@@ -500,7 +486,6 @@ export function WithdrawalRightsContent() {
                   ))}
                 </div>
 
-                {/* Refund table */}
                 <div className="mt-2 overflow-hidden rounded-xl border border-slate-200">
                   <table className="w-full text-sm">
                     <thead>
@@ -534,7 +519,7 @@ export function WithdrawalRightsContent() {
                 </div>
               </section>
 
-              {/* ── SECTION 6: FAQ ───────────────────────── */}
+              {/* SECTION 6: FAQ */}
               <section>
                 <SectionHeading id="sss" title="Sık Sorulan Sorular" />
                 <div className="space-y-3">
@@ -549,9 +534,9 @@ export function WithdrawalRightsContent() {
                 </div>
               </section>
 
-              {/* ── CONTACT CTA ─────────────────────────── */}
-              <div className="rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50 to-slate-50 p-6 sm:p-8">
-                <p className="text-xs font-semibold uppercase tracking-widest text-indigo-500">
+              {/* CONTACT CTA */}
+              <div className="rounded-2xl border border-emerald-100 bg-gradient-to-br from-emerald-50 to-slate-50 p-6 sm:p-8">
+                <p className="text-xs font-semibold uppercase tracking-widest text-emerald-600">
                   Yardım & Destek
                 </p>
                 <h3 className="mt-1 text-lg font-bold text-slate-900">
@@ -564,7 +549,7 @@ export function WithdrawalRightsContent() {
                 <div className="mt-5 flex flex-col gap-3 sm:flex-row">
                   <Link
                     href="/contact"
-                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-indigo-200 transition-all duration-200 hover:bg-indigo-700"
+                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-emerald-200 transition-all duration-200 hover:bg-emerald-700"
                   >
                     İletişim Formu
                     <ArrowRight className="h-4 w-4" />

@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef, useState, useEffect } from 'react';
-import { motion, useInView, AnimatePresence } from 'framer-motion';
+import { motion, useInView } from 'framer-motion';
 import {
   ArrowRight,
   Gavel,
@@ -19,8 +19,6 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 
-/* ─── helpers ─────────────────────────────────────── */
-
 function useCountUp(target: number, duration = 2200, start = false) {
   const [count, setCount] = useState(0);
   useEffect(() => {
@@ -36,24 +34,6 @@ function useCountUp(target: number, duration = 2200, start = false) {
     requestAnimationFrame(step);
   }, [start, target, duration]);
   return count;
-}
-
-/* ─── sub-components ────────────────────────────────── */
-
-function FloatingOrb({
-  className,
-  delay = 0,
-}: {
-  className: string;
-  delay?: number;
-}) {
-  return (
-    <motion.div
-      className={`pointer-events-none absolute rounded-full blur-3xl ${className}`}
-      animate={{ y: [0, -20, 0], scale: [1, 1.05, 1], opacity: [0.6, 0.8, 0.6] }}
-      transition={{ duration: 9 + delay, repeat: Infinity, ease: 'easeInOut', delay }}
-    />
-  );
 }
 
 function MetricCard({
@@ -79,15 +59,14 @@ function MetricCard({
       initial={{ opacity: 0, y: 28 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
       transition={{ delay: index * 0.12, duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
-      className="group relative overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.04] p-6 text-center backdrop-blur-sm transition-all duration-300 hover:border-indigo-500/30 hover:bg-white/[0.07]"
+      className="group relative overflow-hidden rounded-2xl border border-slate-100 bg-white p-6 text-center shadow-sm transition-all duration-300 hover:border-emerald-200 hover:shadow-md"
     >
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-violet-500/5 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-      <p className="relative bg-gradient-to-r from-cyan-400 via-indigo-400 to-violet-400 bg-clip-text text-4xl font-black text-transparent sm:text-5xl">
+      <p className="text-4xl font-black text-emerald-600 sm:text-5xl">
         {prefix}
         {inView ? animated.toLocaleString('tr-TR') : '0'}
         {suffix}
       </p>
-      <p className="relative mt-2 text-sm font-medium text-slate-400">{label}</p>
+      <p className="mt-2 text-sm font-medium text-slate-500">{label}</p>
     </motion.div>
   );
 }
@@ -118,26 +97,19 @@ function BentoCard({
       initial={{ opacity: 0, y: 32 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
       transition={{ delay: index * 0.08, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-      className={`group relative overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.04] p-6 backdrop-blur-sm transition-all duration-300 hover:border-white/[0.15] hover:bg-white/[0.07] hover:shadow-[0_0_40px_rgba(99,102,241,0.15)] ${large ? 'sm:col-span-2' : ''}`}
+      className={`group relative overflow-hidden rounded-2xl border border-slate-100 bg-white p-6 shadow-sm transition-all duration-300 hover:border-emerald-200 hover:shadow-md ${large ? 'sm:col-span-2' : ''}`}
     >
-      {/* Glass shine on hover */}
-      <div className="pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-br from-white/[0.06] to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
-      {/* Glow orb */}
-      <div
-        className={`pointer-events-none absolute -right-8 -top-8 h-32 w-32 rounded-full bg-gradient-to-br ${gradient} opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-20`}
-      />
-
       <div className="relative">
         <div
-          className={`mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${gradient} shadow-lg`}
+          className={`mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${gradient} shadow-md`}
         >
           <Icon className="h-6 w-6 text-white" />
         </div>
-        <h3 className="text-lg font-bold text-white">{title}</h3>
-        <p className="mt-2 text-sm leading-relaxed text-slate-400">{description}</p>
+        <h3 className="text-lg font-bold text-slate-900">{title}</h3>
+        <p className="mt-2 text-sm leading-relaxed text-slate-500">{description}</p>
         <Link
           href={href}
-          className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-indigo-400 transition-all duration-200 group-hover:gap-2 group-hover:text-indigo-300"
+          className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-emerald-600 transition-all duration-200 group-hover:gap-2 group-hover:text-emerald-700"
         >
           Keşfet <ChevronRight className="h-4 w-4" />
         </Link>
@@ -173,28 +145,26 @@ function CorporateLinkCard({
     >
       <Link
         href={href}
-        className="group flex items-start gap-4 rounded-2xl border border-white/[0.08] bg-white/[0.04] p-5 backdrop-blur-sm transition-all duration-300 hover:border-white/[0.15] hover:bg-white/[0.07] hover:shadow-[0_0_30px_rgba(99,102,241,0.12)]"
+        className="group flex items-start gap-4 rounded-2xl border border-slate-100 bg-white p-5 shadow-sm transition-all duration-300 hover:border-emerald-200 hover:shadow-md"
       >
         <div
-          className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${gradient} shadow-lg transition-transform duration-300 group-hover:scale-110`}
+          className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${gradient} shadow-md transition-transform duration-300 group-hover:scale-110`}
         >
           <Icon className="h-5 w-5 text-white" />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="font-bold text-white group-hover:text-indigo-300 transition-colors duration-200">
+          <p className="font-bold text-slate-900 group-hover:text-emerald-700 transition-colors duration-200">
             {title}
           </p>
-          <p className="mt-0.5 text-sm text-slate-500 group-hover:text-slate-400 transition-colors duration-200">
+          <p className="mt-0.5 text-sm text-slate-500 group-hover:text-slate-600 transition-colors duration-200">
             {description}
           </p>
         </div>
-        <ArrowRight className="mt-1 h-4 w-4 shrink-0 text-slate-600 transition-all duration-200 group-hover:translate-x-1 group-hover:text-indigo-400" />
+        <ArrowRight className="mt-1 h-4 w-4 shrink-0 text-slate-300 transition-all duration-200 group-hover:translate-x-1 group-hover:text-emerald-500" />
       </Link>
     </motion.div>
   );
 }
-
-/* ─── main ─────────────────────────────────────────── */
 
 export function KurumsalContent() {
   const heroRef = useRef(null);
@@ -212,7 +182,7 @@ export function KurumsalContent() {
       description:
         'Gerçek zamanlı teklif motoru, deterministik sıralama ve yarış koşulu önleme altyapısıyla hukuken bağlayıcı canlı ihaleler.',
       icon: Gavel,
-      gradient: 'from-indigo-500 to-violet-700',
+      gradient: 'from-emerald-500 to-teal-600',
       large: true,
       href: '/auctions',
     },
@@ -220,7 +190,7 @@ export function KurumsalContent() {
       title: 'Arsa İlanları',
       description: "Türkiye'nin 81 ilinde binlerce arsa ve taşınmaz ilanı.",
       icon: MapPin,
-      gradient: 'from-emerald-500 to-teal-600',
+      gradient: 'from-indigo-500 to-violet-600',
       href: '/parcels',
     },
     {
@@ -252,7 +222,7 @@ export function KurumsalContent() {
       title: 'Hakkımızda',
       description: 'NetTapu ekibi ve kuruluş hikayemiz',
       href: '/about',
-      gradient: 'from-indigo-500 to-violet-600',
+      gradient: 'from-emerald-500 to-teal-600',
     },
     {
       icon: Star,
@@ -273,7 +243,7 @@ export function KurumsalContent() {
       title: 'Nasıl Çalışır',
       description: 'Platform işleyişi ve süreç adımları',
       href: '/how-it-works',
-      gradient: 'from-emerald-500 to-teal-600',
+      gradient: 'from-indigo-500 to-violet-600',
     },
     {
       icon: BarChart3,
@@ -292,66 +262,44 @@ export function KurumsalContent() {
   ];
 
   const avatarColors = [
-    'from-cyan-500 to-blue-600',
-    'from-violet-500 to-purple-700',
     'from-emerald-500 to-teal-600',
+    'from-indigo-500 to-violet-600',
     'from-amber-500 to-orange-500',
+    'from-cyan-500 to-blue-600',
   ];
 
   return (
-    <div className="min-h-screen bg-[#0a0918] text-white">
-      {/* ── FULL-SCREEN DARK HERO ───────────────────── */}
+    <div className="min-h-screen bg-slate-50 text-slate-900">
+      {/* FULL-PAGE LIGHT HERO */}
       <section
         ref={heroRef}
-        className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-4 sm:px-6 lg:px-8"
+        className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-emerald-700 via-emerald-600 to-teal-600 px-4 sm:px-6 lg:px-8"
       >
-        {/* Animated mesh gradient background */}
+        {/* Subtle dot pattern */}
         <div
           className="pointer-events-none absolute inset-0"
           style={{
-            background:
-              'radial-gradient(ellipse 80% 60% at 20% 20%, rgba(99,102,241,0.18) 0%, transparent 60%), radial-gradient(ellipse 60% 50% at 80% 80%, rgba(139,92,246,0.15) 0%, transparent 60%), radial-gradient(ellipse 50% 40% at 50% 0%, rgba(6,182,212,0.12) 0%, transparent 50%), radial-gradient(ellipse 70% 60% at 10% 90%, rgba(16,185,129,0.08) 0%, transparent 50%)',
-          }}
-        />
-
-        {/* CSS grid dot pattern */}
-        <div
-          className="pointer-events-none absolute inset-0"
-          style={{
-            backgroundImage: 'radial-gradient(rgba(99,102,241,0.12) 1px, transparent 1px)',
+            backgroundImage: 'radial-gradient(rgba(255,255,255,0.12) 1px, transparent 1px)',
             backgroundSize: '28px 28px',
           }}
         />
 
-        {/* Floating orbs */}
-        <FloatingOrb
-          className="left-[-8%] top-[10%] h-[520px] w-[520px] bg-violet-600/20"
-          delay={0}
-        />
-        <FloatingOrb
-          className="right-[-6%] top-[20%] h-[420px] w-[420px] bg-cyan-500/15"
-          delay={2.5}
-        />
-        <FloatingOrb
-          className="bottom-[5%] left-[35%] h-[380px] w-[380px] bg-indigo-600/15"
-          delay={5}
-        />
-        <FloatingOrb
-          className="right-[10%] bottom-[15%] h-[280px] w-[280px] bg-emerald-500/10"
-          delay={3.5}
-        />
+        {/* Soft ambient blobs */}
+        <div className="pointer-events-none absolute -left-32 top-1/4 h-[500px] w-[500px] rounded-full bg-white/10 blur-3xl" />
+        <div className="pointer-events-none absolute -right-24 top-1/3 h-[400px] w-[400px] rounded-full bg-white/10 blur-3xl" />
+        <div className="pointer-events-none absolute bottom-1/4 left-1/3 h-[360px] w-[360px] rounded-full bg-white/10 blur-3xl" />
 
         <div className="relative z-10 mx-auto max-w-4xl text-center">
-          {/* Premium badge */}
+          {/* Badge */}
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.65 }}
-            className="mb-7 inline-flex items-center gap-2.5 rounded-full border border-indigo-500/30 bg-indigo-500/10 px-5 py-2 text-sm font-semibold text-indigo-300 shadow-[0_0_30px_rgba(99,102,241,0.2)]"
+            className="mb-7 inline-flex items-center gap-2.5 rounded-full border border-white/30 bg-white/20 px-5 py-2 text-sm font-semibold text-white"
           >
             <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-indigo-400 opacity-75" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-indigo-400" />
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white opacity-75" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-white" />
             </span>
             {"Türkiye'nin En Hızlı Büyüyen PropTech Firması"}
           </motion.div>
@@ -361,10 +309,10 @@ export function KurumsalContent() {
             initial={{ opacity: 0, y: 32 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.1 }}
-            className="text-5xl font-black leading-tight tracking-tight sm:text-6xl lg:text-7xl"
+            className="text-5xl font-black leading-tight tracking-tight text-white sm:text-6xl lg:text-7xl"
           >
             Gayrimenkulde{' '}
-            <span className="bg-gradient-to-r from-indigo-400 via-violet-400 to-cyan-400 bg-clip-text text-transparent">
+            <span className="text-emerald-200">
               Geleceği
             </span>
             <br />
@@ -375,7 +323,7 @@ export function KurumsalContent() {
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.22 }}
-            className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-slate-400"
+            className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-white/80"
           >
             NetTapu, canlı ihale motoru, harita tabanlı arama ve güvenli ödeme altyapısıyla
             Türkiye&apos;nin gayrimenkul ekosistemini yeniden tanımlıyor. Binlerce yatırımcının
@@ -391,14 +339,14 @@ export function KurumsalContent() {
           >
             <Link
               href="/parcels"
-              className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-500 to-violet-600 px-7 py-3.5 text-sm font-bold text-white shadow-[0_0_40px_rgba(99,102,241,0.5)] transition-all duration-300 hover:shadow-[0_0_60px_rgba(99,102,241,0.7)]"
+              className="group inline-flex items-center gap-2 rounded-xl bg-white px-7 py-3.5 text-sm font-bold text-emerald-700 shadow-xl transition-all duration-300 hover:bg-emerald-50 hover:shadow-2xl"
             >
               Platforma Giriş Yap
               <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
             </Link>
             <a
               href="#hizmetler"
-              className="inline-flex items-center gap-2 rounded-xl border border-white/[0.15] px-7 py-3.5 text-sm font-semibold text-white backdrop-blur-sm transition-all duration-300 hover:border-white/30 hover:bg-white/[0.06]"
+              className="inline-flex items-center gap-2 rounded-xl border border-white/30 bg-white/20 px-7 py-3.5 text-sm font-semibold text-white transition-all duration-300 hover:bg-white/30"
             >
               Daha Fazla Öğren
             </a>
@@ -409,33 +357,32 @@ export function KurumsalContent() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.65, delay: 0.48 }}
-            className="mt-10 inline-flex flex-wrap items-center justify-center gap-4 rounded-2xl border border-white/[0.07] bg-white/[0.03] px-6 py-3.5 backdrop-blur-sm"
+            className="mt-10 inline-flex flex-wrap items-center justify-center gap-4 rounded-2xl border border-white/20 bg-white/10 px-6 py-3.5 backdrop-blur-sm"
           >
-            {/* Avatar stack */}
             <div className="flex items-center">
               <div className="flex -space-x-2.5">
                 {avatarColors.map((g, i) => (
                   <div
                     key={i}
-                    className={`flex h-8 w-8 items-center justify-center rounded-full border-2 border-[#0a0918] bg-gradient-to-br ${g} text-xs font-bold text-white`}
+                    className={`flex h-8 w-8 items-center justify-center rounded-full border-2 border-white/30 bg-gradient-to-br ${g} text-xs font-bold text-white`}
                   >
                     {String.fromCharCode(65 + i)}
                   </div>
                 ))}
               </div>
-              <span className="ml-3 text-sm font-medium text-slate-300">
+              <span className="ml-3 text-sm font-medium text-white">
                 10.000+ aktif yatırımcı
               </span>
             </div>
-            <div className="h-4 w-px bg-white/10" />
+            <div className="h-4 w-px bg-white/20" />
             <div className="flex items-center gap-1.5">
               {[...Array(5)].map((_, i) => (
                 <Star key={i} className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
               ))}
-              <span className="text-sm font-semibold text-slate-300">4.9/5</span>
+              <span className="text-sm font-semibold text-white">4.9/5</span>
             </div>
-            <div className="h-4 w-px bg-white/10" />
-            <span className="text-sm font-semibold text-slate-300">₺2.4M+ işlem</span>
+            <div className="h-4 w-px bg-white/20" />
+            <span className="text-sm font-semibold text-white">₺2.4M+ işlem</span>
           </motion.div>
         </div>
 
@@ -449,7 +396,7 @@ export function KurumsalContent() {
           <motion.div
             animate={{ y: [0, 8, 0] }}
             transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
-            className="flex flex-col items-center gap-1 text-slate-600"
+            className="flex flex-col items-center gap-1 text-white/50"
           >
             <span className="text-xs tracking-widest">Kaydır</span>
             <ChevronDown className="h-4 w-4" />
@@ -457,8 +404,8 @@ export function KurumsalContent() {
         </motion.div>
       </section>
 
-      {/* ── METRICS ───────────────────────────────────── */}
-      <section className="px-4 py-20 sm:px-6 lg:px-8">
+      {/* METRICS */}
+      <section className="bg-white px-4 py-20 sm:px-6 lg:px-8 border-b border-slate-100">
         <div className="mx-auto max-w-5xl">
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
             {metrics.map((m, i) => (
@@ -475,8 +422,8 @@ export function KurumsalContent() {
         </div>
       </section>
 
-      {/* ── BENTO SERVICES GRID ───────────────────────── */}
-      <section id="hizmetler" className="px-4 pb-20 sm:px-6 lg:px-8">
+      {/* BENTO SERVICES GRID */}
+      <section id="hizmetler" className="bg-slate-50 px-4 py-20 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-5xl">
           <div className="mb-10 text-center">
             <motion.div
@@ -484,21 +431,21 @@ export function KurumsalContent() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.55 }}
-              className="mb-3 inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-widest text-indigo-400"
+              className="mb-3 inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-widest text-emerald-600"
             >
-              <span className="h-px w-8 bg-indigo-400" />
+              <span className="h-px w-8 bg-emerald-500" />
               Hizmetlerimiz
-              <span className="h-px w-8 bg-indigo-400" />
+              <span className="h-px w-8 bg-emerald-500" />
             </motion.div>
             <motion.h2
               initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.08 }}
-              className="text-3xl font-extrabold sm:text-4xl"
+              className="text-3xl font-extrabold text-slate-900 sm:text-4xl"
             >
               Tek platformda{' '}
-              <span className="bg-gradient-to-r from-indigo-400 via-violet-400 to-cyan-400 bg-clip-text text-transparent">
+              <span className="text-emerald-600">
                 her şey
               </span>
             </motion.h2>
@@ -512,8 +459,8 @@ export function KurumsalContent() {
         </div>
       </section>
 
-      {/* ── CORPORATE LINKS ───────────────────────────── */}
-      <section className="px-4 pb-20 sm:px-6 lg:px-8">
+      {/* CORPORATE LINKS */}
+      <section className="bg-white px-4 py-20 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-5xl">
           <div className="mb-10 text-center">
             <motion.div
@@ -521,21 +468,21 @@ export function KurumsalContent() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.55 }}
-              className="mb-3 inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-widest text-violet-400"
+              className="mb-3 inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-widest text-emerald-600"
             >
-              <span className="h-px w-8 bg-violet-400" />
+              <span className="h-px w-8 bg-emerald-500" />
               Kurumsal Bilgiler
-              <span className="h-px w-8 bg-violet-400" />
+              <span className="h-px w-8 bg-emerald-500" />
             </motion.div>
             <motion.h2
               initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.08 }}
-              className="text-3xl font-extrabold sm:text-4xl"
+              className="text-3xl font-extrabold text-slate-900 sm:text-4xl"
             >
               Bizi daha iyi{' '}
-              <span className="bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent">
+              <span className="text-emerald-600">
                 tanıyın
               </span>
             </motion.h2>
@@ -549,18 +496,17 @@ export function KurumsalContent() {
         </div>
       </section>
 
-      {/* ── TESTIMONIAL ───────────────────────────────── */}
-      <section className="px-4 pb-20 sm:px-6 lg:px-8">
+      {/* TESTIMONIAL */}
+      <section className="bg-slate-50 px-4 py-20 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-3xl">
           <motion.div
             initial={{ opacity: 0, y: 32 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.7 }}
-            className="relative overflow-hidden rounded-3xl border border-white/[0.08] bg-gradient-to-br from-white/[0.05] to-white/[0.02] p-8 sm:p-12"
+            className="relative overflow-hidden rounded-3xl border border-slate-100 bg-white p-8 sm:p-12 shadow-sm"
           >
-            <div className="pointer-events-none absolute left-0 top-0 h-full w-1 rounded-l-3xl bg-gradient-to-b from-indigo-500 via-violet-500 to-transparent" />
-            <div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-violet-500/10 blur-3xl" />
+            <div className="pointer-events-none absolute left-0 top-0 h-full w-1 rounded-l-3xl bg-gradient-to-b from-emerald-500 via-teal-400 to-transparent" />
 
             <div className="relative">
               <div className="mb-6 flex">
@@ -568,16 +514,16 @@ export function KurumsalContent() {
                   <Star key={i} className="h-5 w-5 fill-amber-400 text-amber-400" />
                 ))}
               </div>
-              <blockquote className="text-xl font-light italic leading-relaxed text-slate-200 sm:text-2xl">
+              <blockquote className="text-xl font-light italic leading-relaxed text-slate-700 sm:text-2xl">
                 &ldquo;NetTapu üzerinden katıldığım ilk ihalede arsamı aldım. Sistem son derece
                 şeffaf, süreç hızlı ve güvenilirdi. Tekrar kullanacağım.&rdquo;
               </blockquote>
               <div className="mt-6 flex items-center gap-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 text-lg font-black text-white">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 text-lg font-black text-white">
                   MK
                 </div>
                 <div>
-                  <p className="font-bold text-white">Murat Karahan</p>
+                  <p className="font-bold text-slate-900">Murat Karahan</p>
                   <p className="text-sm text-slate-500">Gayrimenkul Yatırımcısı, İstanbul</p>
                 </div>
               </div>
@@ -586,7 +532,7 @@ export function KurumsalContent() {
         </div>
       </section>
 
-      {/* ── CTA BANNER ────────────────────────────────── */}
+      {/* CTA BANNER */}
       <section className="px-4 pb-24 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-5xl">
           <motion.div
@@ -594,51 +540,44 @@ export function KurumsalContent() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
-            className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-900 via-violet-900 to-slate-900 p-10 text-center sm:p-16"
+            className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-700 via-emerald-600 to-teal-600 p-10 text-center sm:p-16 shadow-lg"
           >
-            <FloatingOrb
-              className="left-[-8%] top-[-20%] h-[300px] w-[300px] bg-indigo-600/30"
-              delay={0}
-            />
-            <FloatingOrb
-              className="right-[-8%] bottom-[-15%] h-[250px] w-[250px] bg-cyan-500/20"
-              delay={3}
-            />
-            <div className="pointer-events-none absolute inset-0 rounded-3xl border border-white/[0.08]" />
+            <div className="pointer-events-none absolute -left-20 -top-20 h-80 w-80 rounded-full bg-white/10 blur-3xl" />
+            <div className="pointer-events-none absolute -bottom-16 -right-16 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
             <div
               className="pointer-events-none absolute inset-0"
               style={{
-                backgroundImage: 'radial-gradient(rgba(255,255,255,0.04) 1px, transparent 1px)',
+                backgroundImage: 'radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px)',
                 backgroundSize: '24px 24px',
               }}
             />
 
             <div className="relative">
-              <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-indigo-300">
+              <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-white/70">
                 Yatırıma Başlayın
               </p>
-              <h2 className="text-3xl font-black sm:text-4xl lg:text-5xl">
+              <h2 className="text-3xl font-black text-white sm:text-4xl lg:text-5xl">
                 Gayrimenkul yatırımının{' '}
-                <span className="bg-gradient-to-r from-cyan-400 via-indigo-400 to-violet-400 bg-clip-text text-transparent">
+                <span className="text-emerald-200">
                   geleceğine
                 </span>{' '}
                 hoş geldiniz
               </h2>
-              <p className="mx-auto mt-4 max-w-xl text-slate-400">
+              <p className="mx-auto mt-4 max-w-xl text-white/80">
                 Türkiye&apos;nin dört bir yanındaki arsa ve gayrimenkul fırsatlarını keşfedin.
                 Canlı ihalede yerinizi alın.
               </p>
               <div className="mt-9 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
                 <Link
                   href="/parcels"
-                  className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-indigo-600 px-8 py-4 text-sm font-bold text-white shadow-[0_0_40px_rgba(99,102,241,0.5)] transition-all duration-300 hover:shadow-[0_0_60px_rgba(99,102,241,0.7)]"
+                  className="group inline-flex items-center gap-2 rounded-xl bg-white px-8 py-4 text-sm font-bold text-emerald-700 shadow-xl transition-all duration-300 hover:bg-emerald-50 hover:shadow-2xl"
                 >
                   Arsaları Keşfet
                   <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
                 </Link>
                 <Link
                   href="/contact"
-                  className="inline-flex items-center gap-2 rounded-xl border border-white/[0.2] px-8 py-4 text-sm font-semibold text-white backdrop-blur-sm transition-all duration-300 hover:border-white/40 hover:bg-white/[0.06]"
+                  className="inline-flex items-center gap-2 rounded-xl border border-white/30 bg-white/20 px-8 py-4 text-sm font-semibold text-white transition-all duration-300 hover:bg-white/30"
                 >
                   Bizimle İletişime Geçin
                 </Link>

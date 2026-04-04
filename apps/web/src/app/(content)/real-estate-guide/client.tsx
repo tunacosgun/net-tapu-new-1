@@ -20,8 +20,6 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 
-/* ─── types ─────────────────────────────────────────── */
-
 interface Article {
   id: number;
   slug: string;
@@ -35,8 +33,6 @@ interface Article {
   featured?: boolean;
   featuredGradient?: string;
 }
-
-/* ─── constants ─────────────────────────────────────── */
 
 const CATEGORIES = [
   { id: 'all', label: 'Tümü', icon: BookOpen },
@@ -59,9 +55,9 @@ const ARTICLES: Article[] = [
     readTime: '8 dk',
     author: 'Ahmet Yılmaz',
     authorInitials: 'AY',
-    authorGradient: 'from-indigo-500 to-violet-600',
+    authorGradient: 'from-emerald-500 to-teal-600',
     featured: true,
-    featuredGradient: 'from-indigo-900 via-violet-900 to-slate-900',
+    featuredGradient: 'from-emerald-700 via-emerald-600 to-teal-600',
   },
   {
     id: 2,
@@ -73,7 +69,7 @@ const ARTICLES: Article[] = [
     readTime: '6 dk',
     author: 'Elif Kaya',
     authorInitials: 'EK',
-    authorGradient: 'from-emerald-500 to-teal-600',
+    authorGradient: 'from-indigo-500 to-violet-600',
   },
   {
     id: 3,
@@ -121,7 +117,7 @@ const ARTICLES: Article[] = [
     readTime: '4 dk',
     author: 'Elif Kaya',
     authorInitials: 'EK',
-    authorGradient: 'from-emerald-500 to-teal-600',
+    authorGradient: 'from-indigo-500 to-violet-600',
   },
   {
     id: 7,
@@ -145,7 +141,7 @@ const ARTICLES: Article[] = [
     readTime: '10 dk',
     author: 'Ahmet Yılmaz',
     authorInitials: 'AY',
-    authorGradient: 'from-indigo-500 to-violet-600',
+    authorGradient: 'from-emerald-500 to-teal-600',
   },
 ];
 
@@ -160,12 +156,10 @@ const CATEGORY_ICON_MAP: Record<string, React.ElementType> = {
   finansman: Banknote,
 };
 
-/* ─── sub-components ────────────────────────────────── */
-
 function CategoryBadge({ category }: { category: string }) {
   const cat = CATEGORIES.find((c) => c.id === category);
   return (
-    <span className="inline-flex items-center gap-1 rounded-full bg-indigo-500/15 px-2.5 py-0.5 text-xs font-semibold text-indigo-300">
+    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-700 border border-emerald-100">
       {cat?.label ?? category}
     </span>
   );
@@ -178,41 +172,42 @@ function FeaturedCard({ article, onOpen }: { article: Article; onOpen: (a: Artic
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
       onClick={() => onOpen(article)}
-      className={`group relative cursor-pointer overflow-hidden rounded-2xl bg-gradient-to-br ${article.featuredGradient ?? 'from-indigo-900 to-slate-900'} p-8 sm:p-10`}
+      className={`group relative cursor-pointer overflow-hidden rounded-2xl bg-gradient-to-br ${article.featuredGradient ?? 'from-emerald-700 to-teal-700'} p-8 sm:p-10 shadow-lg`}
     >
-      {/* background orbs */}
-      <div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-violet-500/20 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-10 left-10 h-36 w-36 rounded-full bg-cyan-500/15 blur-3xl" />
+      <div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-white/10 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-10 left-10 h-36 w-36 rounded-full bg-white/10 blur-3xl" />
       <div className="pointer-events-none absolute inset-0 rounded-2xl border border-white/10" />
 
       <div className="relative">
         <div className="mb-3 flex items-center gap-3">
-          <span className="rounded-full bg-indigo-500/20 px-3 py-1 text-xs font-bold uppercase tracking-widest text-indigo-300">
+          <span className="rounded-full bg-white/20 px-3 py-1 text-xs font-bold uppercase tracking-widest text-white">
             Öne Çıkan
           </span>
-          <CategoryBadge category={article.category} />
+          <span className="rounded-full bg-white/20 px-2.5 py-0.5 text-xs font-semibold text-white border border-white/20">
+            {CATEGORIES.find((c) => c.id === article.category)?.label ?? article.category}
+          </span>
         </div>
         <h3 className="text-2xl font-extrabold leading-tight text-white sm:text-3xl">
           {article.title}
         </h3>
-        <p className="mt-3 max-w-xl text-base leading-relaxed text-slate-300/80">
+        <p className="mt-3 max-w-xl text-base leading-relaxed text-white/80">
           {article.excerpt}
         </p>
         <div className="mt-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div
-              className={`flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br ${article.authorGradient} text-xs font-bold text-white`}
+              className={`flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-xs font-bold text-white`}
             >
               {article.authorInitials}
             </div>
-            <span className="text-sm text-slate-400">{article.author}</span>
-            <span className="text-slate-600">·</span>
-            <span className="flex items-center gap-1 text-sm text-slate-400">
+            <span className="text-sm text-white/70">{article.author}</span>
+            <span className="text-white/40">·</span>
+            <span className="flex items-center gap-1 text-sm text-white/70">
               <Clock className="h-3.5 w-3.5" />
               {article.readTime} okuma
             </span>
           </div>
-          <span className="flex items-center gap-1 text-sm font-semibold text-indigo-400 transition-all duration-200 group-hover:gap-2">
+          <span className="flex items-center gap-1 text-sm font-semibold text-white transition-all duration-200 group-hover:gap-2">
             Okumaya Devam <ArrowRight className="h-4 w-4" />
           </span>
         </div>
@@ -236,24 +231,24 @@ function ArticleCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: index * 0.07 }}
       onClick={() => onOpen(article)}
-      className="group flex cursor-pointer flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] backdrop-blur-sm transition-all duration-300 hover:border-indigo-500/30 hover:bg-white/[0.07] hover:shadow-[0_0_30px_rgba(99,102,241,0.1)]"
+      className="group flex cursor-pointer flex-col overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm transition-all duration-300 hover:border-emerald-200 hover:shadow-md"
     >
       <div className="flex flex-1 flex-col p-6">
         <CategoryBadge category={article.category} />
-        <h3 className="mt-3 text-base font-bold leading-snug text-white group-hover:text-indigo-300 transition-colors duration-200 line-clamp-2">
+        <h3 className="mt-3 text-base font-bold leading-snug text-slate-900 group-hover:text-emerald-700 transition-colors duration-200 line-clamp-2">
           {article.title}
         </h3>
-        <p className="mt-2 flex-1 text-sm leading-relaxed text-slate-400 line-clamp-2">
+        <p className="mt-2 flex-1 text-sm leading-relaxed text-slate-500 line-clamp-2">
           {article.excerpt}
         </p>
-        <div className="mt-4 flex items-center gap-3 border-t border-white/[0.06] pt-4">
+        <div className="mt-4 flex items-center gap-3 border-t border-slate-100 pt-4">
           <div
             className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${article.authorGradient} text-xs font-bold text-white`}
           >
             {article.authorInitials}
           </div>
           <span className="text-xs text-slate-500">{article.author}</span>
-          <span className="ml-auto flex items-center gap-1 text-xs text-slate-500">
+          <span className="ml-auto flex items-center gap-1 text-xs text-slate-400">
             <Clock className="h-3 w-3" />
             {article.readTime}
           </span>
@@ -269,7 +264,7 @@ function ArticleModal({ article, onClose }: { article: Article; onClose: () => v
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-end justify-center bg-black/70 backdrop-blur-sm sm:items-center sm:p-4"
+      className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 backdrop-blur-sm sm:items-center sm:p-4"
       onClick={onClose}
     >
       <motion.div
@@ -278,40 +273,40 @@ function ArticleModal({ article, onClose }: { article: Article; onClose: () => v
         exit={{ opacity: 0, y: 40, scale: 0.97 }}
         transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
         onClick={(e) => e.stopPropagation()}
-        className="relative w-full max-h-[90vh] overflow-y-auto rounded-t-3xl bg-[#0f0e20] sm:max-w-2xl sm:rounded-3xl"
+        className="relative w-full max-h-[90vh] overflow-y-auto rounded-t-3xl bg-white sm:max-w-2xl sm:rounded-3xl shadow-xl"
       >
-        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-white/[0.07] bg-[#0f0e20]/90 px-6 py-4 backdrop-blur-sm">
+        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-100 bg-white px-6 py-4">
           <CategoryBadge category={article.category} />
           <button
             onClick={onClose}
-            className="flex h-8 w-8 items-center justify-center rounded-full bg-white/[0.06] text-slate-400 hover:bg-white/10 hover:text-white transition-colors"
+            className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-900 transition-colors"
           >
             <X className="h-4 w-4" />
           </button>
         </div>
         <div className="p-6 sm:p-8">
-          <h2 className="text-2xl font-extrabold leading-tight text-white">{article.title}</h2>
+          <h2 className="text-2xl font-extrabold leading-tight text-slate-900">{article.title}</h2>
           <div className="mt-3 flex items-center gap-3">
             <div
               className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${article.authorGradient} text-xs font-bold text-white`}
             >
               {article.authorInitials}
             </div>
-            <span className="text-sm text-slate-400">{article.author}</span>
-            <span className="text-slate-600">·</span>
-            <span className="flex items-center gap-1 text-sm text-slate-500">
+            <span className="text-sm text-slate-500">{article.author}</span>
+            <span className="text-slate-300">·</span>
+            <span className="flex items-center gap-1 text-sm text-slate-400">
               <Clock className="h-3.5 w-3.5" />
               {article.readTime} okuma
             </span>
           </div>
-          <div className="mt-6 space-y-4 text-sm leading-relaxed text-slate-300">
+          <div className="mt-6 space-y-4 text-sm leading-relaxed text-slate-600">
             <p>{article.excerpt}</p>
             <p>
               Bu makalede {article.title.toLowerCase()} konusunu tüm detaylarıyla ele alıyoruz.
               Türkiye&apos;nin gayrimenkul piyasasında bilinçli karar vermek için ihtiyacınız olan
               temel bilgileri, yasal çerçeveyi ve pratik ipuçlarını bulabilirsiniz.
             </p>
-            <p className="rounded-xl border border-indigo-500/20 bg-indigo-500/10 p-4 text-indigo-200">
+            <p className="rounded-xl border border-emerald-100 bg-emerald-50 p-4 text-emerald-800">
               Bu makalenin tam içeriği yakında yayınlanacaktır. NetTapu gayrimenkul rehberine
               abone olarak yeni makalelerden haberdar olabilirsiniz.
             </p>
@@ -319,13 +314,13 @@ function ArticleModal({ article, onClose }: { article: Article; onClose: () => v
           <div className="mt-6 flex gap-3">
             <Link
               href="/parcels"
-              className="flex-1 rounded-xl bg-gradient-to-r from-indigo-500 to-violet-600 py-3 text-center text-sm font-semibold text-white shadow-lg shadow-indigo-500/30 transition-all hover:shadow-indigo-500/50"
+              className="flex-1 rounded-xl bg-emerald-600 py-3 text-center text-sm font-semibold text-white hover:bg-emerald-700 transition-colors shadow-md shadow-emerald-200"
             >
               Arsaları İncele
             </Link>
             <button
               onClick={onClose}
-              className="rounded-xl border border-white/15 px-4 py-3 text-sm font-semibold text-white hover:bg-white/[0.06] transition-colors"
+              className="rounded-xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
             >
               Kapat
             </button>
@@ -335,8 +330,6 @@ function ArticleModal({ article, onClose }: { article: Article; onClose: () => v
     </motion.div>
   );
 }
-
-/* ─── main ─────────────────────────────────────────── */
 
 export function RealEstateGuideContent() {
   const [query, setQuery] = useState('');
@@ -358,26 +351,18 @@ export function RealEstateGuideContent() {
   }, [query, activeCategory]);
 
   return (
-    <div className="min-h-screen bg-[#0a0918] text-white">
-      {/* ── HERO ──────────────────────────────────────── */}
-      <section className="relative overflow-hidden px-4 pb-16 pt-20 sm:px-6 lg:px-8">
-        <div
-          className="pointer-events-none absolute inset-0"
-          style={{
-            backgroundImage:
-              'linear-gradient(rgba(99,102,241,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(99,102,241,0.05) 1px, transparent 1px)',
-            backgroundSize: '56px 56px',
-          }}
-        />
-        <div className="pointer-events-none absolute -left-32 top-0 h-80 w-80 rounded-full bg-violet-600/20 blur-[120px]" />
-        <div className="pointer-events-none absolute -right-20 top-20 h-60 w-60 rounded-full bg-cyan-500/15 blur-[100px]" />
+    <div className="min-h-screen bg-slate-50 text-slate-900">
+      {/* HERO */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-emerald-700 via-emerald-600 to-teal-600 px-4 pb-16 pt-20 sm:px-6 lg:px-8">
+        <div className="pointer-events-none absolute -left-32 top-0 h-80 w-80 rounded-full bg-white/10 blur-[120px]" />
+        <div className="pointer-events-none absolute -right-20 top-20 h-60 w-60 rounded-full bg-white/10 blur-[100px]" />
 
         <div className="relative mx-auto max-w-3xl text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="mb-4 inline-flex items-center gap-2 rounded-full border border-violet-500/30 bg-violet-500/10 px-4 py-1.5 text-sm font-medium text-violet-300"
+            className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/20 px-4 py-1.5 text-sm font-medium text-white"
           >
             <BookOpen className="h-3.5 w-3.5" />
             Gayrimenkul Rehberi
@@ -386,10 +371,10 @@ export function RealEstateGuideContent() {
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.1 }}
-            className="text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl lg:text-6xl"
+            className="text-4xl font-extrabold leading-tight tracking-tight text-white sm:text-5xl lg:text-6xl"
           >
             Gayrimenkul{' '}
-            <span className="bg-gradient-to-r from-indigo-400 via-violet-400 to-cyan-400 bg-clip-text text-transparent">
+            <span className="text-emerald-200">
               Rehberi
             </span>
           </motion.h1>
@@ -397,7 +382,7 @@ export function RealEstateGuideContent() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="mt-4 text-base text-slate-400 sm:text-lg"
+            className="mt-4 text-base text-white/80 sm:text-lg"
           >
             Arsa yatırımı, tapu işlemleri, ihale rehberi ve daha fazlası. Bilinçli bir yatırımcı
             olmak için ihtiyacınız olan tüm bilgiler.
@@ -411,18 +396,18 @@ export function RealEstateGuideContent() {
             className="mx-auto mt-8 max-w-xl"
           >
             <div className="relative">
-              <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-white/30" />
+              <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
               <input
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Makale ara..."
-                className="w-full rounded-2xl border border-white/[0.08] bg-white/[0.05] py-4 pl-11 pr-10 text-sm text-white placeholder-white/30 backdrop-blur-xl outline-none transition-all focus:border-indigo-500/50 focus:bg-white/[0.08] focus:ring-2 focus:ring-indigo-500/20"
+                className="w-full rounded-2xl border border-white/20 bg-white/90 py-4 pl-11 pr-10 text-sm text-slate-900 placeholder-slate-400 outline-none transition-all focus:bg-white focus:ring-2 focus:ring-white/40 shadow-md"
               />
               {query && (
                 <button
                   onClick={() => setQuery('')}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -432,8 +417,8 @@ export function RealEstateGuideContent() {
         </div>
       </section>
 
-      {/* ── CATEGORY PILLS ────────────────────────────── */}
-      <div className="sticky top-0 z-20 border-b border-white/[0.06] bg-[#0a0918]/90 px-4 py-4 backdrop-blur-xl sm:px-6 lg:px-8">
+      {/* CATEGORY PILLS */}
+      <div className="sticky top-0 z-20 border-b border-slate-100 bg-white px-4 py-4 shadow-sm sm:px-6 lg:px-8">
         <div className="mx-auto max-w-6xl">
           <div className="flex gap-2 overflow-x-auto pb-0.5" style={{ scrollbarWidth: 'none' }}>
             {CATEGORIES.map((cat) => {
@@ -444,8 +429,8 @@ export function RealEstateGuideContent() {
                   onClick={() => setActiveCategory(cat.id)}
                   className={`shrink-0 inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-medium transition-all duration-200 ${
                     activeCategory === cat.id
-                      ? 'bg-gradient-to-r from-indigo-500 to-violet-600 text-white shadow-lg shadow-indigo-500/30'
-                      : 'border border-white/[0.08] bg-white/[0.03] text-white/50 hover:bg-white/[0.07] hover:text-white/80'
+                      ? 'bg-emerald-600 text-white shadow-md shadow-emerald-200'
+                      : 'border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900'
                   }`}
                 >
                   <Icon className="h-3.5 w-3.5" />
@@ -457,35 +442,33 @@ export function RealEstateGuideContent() {
         </div>
       </div>
 
-      {/* ── BODY ──────────────────────────────────────── */}
+      {/* BODY */}
       <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="lg:flex lg:gap-10">
           {/* Main */}
           <div className="min-w-0 flex-1">
-            {/* Featured article */}
             {featured && !query && activeCategory === 'all' && (
               <div className="mb-8">
-                <p className="mb-4 text-xs font-semibold uppercase tracking-widest text-indigo-400">
+                <p className="mb-4 text-xs font-semibold uppercase tracking-widest text-emerald-600">
                   Öne Çıkan Makale
                 </p>
                 <FeaturedCard article={featured} onOpen={setSelectedArticle} />
               </div>
             )}
 
-            {/* Articles grid */}
             {filtered.length === 0 && query ? (
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 className="py-20 text-center"
               >
-                <Search className="mx-auto mb-4 h-12 w-12 text-white/15" />
-                <p className="text-white/40">
+                <Search className="mx-auto mb-4 h-12 w-12 text-slate-200" />
+                <p className="text-slate-400">
                   &ldquo;{query}&rdquo; için sonuç bulunamadı.
                 </p>
                 <button
                   onClick={() => setQuery('')}
-                  className="mt-4 text-sm text-indigo-400 hover:underline"
+                  className="mt-4 text-sm text-emerald-600 hover:underline"
                 >
                   Aramayı temizle
                 </button>
@@ -493,7 +476,7 @@ export function RealEstateGuideContent() {
             ) : (
               <>
                 {(query || activeCategory !== 'all') && (
-                  <p className="mb-4 text-xs text-slate-500">
+                  <p className="mb-4 text-xs text-slate-400">
                     {filtered.length} makale bulundu
                   </p>
                 )}
@@ -528,10 +511,10 @@ export function RealEstateGuideContent() {
           <aside className="mt-12 lg:mt-0 lg:w-64 lg:shrink-0">
             <div className="sticky top-24 space-y-6">
               {/* Popular articles */}
-              <div className="rounded-2xl border border-white/[0.08] bg-white/[0.03] p-5 backdrop-blur-sm">
+              <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
                 <div className="mb-4 flex items-center gap-2">
                   <Star className="h-4 w-4 text-amber-400" />
-                  <p className="text-sm font-bold text-white">Popüler Makaleler</p>
+                  <p className="text-sm font-bold text-slate-900">Popüler Makaleler</p>
                 </div>
                 <div className="space-y-3">
                   {POPULAR_ARTICLES.map((article, i) => {
@@ -540,21 +523,21 @@ export function RealEstateGuideContent() {
                       <button
                         key={article.id}
                         onClick={() => setSelectedArticle(article)}
-                        className="group flex w-full items-start gap-3 rounded-lg p-2 text-left transition-colors hover:bg-white/[0.04]"
+                        className="group flex w-full items-start gap-3 rounded-lg p-2 text-left transition-colors hover:bg-slate-50"
                       >
-                        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-indigo-500/20 text-xs font-bold text-indigo-400">
+                        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-emerald-50 text-xs font-bold text-emerald-600">
                           {i + 1}
                         </span>
                         <div className="min-w-0">
-                          <p className="text-xs font-semibold leading-snug text-slate-300 group-hover:text-white transition-colors line-clamp-2">
+                          <p className="text-xs font-semibold leading-snug text-slate-700 group-hover:text-slate-900 transition-colors line-clamp-2">
                             {article.title}
                           </p>
-                          <div className="mt-1 flex items-center gap-1 text-[11px] text-slate-600">
+                          <div className="mt-1 flex items-center gap-1 text-[11px] text-slate-400">
                             <CatIcon className="h-3 w-3" />
                             {CATEGORIES.find((c) => c.id === article.category)?.label}
                           </div>
                         </div>
-                        <ChevronRight className="mt-0.5 h-3.5 w-3.5 shrink-0 text-slate-600 group-hover:text-slate-400 transition-colors" />
+                        <ChevronRight className="mt-0.5 h-3.5 w-3.5 shrink-0 text-slate-300 group-hover:text-slate-500 transition-colors" />
                       </button>
                     );
                   })}
@@ -562,8 +545,8 @@ export function RealEstateGuideContent() {
               </div>
 
               {/* Categories */}
-              <div className="rounded-2xl border border-white/[0.08] bg-white/[0.03] p-5 backdrop-blur-sm">
-                <p className="mb-3 text-sm font-bold text-white">Kategoriler</p>
+              <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
+                <p className="mb-3 text-sm font-bold text-slate-900">Kategoriler</p>
                 <div className="space-y-1">
                   {CATEGORIES.filter((c) => c.id !== 'all').map((cat) => {
                     const count = ARTICLES.filter((a) => a.category === cat.id).length;
@@ -574,15 +557,15 @@ export function RealEstateGuideContent() {
                         onClick={() => setActiveCategory(cat.id)}
                         className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm transition-colors ${
                           activeCategory === cat.id
-                            ? 'bg-indigo-500/15 text-indigo-300'
-                            : 'text-slate-400 hover:bg-white/[0.04] hover:text-slate-300'
+                            ? 'bg-emerald-50 text-emerald-700'
+                            : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
                         }`}
                       >
                         <span className="flex items-center gap-2">
                           <Icon className="h-3.5 w-3.5" />
                           {cat.label}
                         </span>
-                        <span className="rounded-full bg-white/[0.06] px-2 py-0.5 text-xs text-slate-500">
+                        <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-500">
                           {count}
                         </span>
                       </button>
@@ -592,14 +575,14 @@ export function RealEstateGuideContent() {
               </div>
 
               {/* CTA */}
-              <div className="rounded-2xl border border-indigo-500/20 bg-gradient-to-br from-indigo-900/60 to-violet-900/40 p-5">
-                <p className="text-sm font-bold text-white">İhaleye Hazır mısınız?</p>
-                <p className="mt-1 text-xs text-slate-400">
+              <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-5">
+                <p className="text-sm font-bold text-slate-900">İhaleye Hazır mısınız?</p>
+                <p className="mt-1 text-xs text-slate-500">
                   Türkiye genelindeki arsa ihalelerini keşfedin.
                 </p>
                 <Link
                   href="/auctions"
-                  className="mt-4 flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-indigo-500 to-violet-600 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-indigo-500/30 transition-all hover:shadow-indigo-500/50"
+                  className="mt-4 flex items-center justify-center gap-1.5 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-emerald-200 transition-all hover:bg-emerald-700"
                 >
                   İhaleleri Gör <ArrowRight className="h-3.5 w-3.5" />
                 </Link>
@@ -609,7 +592,7 @@ export function RealEstateGuideContent() {
         </div>
       </div>
 
-      {/* ── NEWSLETTER CTA ────────────────────────────── */}
+      {/* NEWSLETTER CTA */}
       <section className="px-4 py-16 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-2xl">
           <motion.div
@@ -617,20 +600,19 @@ export function RealEstateGuideContent() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.7 }}
-            className="relative overflow-hidden rounded-3xl border border-white/[0.08] bg-gradient-to-br from-violet-900/60 to-indigo-900/50 p-8 text-center sm:p-12"
+            className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-700 via-emerald-600 to-teal-600 p-8 text-center sm:p-12 shadow-lg"
           >
-            <div className="pointer-events-none absolute -left-16 -top-16 h-48 w-48 rounded-full bg-violet-600/25 blur-3xl" />
-            <div className="pointer-events-none absolute -bottom-8 -right-8 h-36 w-36 rounded-full bg-cyan-500/20 blur-3xl" />
-            <div className="pointer-events-none absolute inset-0 rounded-3xl border border-white/[0.06]" />
+            <div className="pointer-events-none absolute -left-16 -top-16 h-48 w-48 rounded-full bg-white/10 blur-3xl" />
+            <div className="pointer-events-none absolute -bottom-8 -right-8 h-36 w-36 rounded-full bg-white/10 blur-3xl" />
 
             <div className="relative">
-              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-500/20">
-                <Mail className="h-6 w-6 text-indigo-400" />
+              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-white/20">
+                <Mail className="h-6 w-6 text-white" />
               </div>
               <h2 className="text-2xl font-extrabold text-white sm:text-3xl">
                 Yeni Makalelerden Haberdar Olun
               </h2>
-              <p className="mt-3 text-slate-400">
+              <p className="mt-3 text-white/80">
                 Gayrimenkul rehberi yazılarımız ve ihale duyurularını haftalık bültenimizle alın.
                 İstediğinizde aboneliğinizi iptal edebilirsiniz.
               </p>
@@ -638,7 +620,7 @@ export function RealEstateGuideContent() {
                 <motion.div
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  className="mt-6 inline-flex items-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-6 py-3 text-sm font-semibold text-emerald-400"
+                  className="mt-6 inline-flex items-center gap-2 rounded-xl border border-white/30 bg-white/20 px-6 py-3 text-sm font-semibold text-white"
                 >
                   Abone oldunuz! Teşekkürler.
                 </motion.div>
@@ -649,19 +631,19 @@ export function RealEstateGuideContent() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="E-posta adresiniz"
-                    className="flex-1 rounded-xl border border-white/[0.08] bg-white/[0.05] px-4 py-3 text-sm text-white placeholder-white/30 backdrop-blur-sm outline-none transition-all focus:border-indigo-500/50 focus:ring-2 focus:ring-indigo-500/20"
+                    className="flex-1 rounded-xl border border-white/20 bg-white/90 px-4 py-3 text-sm text-slate-900 placeholder-slate-400 outline-none transition-all focus:bg-white focus:ring-2 focus:ring-white/40"
                   />
                   <button
                     onClick={() => {
                       if (email.includes('@')) setSubscribed(true);
                     }}
-                    className="rounded-xl bg-gradient-to-r from-indigo-500 to-violet-600 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-indigo-500/30 transition-all hover:shadow-indigo-500/50 whitespace-nowrap"
+                    className="rounded-xl bg-white px-6 py-3 text-sm font-bold text-emerald-700 shadow-lg transition-all hover:bg-emerald-50 whitespace-nowrap"
                   >
                     Abone Ol
                   </button>
                 </div>
               )}
-              <p className="mt-3 text-xs text-slate-600">
+              <p className="mt-3 text-xs text-white/60">
                 Spam göndermiyoruz. Verileriniz KVKK kapsamında korunmaktadır.
               </p>
             </div>
@@ -669,7 +651,6 @@ export function RealEstateGuideContent() {
         </div>
       </section>
 
-      {/* Article modal */}
       <AnimatePresence>
         {selectedArticle && (
           <ArticleModal

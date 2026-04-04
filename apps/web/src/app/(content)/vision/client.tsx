@@ -1,7 +1,7 @@
 'use client';
 
-import { motion, useInView, useScroll, useTransform } from 'framer-motion';
-import { useRef, useState } from 'react';
+import { motion, useInView } from 'framer-motion';
+import { useRef } from 'react';
 import Link from 'next/link';
 import {
   Monitor,
@@ -9,50 +9,7 @@ import {
   Heart,
   ArrowRight,
   CheckCircle2,
-  Circle,
 } from 'lucide-react';
-
-/* ─── particle field (CSS-only, no canvas) ────────────── */
-
-const PARTICLES = Array.from({ length: 60 }, (_, i) => ({
-  id: i,
-  x: Math.random() * 100,
-  y: Math.random() * 100,
-  size: Math.random() * 3 + 1,
-  duration: Math.random() * 10 + 8,
-  delay: Math.random() * 6,
-  opacity: Math.random() * 0.5 + 0.1,
-}));
-
-function ParticleField() {
-  return (
-    <div className="pointer-events-none absolute inset-0 overflow-hidden">
-      {PARTICLES.map((p) => (
-        <motion.div
-          key={p.id}
-          className="absolute rounded-full bg-cyan-400"
-          style={{
-            left: `${p.x}%`,
-            top: `${p.y}%`,
-            width: p.size,
-            height: p.size,
-            opacity: p.opacity,
-          }}
-          animate={{
-            y: [0, -40, 0],
-            opacity: [p.opacity, p.opacity * 2, p.opacity],
-          }}
-          transition={{
-            duration: p.duration,
-            delay: p.delay,
-            repeat: Infinity,
-            ease: 'easeInOut',
-          }}
-        />
-      ))}
-    </div>
-  );
-}
 
 /* ─── word-by-word reveal ─────────────────────────────── */
 
@@ -104,25 +61,22 @@ function PillarCard({
       initial={{ opacity: 0, y: 50 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
       transition={{ delay: index * 0.15, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-      className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur-sm transition-all duration-500 hover:border-white/20 hover:shadow-[0_0_60px_rgba(99,102,241,0.15)]"
+      className="group relative overflow-hidden rounded-xl border border-slate-100 bg-white p-8 shadow-sm transition-shadow duration-300 hover:shadow-md"
     >
-      <div className="pointer-events-none absolute inset-0 rounded-3xl bg-gradient-to-br from-white/6 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
-
-      {/* number */}
       <div
-        className={`mb-5 inline-flex items-center justify-center rounded-2xl bg-gradient-to-br ${gradient} px-3 py-1.5 text-xs font-black tracking-widest text-white shadow-lg`}
+        className={`mb-4 inline-flex items-center justify-center rounded-xl bg-gradient-to-br ${gradient} px-3 py-1.5 text-xs font-black tracking-widest text-white shadow-md`}
       >
         {number}
       </div>
 
       <div
-        className={`mb-5 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${gradient} shadow-xl`}
+        className={`mb-5 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${gradient} shadow-lg`}
       >
         <Icon className="h-7 w-7 text-white" />
       </div>
 
-      <h3 className="mb-3 text-xl font-black text-white">{title}</h3>
-      <p className="text-sm leading-relaxed text-slate-400">{description}</p>
+      <h3 className="mb-3 text-xl font-bold text-slate-900">{title}</h3>
+      <p className="text-sm leading-relaxed text-slate-600">{description}</p>
     </motion.div>
   );
 }
@@ -162,10 +116,9 @@ function Timeline() {
 
   return (
     <div ref={ref} className="relative">
-      {/* vertical line */}
-      <div className="absolute left-6 top-0 h-full w-px bg-gradient-to-b from-cyan-500/50 via-violet-500/30 to-transparent" />
+      <div className="absolute left-6 top-0 h-full w-px bg-gradient-to-b from-emerald-400 via-emerald-200 to-transparent" />
 
-      <div className="space-y-8">
+      <div className="space-y-6">
         {ROADMAP.map((item, i) => (
           <motion.div
             key={item.year}
@@ -174,44 +127,43 @@ function Timeline() {
             transition={{ delay: i * 0.15, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
             className="relative flex gap-6 pl-14"
           >
-            {/* dot */}
             <div
               className={`absolute left-4 top-1 flex h-5 w-5 -translate-x-1/2 items-center justify-center rounded-full border-2 ${
                 item.done
-                  ? 'border-cyan-500 bg-cyan-500/30'
-                  : 'border-slate-600 bg-slate-800'
+                  ? 'border-emerald-500 bg-emerald-100'
+                  : 'border-slate-300 bg-white'
               }`}
             >
               <div
-                className={`h-2 w-2 rounded-full ${item.done ? 'bg-cyan-400' : 'bg-slate-600'}`}
+                className={`h-2 w-2 rounded-full ${item.done ? 'bg-emerald-500' : 'bg-slate-300'}`}
               />
             </div>
 
             <div
-              className={`group rounded-2xl border p-5 transition-all duration-300 ${
+              className={`rounded-xl border p-5 transition-all duration-300 ${
                 item.done
-                  ? 'border-cyan-500/30 bg-cyan-500/8'
-                  : 'border-white/8 bg-white/4 hover:border-white/15'
+                  ? 'border-emerald-200 bg-emerald-50'
+                  : 'border-slate-100 bg-white shadow-sm hover:shadow-md'
               }`}
               style={{ flex: 1 }}
             >
               <div className="mb-1 flex items-center gap-3">
                 <span
                   className={`text-xs font-black tracking-widest ${
-                    item.done ? 'text-cyan-400' : 'text-slate-500'
+                    item.done ? 'text-emerald-600' : 'text-slate-400'
                   }`}
                 >
                   {item.year}
                 </span>
                 {item.done && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-cyan-500/20 px-2 py-0.5 text-xs font-semibold text-cyan-300">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-700">
                     <CheckCircle2 className="h-3 w-3" />
                     Tamamlandı
                   </span>
                 )}
               </div>
-              <p className="font-bold text-white">{item.label}</p>
-              <p className="mt-1 text-sm text-slate-400">{item.detail}</p>
+              <p className="font-bold text-slate-900">{item.label}</p>
+              <p className="mt-1 text-sm text-slate-500">{item.detail}</p>
             </div>
           </motion.div>
         ))}
@@ -230,7 +182,7 @@ export function VisionContent() {
       title: 'Dijital Dönüşüm',
       description:
         'Gayrimenkul sektörünü geleneksel yöntemlerden kurtararak tamamen dijital ve şeffaf bir ekosistem oluşturmak. Yapay zeka destekli değerleme ve gerçek zamanlı piyasa analizi ile sektörü geleceğe taşımak.',
-      gradient: 'from-cyan-500 to-blue-600',
+      gradient: 'from-emerald-500 to-emerald-700',
     },
     {
       number: '02',
@@ -238,7 +190,7 @@ export function VisionContent() {
       title: 'Küresel Erişim',
       description:
         'Türkiye gayrimenkul piyasasını uluslararası yatırımcılara açarak sınır ötesi yatırım imkanları sunmak. Çok dilli platform desteği ve uluslararası ödeme altyapısı ile küresel bir pazar yeri olmak.',
-      gradient: 'from-violet-500 to-purple-700',
+      gradient: 'from-blue-500 to-blue-700',
     },
     {
       number: '03',
@@ -251,162 +203,124 @@ export function VisionContent() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#0a0918] text-white">
+    <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
       {/* ── HERO ─────────────────────────────────────────── */}
-      <section className="relative overflow-hidden px-4 pb-32 pt-20 sm:px-6 lg:px-8">
-        {/* grid bg */}
-        <div
-          className="pointer-events-none absolute inset-0"
-          style={{
-            backgroundImage:
-              'linear-gradient(rgba(99,102,241,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(99,102,241,0.05) 1px, transparent 1px)',
-            backgroundSize: '80px 80px',
-          }}
-        />
-        {/* radial overlay */}
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_0%,rgba(99,102,241,0.12),transparent)]" />
-
-        <ParticleField />
-
-        <div className="relative mx-auto max-w-5xl text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="mb-6 inline-flex items-center gap-2 rounded-full border border-violet-500/30 bg-violet-500/10 px-4 py-1.5 text-sm font-medium text-violet-300"
-          >
-            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-violet-400" />
+      <motion.div
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7 }}
+        className="relative mb-10 overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-700 via-emerald-600 to-emerald-800 px-8 py-12 text-white"
+      >
+        <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-white/10 blur-2xl" />
+        <div className="pointer-events-none absolute -bottom-12 -left-12 h-48 w-48 rounded-full bg-white/8 blur-2xl" />
+        <div className="relative">
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-sm font-medium">
+            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-200" />
             Vizyonumuz
-          </motion.div>
-
-          <motion.h1
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-            className="text-6xl font-black leading-none tracking-tight sm:text-7xl lg:text-8xl"
-          >
+          </div>
+          <h1 className="text-5xl font-extrabold leading-none tracking-tight sm:text-6xl">
             Vizyon
             <br />
-            <span className="bg-gradient-to-r from-cyan-400 via-violet-400 to-purple-400 bg-clip-text text-transparent">
-              2030
-            </span>
-          </motion.h1>
-
+            <span className="text-emerald-200">2030</span>
+          </h1>
           <WordReveal
             text="Türkiye'nin gayrimenkul ekosistemini dijitalleştirerek küresel sahneye taşımak ve her vatandaşa güvenli yatırım fırsatı sunmak."
-            className="mx-auto mt-8 max-w-2xl text-xl leading-relaxed text-slate-400"
+            className="mt-5 max-w-2xl text-lg leading-relaxed text-white/80"
           />
-
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.8, duration: 0.6 }}
-            className="mt-10 flex flex-col items-center gap-3 sm:flex-row sm:justify-center"
-          >
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <Link
               href="/parcels"
-              className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-violet-600 px-7 py-3.5 text-sm font-bold text-white shadow-[0_0_40px_rgba(99,102,241,0.45)] transition-all duration-300 hover:shadow-[0_0_60px_rgba(99,102,241,0.65)]"
+              className="group inline-flex items-center gap-2 rounded-xl bg-white px-7 py-3.5 text-sm font-bold text-emerald-700 shadow-sm transition-all duration-200 hover:bg-emerald-50"
             >
               Hemen Başla
               <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
             </Link>
-          </motion.div>
+          </div>
         </div>
-      </section>
+      </motion.div>
 
       {/* ── PILLARS ──────────────────────────────────────── */}
-      <section className="px-4 pb-24 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-6xl">
-          <div className="mb-14 text-center">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="mb-3 inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-widest text-cyan-400"
-            >
-              <span className="h-px w-8 bg-cyan-400" />
-              Stratejik Sütunlar
-              <span className="h-px w-8 bg-cyan-400" />
-            </motion.div>
-            <motion.h2
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.1, duration: 0.6 }}
-              className="text-3xl font-black sm:text-4xl"
-            >
-              Vizyonumuzu şekillendiren{' '}
-              <span className="bg-gradient-to-r from-cyan-400 to-violet-400 bg-clip-text text-transparent">
-                üç temel güç
-              </span>
-            </motion.h2>
-          </div>
+      <section className="mb-10">
+        <div className="mb-8 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="mb-2 inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-widest text-emerald-600"
+          >
+            <span className="h-px w-8 bg-emerald-500" />
+            Stratejik Sütunlar
+            <span className="h-px w-8 bg-emerald-500" />
+          </motion.div>
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.1, duration: 0.6 }}
+            className="text-3xl font-extrabold text-slate-900 sm:text-4xl"
+          >
+            Vizyonumuzu şekillendiren{' '}
+            <span className="bg-gradient-to-r from-emerald-600 to-emerald-800 bg-clip-text text-transparent">
+              üç temel güç
+            </span>
+          </motion.h2>
+        </div>
 
-          <div className="grid gap-6 sm:grid-cols-3">
-            {pillars.map((p, i) => (
-              <PillarCard key={p.title} {...p} index={i} />
-            ))}
-          </div>
+        <div className="grid gap-6 sm:grid-cols-3">
+          {pillars.map((p, i) => (
+            <PillarCard key={p.title} {...p} index={i} />
+          ))}
         </div>
       </section>
 
       {/* ── ROADMAP ──────────────────────────────────────── */}
-      <section className="px-4 pb-24 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-3xl">
-          <div className="mb-14 text-center">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="mb-3 inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-widest text-violet-400"
-            >
-              <span className="h-px w-8 bg-violet-400" />
-              Yol Haritası
-              <span className="h-px w-8 bg-violet-400" />
-            </motion.div>
-            <motion.h2
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.1, duration: 0.6 }}
-              className="text-3xl font-black sm:text-4xl"
-            >
-              2024&rsquo;ten{' '}
-              <span className="bg-gradient-to-r from-cyan-400 to-violet-400 bg-clip-text text-transparent">
-                2030&rsquo;a
-              </span>
-            </motion.h2>
-          </div>
-          <Timeline />
+      <section className="mb-10">
+        <div className="mb-8 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="mb-2 inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-widest text-emerald-600"
+          >
+            <span className="h-px w-8 bg-emerald-500" />
+            Yol Haritası
+            <span className="h-px w-8 bg-emerald-500" />
+          </motion.div>
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.1, duration: 0.6 }}
+            className="text-3xl font-extrabold text-slate-900 sm:text-4xl"
+          >
+            2024&rsquo;ten{' '}
+            <span className="bg-gradient-to-r from-emerald-600 to-emerald-800 bg-clip-text text-transparent">
+              2030&rsquo;a
+            </span>
+          </motion.h2>
         </div>
+        <Timeline />
       </section>
 
       {/* ── MANIFESTO ────────────────────────────────────── */}
-      <section className="px-4 pb-24 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-4xl">
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-            className="relative overflow-hidden rounded-3xl border border-violet-500/20 bg-gradient-to-br from-violet-900/40 via-indigo-900/30 to-slate-900/60 p-10 text-center backdrop-blur-sm sm:p-16"
-          >
-            <div className="pointer-events-none absolute inset-0 rounded-3xl bg-[radial-gradient(ellipse_70%_50%_at_50%_0%,rgba(139,92,246,0.15),transparent)]" />
-
-            <div className="relative">
-              <div className="mb-6 text-5xl text-violet-400">&ldquo;</div>
-              <blockquote className="text-xl font-light italic leading-relaxed text-slate-300 sm:text-2xl lg:text-3xl">
-                Teknoloji ve güven bir araya geldiğinde, gayrimenkul yatırımı
-                coğrafyadan, bütçeden ve bürokratik engellerden bağımsız olarak
-                herkes için erişilebilir hale gelir.
-              </blockquote>
-              <p className="mt-8 text-sm font-semibold tracking-widest text-violet-400">
-                — NetTapu Kurucu Ekibi
-              </p>
-            </div>
-          </motion.div>
-        </div>
-      </section>
+      <motion.div
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.8 }}
+        className="relative overflow-hidden rounded-2xl bg-slate-50 p-10 text-center sm:p-14"
+      >
+        <div className="absolute left-0 top-0 h-full w-1 rounded-l-2xl bg-gradient-to-b from-emerald-500 to-transparent" />
+        <div className="text-4xl text-emerald-500 mb-4">&ldquo;</div>
+        <blockquote className="text-xl font-light italic leading-relaxed text-slate-700 sm:text-2xl">
+          Teknoloji ve güven bir araya geldiğinde, gayrimenkul yatırımı
+          coğrafyadan, bütçeden ve bürokratik engellerden bağımsız olarak
+          herkes için erişilebilir hale gelir.
+        </blockquote>
+        <p className="mt-6 text-sm font-semibold tracking-widest text-emerald-600">
+          — NetTapu Kurucu Ekibi
+        </p>
+      </motion.div>
     </div>
   );
 }

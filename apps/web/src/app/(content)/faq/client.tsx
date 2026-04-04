@@ -143,22 +143,22 @@ function FAQItem({
     <div
       className={`overflow-hidden rounded-xl border transition-all duration-200 ${
         isOpen
-          ? 'border-indigo-500/30 bg-indigo-500/[0.05]'
-          : 'border-white/[0.07] bg-white/[0.03] hover:border-white/[0.12]'
+          ? 'border-emerald-200 bg-emerald-50'
+          : 'border-slate-100 bg-white shadow-sm hover:border-slate-200 hover:shadow-md'
       }`}
     >
       <button
         onClick={onToggle}
         className="flex w-full items-start justify-between gap-4 px-6 py-5 text-left"
       >
-        <span className="text-sm font-semibold leading-snug text-white sm:text-base">{item.question}</span>
+        <span className="text-sm font-semibold leading-snug text-slate-900 sm:text-base">{item.question}</span>
         <motion.div
           animate={{ rotate: isOpen ? 180 : 0 }}
           transition={{ duration: 0.25 }}
           className="mt-0.5 shrink-0"
         >
           <ChevronDown
-            className={`h-5 w-5 transition-colors ${isOpen ? 'text-indigo-400' : 'text-white/30'}`}
+            className={`h-5 w-5 transition-colors ${isOpen ? 'text-emerald-600' : 'text-slate-400'}`}
           />
         </motion.div>
       </button>
@@ -172,8 +172,8 @@ function FAQItem({
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.3, ease: 'easeInOut' }}
           >
-            <div className="border-t border-white/[0.06] px-6 pb-5 pt-4">
-              <p className="text-sm leading-relaxed text-white/55">{item.answer}</p>
+            <div className="border-t border-emerald-100 px-6 pb-5 pt-4">
+              <p className="text-sm leading-relaxed text-slate-600">{item.answer}</p>
             </div>
           </motion.div>
         )}
@@ -201,23 +201,25 @@ export function FaqContent() {
   }, [query, activeCategory]);
 
   return (
-    <div className="min-h-screen bg-[#0a0918]">
+    <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
       {/* Hero */}
-      <div className="relative overflow-hidden px-4 pb-16 pt-16 lg:px-8 lg:pt-24">
-        <div className="pointer-events-none absolute inset-0">
-          <div className="absolute -left-40 top-0 h-80 w-80 rounded-full bg-violet-600/20 blur-[120px]" />
-          <div className="absolute -right-20 top-10 h-64 w-64 rounded-full bg-indigo-600/15 blur-[100px]" />
-        </div>
-
-        <div className="relative mx-auto max-w-3xl text-center">
+      <motion.div
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7 }}
+        className="relative mb-8 overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-700 via-emerald-600 to-emerald-800 px-8 py-12 text-white"
+      >
+        <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-white/10 blur-2xl" />
+        <div className="pointer-events-none absolute -bottom-12 -left-12 h-48 w-48 rounded-full bg-white/8 blur-2xl" />
+        <div className="relative text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="mb-4 inline-flex items-center gap-2 rounded-full border border-violet-500/30 bg-violet-500/10 px-4 py-1.5"
+            className="mb-4 inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-1.5"
           >
-            <HelpCircle className="h-3.5 w-3.5 text-violet-400" />
-            <span className="text-xs font-semibold uppercase tracking-widest text-violet-300">
+            <HelpCircle className="h-3.5 w-3.5 text-emerald-200" />
+            <span className="text-xs font-semibold uppercase tracking-widest text-emerald-100">
               Yardım Merkezi
             </span>
           </motion.div>
@@ -226,19 +228,17 @@ export function FaqContent() {
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.1 }}
-            className="text-4xl font-extrabold leading-tight tracking-tight text-white lg:text-5xl"
+            className="text-4xl font-extrabold leading-tight tracking-tight lg:text-5xl"
           >
             Sıkça Sorulan{' '}
-            <span className="bg-gradient-to-r from-indigo-400 via-violet-400 to-cyan-400 bg-clip-text text-transparent">
-              Sorular
-            </span>
+            <span className="text-emerald-200">Sorular</span>
           </motion.h1>
 
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="mt-4 text-base text-white/50"
+            className="mt-4 text-base text-white/80"
           >
             {FAQ_DATA.length} soru arasında arayın veya kategori seçerek filtreleyin
           </motion.p>
@@ -248,22 +248,22 @@ export function FaqContent() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
-            className="mx-auto mt-8 max-w-xl"
+            className="mx-auto mt-6 max-w-xl"
           >
             <div className="relative">
-              <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-white/30" />
+              <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
               <input
                 ref={searchRef}
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Soru veya anahtar kelime ara..."
-                className="w-full rounded-xl border border-white/[0.08] bg-white/[0.05] py-3.5 pl-11 pr-10 text-sm text-white placeholder-white/30 backdrop-blur-xl outline-none transition-all focus:border-indigo-500/50 focus:bg-white/[0.08] focus:ring-2 focus:ring-indigo-500/20"
+                className="w-full rounded-xl border border-white/20 bg-white/15 py-3.5 pl-11 pr-10 text-sm text-white placeholder-white/50 backdrop-blur-sm outline-none transition-all focus:border-white/40 focus:bg-white/20"
               />
               {query && (
                 <button
                   onClick={() => setQuery('')}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-white/30 hover:text-white/60"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-white/50 hover:text-white/80"
                 >
                   ✕
                 </button>
@@ -271,113 +271,109 @@ export function FaqContent() {
             </div>
           </motion.div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Category chips */}
-      <div className="sticky top-0 z-10 border-b border-white/[0.06] bg-[#0a0918]/90 px-4 py-4 backdrop-blur-xl lg:px-8">
-        <div className="mx-auto max-w-3xl">
-          <div className="flex gap-2 overflow-x-auto pb-0.5" style={{ scrollbarWidth: 'none' }}>
-            {CATEGORIES.map((cat) => (
-              <button
-                key={cat.id}
-                onClick={() => setActiveCategory(cat.id)}
-                className={`shrink-0 rounded-full px-4 py-1.5 text-sm font-medium transition-all duration-200 ${
-                  activeCategory === cat.id
-                    ? 'bg-gradient-to-r from-indigo-500 to-violet-600 text-white shadow-lg shadow-indigo-500/30'
-                    : 'border border-white/[0.08] bg-white/[0.03] text-white/50 hover:bg-white/[0.07] hover:text-white/80'
-                }`}
-              >
-                {cat.label}
-              </button>
-            ))}
-          </div>
+      <div className="sticky top-0 z-10 mb-8 rounded-xl border border-slate-100 bg-white/95 px-4 py-3 shadow-sm backdrop-blur-sm">
+        <div className="flex gap-2 overflow-x-auto pb-0.5" style={{ scrollbarWidth: 'none' }}>
+          {CATEGORIES.map((cat) => (
+            <button
+              key={cat.id}
+              onClick={() => setActiveCategory(cat.id)}
+              className={`shrink-0 rounded-full px-4 py-1.5 text-sm font-medium transition-all duration-200 ${
+                activeCategory === cat.id
+                  ? 'bg-gradient-to-r from-emerald-600 to-emerald-700 text-white shadow-sm'
+                  : 'border border-slate-200 bg-white text-slate-600 hover:border-emerald-200 hover:text-emerald-700'
+              }`}
+            >
+              {cat.label}
+            </button>
+          ))}
         </div>
       </div>
 
       {/* FAQ list */}
-      <div className="px-4 py-12 lg:px-8">
-        <div className="mx-auto max-w-3xl">
-          {filtered.length === 0 ? (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="py-16 text-center"
-            >
-              <HelpCircle className="mx-auto mb-4 h-12 w-12 text-white/20" />
-              <p className="text-white/40">
-                {query ? `"${query}" için sonuç bulunamadı.` : 'Bu kategoride soru bulunamadı.'}
-              </p>
-              <button
-                onClick={() => {
-                  setQuery('');
-                  setActiveCategory('all');
-                }}
-                className="mt-4 text-sm text-indigo-400 hover:underline"
-              >
-                Filtreleri temizle
-              </button>
-            </motion.div>
-          ) : (
-            <motion.div layout className="space-y-3">
-              <AnimatePresence mode="popLayout">
-                {filtered.map((item) => (
-                  <motion.div
-                    key={item.id}
-                    layout
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    transition={{ duration: 0.25 }}
-                  >
-                    <FAQItem
-                      item={item}
-                      isOpen={openId === item.id}
-                      onToggle={() => setOpenId(openId === item.id ? null : item.id)}
-                    />
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-            </motion.div>
-          )}
-
-          {filtered.length > 0 && (
-            <p className="mt-6 text-center text-xs text-white/25">
-              {filtered.length} soru gösteriliyor
+      <div className="mb-10">
+        {filtered.length === 0 ? (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="py-16 text-center"
+          >
+            <HelpCircle className="mx-auto mb-4 h-12 w-12 text-slate-300" />
+            <p className="text-slate-500">
+              {query ? `"${query}" için sonuç bulunamadı.` : 'Bu kategoride soru bulunamadı.'}
             </p>
-          )}
-        </div>
+            <button
+              onClick={() => {
+                setQuery('');
+                setActiveCategory('all');
+              }}
+              className="mt-4 text-sm text-emerald-600 hover:underline"
+            >
+              Filtreleri temizle
+            </button>
+          </motion.div>
+        ) : (
+          <motion.div layout className="space-y-3">
+            <AnimatePresence mode="popLayout">
+              {filtered.map((item) => (
+                <motion.div
+                  key={item.id}
+                  layout
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.25 }}
+                >
+                  <FAQItem
+                    item={item}
+                    isOpen={openId === item.id}
+                    onToggle={() => setOpenId(openId === item.id ? null : item.id)}
+                  />
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </motion.div>
+        )}
+
+        {filtered.length > 0 && (
+          <p className="mt-6 text-center text-xs text-slate-400">
+            {filtered.length} soru gösteriliyor
+          </p>
+        )}
       </div>
 
       {/* CTA */}
-      <div className="px-4 py-16 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="mx-auto max-w-2xl overflow-hidden rounded-3xl border border-white/[0.08] bg-gradient-to-br from-violet-600/15 to-indigo-600/10 p-10 text-center backdrop-blur-xl"
-        >
-          <MessageSquare className="mx-auto mb-4 h-10 w-10 text-violet-400" />
-          <h2 className="text-2xl font-bold text-white">Cevabını Bulamadın mı?</h2>
-          <p className="mt-3 text-white/50">
-            Danışman ekibimiz her gün 09:00–18:00 saatleri arasında sizi dinliyor.
-          </p>
-          <div className="mt-8 flex flex-wrap justify-center gap-4">
-            <Link
-              href="/contact"
-              className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-500 to-violet-600 px-7 py-3.5 text-sm font-semibold text-white shadow-lg shadow-indigo-500/30 transition-all duration-200 hover:scale-105"
-            >
-              Bize Ulaşın
-            </Link>
-            <a
-              href="tel:08509999999"
-              className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/[0.06] px-7 py-3.5 text-sm font-semibold text-white backdrop-blur transition-all duration-200 hover:bg-white/10"
-            >
-              Ara: 0850 999 99 99
-            </a>
-          </div>
-        </motion.div>
-      </div>
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6 }}
+        className="overflow-hidden rounded-2xl border border-slate-100 bg-white p-10 text-center shadow-sm"
+      >
+        <div className="mx-auto mb-4 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100">
+          <MessageSquare className="h-7 w-7 text-emerald-600" />
+        </div>
+        <h2 className="text-2xl font-bold text-slate-900">Cevabını Bulamadın mı?</h2>
+        <p className="mt-3 text-slate-500">
+          Danışman ekibimiz her gün 09:00–18:00 saatleri arasında sizi dinliyor.
+        </p>
+        <div className="mt-8 flex flex-wrap justify-center gap-4">
+          <Link
+            href="/contact"
+            className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-700 px-7 py-3.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:shadow-md"
+          >
+            Bize Ulaşın
+          </Link>
+          <a
+            href="tel:08509999999"
+            className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-7 py-3.5 text-sm font-semibold text-slate-700 transition-all duration-200 hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700"
+          >
+            Ara: 0850 999 99 99
+          </a>
+        </div>
+      </motion.div>
     </div>
   );
 }

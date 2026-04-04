@@ -9,6 +9,7 @@ import { motion } from 'framer-motion';
 import { z } from 'zod';
 import apiClient from '@/lib/api-client';
 import { LoadingState } from '@/components/ui';
+import { useSiteSettings } from '@/hooks/use-site-settings';
 import type { ApiError } from '@/types';
 import { AxiosError } from 'axios';
 import { Mail, Lock, User, ArrowRight, AlertCircle, Eye, EyeOff, CheckCircle2, Shield, Zap, Phone } from 'lucide-react';
@@ -47,11 +48,20 @@ function GoogleIcon() {
   );
 }
 
+function AppleIcon() {
+  return (
+    <svg className="h-5 w-5" viewBox="0 0 384 512" fill="currentColor">
+      <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.6 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z" />
+    </svg>
+  );
+}
+
 function RegisterContent() {
   const router = useRouter();
   const [serverError, setServerError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const s = useSiteSettings();
 
   const {
     register,
@@ -85,6 +95,10 @@ function RegisterContent() {
     window.location.href = `/api/v1/auth/google`;
   };
 
+  const handleAppleLogin = () => {
+    alert('Apple ile Kayıt web için yakında eklenecektir.');
+  };
+
   return (
     <div className="min-h-screen flex font-[Outfit,system-ui,sans-serif]" data-testid="register-page">
       {/* Left Side - Register Form */}
@@ -98,28 +112,45 @@ function RegisterContent() {
           {/* Logo & Title */}
           <div className="text-center mb-8">
             <Link href="/" className="inline-flex items-center gap-3 mb-6" data-testid="register-logo">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-600 text-white text-base font-bold shadow-emerald">
-                NT
-              </div>
-              <div className="flex flex-col leading-tight text-left">
-                <span className="text-xl font-extrabold text-slate-900 tracking-tight">NetTapu</span>
-                <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">Arsa Platformu</span>
-              </div>
+              {s.site_logo ? (
+                <img src={s.site_logo} alt={s.site_title || 'NetTapu'} className="h-12 object-contain" />
+              ) : (
+                <>
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-600 text-white text-base font-bold shadow-sm">
+                    NT
+                  </div>
+                  <div className="flex flex-col leading-tight text-left">
+                    <span className="text-xl font-extrabold text-slate-900 tracking-tight">{s.site_title || 'NetTapu'}</span>
+                    <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">Arsa Platformu</span>
+                  </div>
+                </>
+              )}
             </Link>
             <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 mb-2">Hesap Oluşturun</h1>
             <p className="text-slate-500">Ücretsiz üye olun, fırsatları kaçırmayın</p>
           </div>
 
           {/* Social Login */}
-          <button
-            onClick={handleGoogleLogin}
-            type="button"
-            className="w-full flex items-center justify-center gap-3 px-6 py-3.5 bg-white border border-slate-200 rounded-xl text-slate-700 font-semibold hover:bg-slate-50 hover:border-slate-300 transition-all duration-200 shadow-sm"
-            data-testid="google-register-btn"
-          >
-            <GoogleIcon />
-            <span>Google ile Kayıt Ol</span>
-          </button>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <button
+              onClick={handleGoogleLogin}
+              type="button"
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-700 text-sm font-semibold hover:bg-slate-50 hover:border-slate-300 transition-all duration-200 shadow-sm"
+              data-testid="google-register-btn"
+            >
+              <GoogleIcon />
+              <span>Google</span>
+            </button>
+            <button
+              onClick={handleAppleLogin}
+              type="button"
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-slate-900 border border-slate-900 rounded-xl text-white text-sm font-semibold hover:bg-slate-800 hover:border-slate-800 transition-all duration-200 shadow-sm"
+              data-testid="apple-register-btn"
+            >
+              <AppleIcon />
+              <span>Apple</span>
+            </button>
+          </div>
 
           {/* Divider */}
           <div className="flex items-center gap-4 my-6">

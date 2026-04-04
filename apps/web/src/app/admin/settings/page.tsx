@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from 'react';
 import apiClient from '@/lib/api-client';
 import { showApiError } from '@/components/api-error-toast';
 import { PageHeader, Card, Button, Alert, LoadingState } from '@/components/ui';
+import { GripVertical, Eye, EyeOff, X, Plus } from 'lucide-react';
 
 interface SystemSetting {
   id: string;
@@ -421,6 +422,184 @@ function IntegrationCard({
   );
 }
 
+/* ── Corporate Nav Manager ── */
+type CorporateNavItem = {
+  label: string;
+  href: string;
+  description?: string;
+  icon?: string;
+  active?: boolean;
+};
+
+const DEFAULT_CORPORATE_NAV_ITEMS: CorporateNavItem[] = [
+  { label: 'Hakkımızda', href: '/about', description: 'Şirketimiz hakkında' },
+  { label: 'Vizyon', href: '/vision', description: '2030 hedeflerimiz' },
+  { label: 'Misyon', href: '/mission', description: 'Değerlerimiz' },
+  { label: 'Nasıl Çalışır?', href: '/how-it-works', description: 'Platform süreci' },
+  { label: 'Referanslar', href: '/references', description: 'İş ortaklarımız' },
+  { label: 'Projelerimiz', href: '/projects', description: 'Tamamlanan projeler' },
+  { label: 'Müşteri Yorumları', href: '/testimonials', description: 'Kullanıcı deneyimleri' },
+  { label: 'Basın', href: '/press', description: 'Medyada NetTapu' },
+  { label: 'Gayrimenkul Rehberi', href: '/real-estate-guide', description: 'Yatırım rehberi' },
+  { label: 'Satış Sonrası', href: '/post-sale', description: 'Destek süreçleri' },
+  { label: 'İletişim', href: '/contact', description: 'Bize ulaşın' },
+];
+
+function CorporateNavManager({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (json: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+
+  function parseItems(): CorporateNavItem[] {
+    if (!value) return DEFAULT_CORPORATE_NAV_ITEMS;
+    try {
+      const parsed = JSON.parse(value);
+      return Array.isArray(parsed) ? parsed : DEFAULT_CORPORATE_NAV_ITEMS;
+    } catch {
+      return DEFAULT_CORPORATE_NAV_ITEMS;
+    }
+  }
+
+  const items = parseItems();
+
+  function commit(next: CorporateNavItem[]) {
+    onChange(JSON.stringify(next));
+  }
+
+  function updateItem(index: number, patch: Partial<CorporateNavItem>) {
+    const next = items.map((item, i) => (i === index ? { ...item, ...patch } : item));
+    commit(next);
+  }
+
+  function removeItem(index: number) {
+    commit(items.filter((_, i) => i !== index));
+  }
+
+  function addItem() {
+    commit([...items, { label: '', href: '/', description: '', active: true }]);
+  }
+
+  return (
+    <Card className="overflow-hidden">
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        className="flex w-full items-center justify-between px-6 py-4 text-left hover:bg-[var(--muted)] transition-colors"
+      >
+        <div className="flex items-center gap-3">
+          <span className="text-lg">🗂️</span>
+          <div>
+            <h2 className="text-sm font-semibold">Kurumsal Menü</h2>
+            <p className="text-xs text-[var(--muted-foreground)]">Header'daki "Kurumsal" dropdown menüsünde yer alan sayfalar</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-3">
+          <span className="rounded-full bg-brand-50 border border-brand-200 px-2 py-0.5 text-[10px] font-semibold text-brand-700">
+            {items.length} öğe
+          </span>
+          <svg className={`h-5 w-5 text-[var(--muted-foreground)] transition-transform ${open ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+          </svg>
+        </div>
+      </button>
+
+      {open && (
+        <div className="border-t border-[var(--border)] px-6 py-5 space-y-3">
+          {/* Column headers */}
+          <div className="grid grid-cols-[24px_1fr_1fr_1fr_32px_32px] gap-2 px-1 text-[10px] font-semibold uppercase tracking-wider text-[var(--muted-foreground)]">
+            <span />
+            <span>Etiket</span>
+            <span>Href (yol)</span>
+            <span>Açıklama</span>
+            <span className="text-center">Aktif</span>
+            <span />
+          </div>
+
+          {items.map((item, index) => (
+            <div
+              key={index}
+              className="grid grid-cols-[24px_1fr_1fr_1fr_32px_32px] items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--muted)] px-3 py-2"
+            >
+              {/* Drag handle (visual only) */}
+              <span className="flex items-center justify-center text-[var(--muted-foreground)] cursor-grab">
+                <GripVertical className="h-4 w-4" />
+              </span>
+
+              {/* Label */}
+              <input
+                type="text"
+                value={item.label}
+                onChange={(e) => updateItem(index, { label: e.target.value })}
+                placeholder="Etiket"
+                className="w-full rounded border border-[var(--input)] bg-[var(--background)] px-2 py-1.5 text-xs focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+              />
+
+              {/* Href */}
+              <input
+                type="text"
+                value={item.href}
+                onChange={(e) => updateItem(index, { href: e.target.value })}
+                placeholder="/sayfa"
+                className="w-full rounded border border-[var(--input)] bg-[var(--background)] px-2 py-1.5 text-xs font-mono focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+              />
+
+              {/* Description */}
+              <input
+                type="text"
+                value={item.description || ''}
+                onChange={(e) => updateItem(index, { description: e.target.value })}
+                placeholder="Kısa açıklama (opsiyonel)"
+                className="w-full rounded border border-[var(--input)] bg-[var(--background)] px-2 py-1.5 text-xs focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+              />
+
+              {/* Active toggle */}
+              <button
+                type="button"
+                onClick={() => updateItem(index, { active: !(item.active ?? true) })}
+                title={(item.active ?? true) ? 'Aktif — gizlemek için tıklayın' : 'Gizli — göstermek için tıklayın'}
+                className={`flex items-center justify-center rounded p-1 transition-colors ${
+                  (item.active ?? true)
+                    ? 'text-brand-600 hover:bg-brand-50'
+                    : 'text-[var(--muted-foreground)] hover:bg-[var(--background)]'
+                }`}
+              >
+                {(item.active ?? true) ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+              </button>
+
+              {/* Delete */}
+              <button
+                type="button"
+                onClick={() => removeItem(index)}
+                title="Kaldır"
+                className="flex items-center justify-center rounded p-1 text-red-500 hover:bg-red-50 transition-colors"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          ))}
+
+          <button
+            type="button"
+            onClick={addItem}
+            className="flex items-center gap-2 rounded-lg border border-dashed border-[var(--border)] px-4 py-2 text-xs font-medium text-[var(--muted-foreground)] hover:border-brand-400 hover:text-brand-600 hover:bg-brand-50 transition-colors w-full justify-center"
+          >
+            <Plus className="h-4 w-4" />
+            Yeni Ekle
+          </button>
+
+          <p className="text-[11px] text-[var(--muted-foreground)]">
+            Değişiklikler sayfanın üstündeki "Kaydet" butonuna basıldığında uygulanır.
+          </p>
+        </div>
+      )}
+    </Card>
+  );
+}
+
 /* ── Auto-generated defaults for JWT & Notification ── */
 function generateHex(bytes: number): string {
   const arr = new Uint8Array(bytes);
@@ -457,6 +636,11 @@ export default function AdminSettingsPage() {
             const raw = s.value;
             map[s.key] = typeof raw === 'string' ? raw : typeof raw === 'object' ? (raw as any)?.toString?.() ?? JSON.stringify(raw) : String(raw);
           });
+        }
+
+        // Set default corporate nav items if not present
+        if (!map['corporate_nav_items']) {
+          map['corporate_nav_items'] = JSON.stringify(DEFAULT_CORPORATE_NAV_ITEMS);
         }
 
         // Auto-generate missing JWT & notification defaults
@@ -678,6 +862,19 @@ export default function AdminSettingsPage() {
             />
           ))}
         </div>
+      </div>
+
+      {/* ── Kurumsal Menü Section ── */}
+      <div className="pt-4">
+        <div className="flex items-center gap-2 mb-4">
+          <div className="h-px flex-1 bg-[var(--border)]" />
+          <span className="text-xs font-semibold uppercase tracking-wider text-[var(--muted-foreground)]">Kurumsal Menü</span>
+          <div className="h-px flex-1 bg-[var(--border)]" />
+        </div>
+        <CorporateNavManager
+          value={settings.corporate_nav_items || ''}
+          onChange={(json) => updateSetting('corporate_nav_items', json)}
+        />
       </div>
 
       {/* Bottom save */}

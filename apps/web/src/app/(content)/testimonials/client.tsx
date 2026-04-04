@@ -142,7 +142,7 @@ function StarRating({ rating, size = 'sm' }: { rating: number; size?: 'sm' | 'lg
       {Array.from({ length: 5 }).map((_, i) => (
         <Star
           key={i}
-          className={`${cls} ${i < rating ? 'fill-amber-400 text-amber-400' : 'text-white/15'}`}
+          className={`${cls} ${i < rating ? 'fill-amber-400 text-amber-400' : 'text-slate-200'}`}
         />
       ))}
     </div>
@@ -159,18 +159,11 @@ function TestimonialCard({ testimonial, index }: { testimonial: Testimonial; ind
       initial={{ opacity: 0, y: 30 }}
       animate={isInView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.5, delay: (index % 3) * 0.1 }}
-      className="group relative overflow-hidden rounded-2xl border border-white/[0.07] bg-white/[0.03] p-6 backdrop-blur-xl transition-all duration-300 hover:border-white/[0.14] hover:bg-white/[0.05]"
+      className="group relative overflow-hidden rounded-2xl border border-slate-100 bg-white p-6 shadow-sm transition-all duration-300 hover:border-emerald-100 hover:shadow-md"
     >
-      {/* Quote icon */}
-      <Quote className="absolute right-5 top-5 h-8 w-8 rotate-180 text-white/[0.04]" />
-
-      {/* Stars */}
+      <Quote className="absolute right-5 top-5 h-8 w-8 rotate-180 text-slate-100" />
       <StarRating rating={testimonial.rating} />
-
-      {/* Quote */}
-      <p className="mt-4 text-sm leading-relaxed text-white/60">{testimonial.quote}</p>
-
-      {/* Author */}
+      <p className="mt-4 text-sm leading-relaxed text-slate-600">{testimonial.quote}</p>
       <div className="mt-6 flex items-center gap-3">
         <div
           className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${testimonial.gradient} text-sm font-bold text-white shadow-lg`}
@@ -179,12 +172,12 @@ function TestimonialCard({ testimonial, index }: { testimonial: Testimonial; ind
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5">
-            <span className="truncate text-sm font-semibold text-white">{testimonial.name}</span>
+            <span className="truncate text-sm font-semibold text-slate-900">{testimonial.name}</span>
             {testimonial.verified && (
-              <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-indigo-400" />
+              <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-emerald-500" />
             )}
           </div>
-          <p className="truncate text-xs text-white/40">
+          <p className="truncate text-xs text-slate-500">
             {testimonial.role} · {testimonial.company}
           </p>
         </div>
@@ -202,18 +195,17 @@ export function TestimonialsContent() {
     TESTIMONIALS.reduce((sum, t) => sum + t.rating, 0) / TESTIMONIALS.length
   ).toFixed(1);
 
-  // Split into 3 columns for masonry
   const col1 = TESTIMONIALS.filter((_, i) => i % 3 === 0);
   const col2 = TESTIMONIALS.filter((_, i) => i % 3 === 1);
   const col3 = TESTIMONIALS.filter((_, i) => i % 3 === 2);
 
   return (
-    <div className="min-h-screen bg-[#0a0918]">
+    <div className="min-h-screen bg-slate-50">
       {/* Hero */}
-      <div ref={heroRef} className="relative overflow-hidden px-4 pb-16 pt-16 lg:px-8 lg:pt-24">
+      <div ref={heroRef} className="relative overflow-hidden bg-gradient-to-br from-emerald-700 via-emerald-600 to-teal-600 px-4 pb-16 pt-16 lg:px-8 lg:pt-24">
         <div className="pointer-events-none absolute inset-0">
-          <div className="absolute -left-40 -top-20 h-96 w-96 rounded-full bg-violet-600/20 blur-[120px]" />
-          <div className="absolute -right-20 top-20 h-72 w-72 rounded-full bg-indigo-600/15 blur-[100px]" />
+          <div className="absolute -left-40 -top-20 h-96 w-96 rounded-full bg-white/10 blur-[120px]" />
+          <div className="absolute -right-20 top-20 h-72 w-72 rounded-full bg-white/10 blur-[100px]" />
         </div>
 
         <div className="relative mx-auto max-w-3xl text-center">
@@ -221,10 +213,10 @@ export function TestimonialsContent() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="mb-4 inline-flex items-center gap-2 rounded-full border border-amber-500/30 bg-amber-500/10 px-4 py-1.5"
+            className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/20 px-4 py-1.5"
           >
             <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-            <span className="text-xs font-semibold uppercase tracking-widest text-amber-300">
+            <span className="text-xs font-semibold uppercase tracking-widest text-white">
               Müşteri Yorumları
             </span>
           </motion.div>
@@ -236,7 +228,7 @@ export function TestimonialsContent() {
             className="text-4xl font-extrabold leading-tight tracking-tight text-white lg:text-6xl"
           >
             Onlar{' '}
-            <span className="bg-gradient-to-r from-indigo-400 via-violet-400 to-cyan-400 bg-clip-text text-transparent">
+            <span className="text-emerald-200">
               Konuşsun
             </span>
           </motion.h1>
@@ -245,12 +237,11 @@ export function TestimonialsContent() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="mt-4 text-base text-white/50"
+            className="mt-4 text-base text-white/80"
           >
             Binlerce memnun müşterimizin gerçek deneyimleri ve değerlendirmeleri.
           </motion.p>
 
-          {/* Average rating display */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -259,13 +250,13 @@ export function TestimonialsContent() {
           >
             <div className="text-6xl font-black text-white">{avgRating}</div>
             <StarRating rating={5} size="lg" />
-            <p className="text-sm text-white/40">{TESTIMONIALS.length} doğrulanmış yorum</p>
+            <p className="text-sm text-white/70">{TESTIMONIALS.length} doğrulanmış yorum</p>
           </motion.div>
         </div>
       </div>
 
       {/* Social proof bar */}
-      <div ref={socialRef} className="relative border-y border-white/[0.06] bg-white/[0.02] px-4 py-8 lg:px-8">
+      <div ref={socialRef} className="relative border-b border-slate-100 bg-white px-4 py-10 lg:px-8">
         <div className="mx-auto grid max-w-4xl grid-cols-2 gap-8 lg:grid-cols-4">
           {SOCIAL_PROOF.map((item, i) => {
             const Icon = item.icon;
@@ -277,11 +268,11 @@ export function TestimonialsContent() {
                 transition={{ duration: 0.5, delay: i * 0.1 }}
                 className="flex flex-col items-center gap-2 text-center"
               >
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/[0.05]">
-                  <Icon className="h-5 w-5 text-indigo-400" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50">
+                  <Icon className="h-5 w-5 text-emerald-600" />
                 </div>
-                <div className="text-2xl font-extrabold text-white">{item.value}</div>
-                <div className="text-xs text-white/40">{item.label}</div>
+                <div className="text-2xl font-extrabold text-slate-900">{item.value}</div>
+                <div className="text-xs text-slate-500">{item.label}</div>
               </motion.div>
             );
           })}
@@ -289,23 +280,19 @@ export function TestimonialsContent() {
       </div>
 
       {/* Masonry testimonials grid */}
-      <div className="px-4 py-16 lg:px-8">
+      <div className="bg-slate-50 px-4 py-16 lg:px-8">
         <div className="mx-auto max-w-6xl">
-          {/* Desktop: 3-column masonry */}
           <div className="hidden gap-4 md:grid md:grid-cols-3">
-            {/* Column 1 */}
             <div className="flex flex-col gap-4">
               {col1.map((t, i) => (
                 <TestimonialCard key={t.id} testimonial={t} index={i * 3} />
               ))}
             </div>
-            {/* Column 2 */}
             <div className="flex flex-col gap-4 md:mt-8">
               {col2.map((t, i) => (
                 <TestimonialCard key={t.id} testimonial={t} index={i * 3 + 1} />
               ))}
             </div>
-            {/* Column 3 */}
             <div className="flex flex-col gap-4">
               {col3.map((t, i) => (
                 <TestimonialCard key={t.id} testimonial={t} index={i * 3 + 2} />
@@ -313,7 +300,6 @@ export function TestimonialsContent() {
             </div>
           </div>
 
-          {/* Mobile: single column */}
           <div className="flex flex-col gap-4 md:hidden">
             {TESTIMONIALS.map((t, i) => (
               <TestimonialCard key={t.id} testimonial={t} index={i} />
@@ -323,23 +309,23 @@ export function TestimonialsContent() {
       </div>
 
       {/* Rating distribution */}
-      <div className="px-4 py-12 lg:px-8">
+      <div className="bg-white px-4 py-12 lg:px-8">
         <div className="mx-auto max-w-md">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
-            className="overflow-hidden rounded-2xl border border-white/[0.07] bg-white/[0.03] p-6 backdrop-blur-xl"
+            className="overflow-hidden rounded-2xl border border-slate-100 bg-white p-6 shadow-sm"
           >
-            <h3 className="mb-5 text-base font-semibold text-white">Puan Dağılımı</h3>
+            <h3 className="mb-5 text-base font-semibold text-slate-900">Puan Dağılımı</h3>
             {[5, 4, 3, 2, 1].map((stars) => {
               const count = TESTIMONIALS.filter((t) => t.rating === stars).length;
               const pct = Math.round((count / TESTIMONIALS.length) * 100);
               return (
                 <div key={stars} className="mb-3 flex items-center gap-3 text-sm">
-                  <span className="w-12 shrink-0 text-right text-white/50">{stars} ★</span>
-                  <div className="flex-1 overflow-hidden rounded-full bg-white/[0.06] h-2">
+                  <span className="w-12 shrink-0 text-right text-slate-500">{stars} ★</span>
+                  <div className="flex-1 overflow-hidden rounded-full bg-slate-100 h-2">
                     <motion.div
                       initial={{ width: 0 }}
                       whileInView={{ width: `${pct}%` }}
@@ -348,7 +334,7 @@ export function TestimonialsContent() {
                       className="h-full rounded-full bg-gradient-to-r from-amber-400 to-yellow-500"
                     />
                   </div>
-                  <span className="w-8 shrink-0 text-white/30">{count}</span>
+                  <span className="w-8 shrink-0 text-slate-400">{count}</span>
                 </div>
               );
             })}
@@ -357,43 +343,37 @@ export function TestimonialsContent() {
       </div>
 
       {/* CTA */}
-      <div className="relative px-4 py-20 lg:px-8">
-        <div className="pointer-events-none absolute inset-0">
-          <div className="absolute bottom-0 left-1/2 h-96 w-96 -translate-x-1/2 rounded-full bg-indigo-600/15 blur-[100px]" />
-        </div>
+      <div className="bg-slate-50 px-4 py-20 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="relative mx-auto max-w-2xl overflow-hidden rounded-3xl border border-white/[0.08] bg-gradient-to-br from-indigo-600/20 via-violet-600/10 to-cyan-600/10 p-10 text-center backdrop-blur-xl"
+          className="mx-auto max-w-2xl overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-700 via-emerald-600 to-teal-600 p-10 text-center shadow-lg"
         >
-          <div className="absolute inset-0 bg-gradient-to-br from-indigo-600/5 to-transparent" />
-          <div className="relative">
-            <div className="mx-auto mb-4 flex gap-1 justify-center">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <Star key={i} className="h-6 w-6 fill-amber-400 text-amber-400" />
-              ))}
-            </div>
-            <h2 className="text-3xl font-extrabold text-white">Siz de Deneyimleyin</h2>
-            <p className="mt-3 text-base text-white/50">
-              12.000+ kullanıcının tercih ettiği platforma katılın ve fark yaratın.
-            </p>
-            <div className="mt-8 flex flex-wrap justify-center gap-4">
-              <Link
-                href="/parcels"
-                className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-500 to-violet-600 px-7 py-3.5 text-sm font-semibold text-white shadow-lg shadow-indigo-500/30 transition-all duration-200 hover:scale-105"
-              >
-                Arsaları Keşfet
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-              </Link>
-              <Link
-                href="/how-it-works"
-                className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/[0.06] px-7 py-3.5 text-sm font-semibold text-white backdrop-blur transition-all duration-200 hover:bg-white/10"
-              >
-                Nasıl Çalışır?
-              </Link>
-            </div>
+          <div className="mx-auto mb-4 flex gap-1 justify-center">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <Star key={i} className="h-6 w-6 fill-amber-400 text-amber-400" />
+            ))}
+          </div>
+          <h2 className="text-3xl font-extrabold text-white">Siz de Deneyimleyin</h2>
+          <p className="mt-3 text-base text-white/80">
+            12.000+ kullanıcının tercih ettiği platforma katılın ve fark yaratın.
+          </p>
+          <div className="mt-8 flex flex-wrap justify-center gap-4">
+            <Link
+              href="/parcels"
+              className="group inline-flex items-center gap-2 rounded-xl bg-white px-7 py-3.5 text-sm font-semibold text-emerald-700 shadow-lg transition-all duration-200 hover:scale-105"
+            >
+              Arsaları Keşfet
+              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+            </Link>
+            <Link
+              href="/how-it-works"
+              className="inline-flex items-center gap-2 rounded-xl border border-white/30 bg-white/20 px-7 py-3.5 text-sm font-semibold text-white transition-all duration-200 hover:bg-white/30"
+            >
+              Nasıl Çalışır?
+            </Link>
           </div>
         </motion.div>
       </div>
