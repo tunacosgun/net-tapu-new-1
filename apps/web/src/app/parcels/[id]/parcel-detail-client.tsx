@@ -511,7 +511,6 @@ export default function ParcelDetailClient() {
             images={images}
             wmImages={wmImages}
             title={parcel.title}
-            listingId={parcel.listingId}
           />
         </div>
 

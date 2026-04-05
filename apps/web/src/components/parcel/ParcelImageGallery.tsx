@@ -11,8 +11,6 @@ interface ParcelImageGalleryProps {
   wmImages: Record<number, string>;
   /** The display title of the parcel */
   title: string;
-  /** Listing ID label (e.g. "NT-XXXX") shown as overlay */
-  listingId?: string;
 }
 
 /**
@@ -27,7 +25,7 @@ interface ParcelImageGalleryProps {
  *
  * Thumbnails → fixed size, object-cover, selected = brand border.
  */
-export function ParcelImageGallery({ images, wmImages, title, listingId }: ParcelImageGalleryProps) {
+export function ParcelImageGallery({ images, wmImages, title }: ParcelImageGalleryProps) {
   const [selectedIdx, setSelectedIdx] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
 
@@ -164,14 +162,6 @@ export function ParcelImageGallery({ images, wmImages, title, listingId }: Parce
           {/* Header */}
           <div className="relative z-10 flex items-center justify-between px-5 py-3 shrink-0">
             <div className="flex items-center gap-3">
-              {listingId && (
-                <span
-                  className="text-[10px] font-medium text-white/60 select-none"
-                  style={{ textShadow: '0 1px 3px rgba(0,0,0,0.7)' }}
-                >
-                  #{listingId}
-                </span>
-              )}
               <span className="text-sm font-medium text-white/80 truncate max-w-[50vw]" style={{ textShadow: '0 1px 4px rgba(0,0,0,0.6)' }}>{title}</span>
             </div>
             <div className="flex items-center gap-1">
