@@ -6,7 +6,11 @@ import {
   MaxLength,
   Length,
   IsNumberString,
+  IsNumber,
+  Min,
+  Max,
 } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class CreateParcelDto {
   @IsString()
@@ -89,4 +93,25 @@ export class CreateParcelDto {
   @IsBoolean()
   @IsOptional()
   showListingDate?: boolean;
+
+  @IsString()
+  @IsOptional()
+  @MaxLength(100)
+  deedType?: string;
+
+  @IsNumber()
+  @Min(0)
+  @Max(100)
+  @IsOptional()
+  @Type(() => Number)
+  vatRate?: number;
+
+  @IsString()
+  @IsOptional()
+  @MaxLength(100)
+  roadAccess?: string;
+
+  @IsBoolean()
+  @IsOptional()
+  isCornerParcel?: boolean;
 }

@@ -90,6 +90,18 @@ export class Parcel {
   @Column({ name: 'assigned_consultant', type: 'uuid', nullable: true })
   assignedConsultant!: string | null;
 
+  @Column({ name: 'deed_type', type: 'varchar', length: 100, nullable: true })
+  deedType!: string | null;
+
+  @Column({ name: 'vat_rate', type: 'numeric', precision: 5, scale: 2, nullable: true })
+  vatRate!: string | null;
+
+  @Column({ name: 'road_access', type: 'varchar', length: 100, nullable: true })
+  roadAccess!: string | null;
+
+  @Column({ name: 'is_corner_parcel', type: 'boolean', default: false })
+  isCornerParcel!: boolean;
+
   @Column({ name: 'listed_at', type: 'timestamptz', nullable: true })
   listedAt!: Date | null;
 
