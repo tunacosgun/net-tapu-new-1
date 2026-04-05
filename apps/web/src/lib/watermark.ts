@@ -62,20 +62,20 @@ export function burnWatermark(
           }
           ctx.restore();
 
-          // 3. Listing ID — sahibinden style: small, plain, no heavy shadow
+          // 3. Listing ID — top-left, big enough to read when image is scaled down
           if (listingNumber) {
-            const pad = Math.max(8, W * 0.012);
-            const idSize = Math.max(11, W * 0.018);
+            const pad = Math.max(14, W * 0.022);
+            const idSize = Math.max(22, W * 0.038);
             ctx.save();
-            ctx.globalAlpha = 0.65;
-            ctx.font = `400 ${idSize}px Arial, sans-serif`;
+            ctx.globalAlpha = 0.90;
+            ctx.font = `700 ${idSize}px Arial, sans-serif`;
             ctx.textBaseline = 'top';
             ctx.textAlign = 'left';
             ctx.fillStyle = '#ffffff';
-            ctx.shadowColor = 'rgba(0,0,0,0.5)';
-            ctx.shadowBlur = 3;
-            ctx.shadowOffsetX = 0;
-            ctx.shadowOffsetY = 0;
+            ctx.shadowColor = 'rgba(0,0,0,0.85)';
+            ctx.shadowBlur = idSize * 0.5;
+            ctx.shadowOffsetX = 1;
+            ctx.shadowOffsetY = 1;
             ctx.fillText(`#${listingNumber}`, pad, pad);
             ctx.restore();
           }
