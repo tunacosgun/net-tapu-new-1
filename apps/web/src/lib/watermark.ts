@@ -38,7 +38,6 @@ export function burnWatermark(
           ctx.font = `600 ${fontSize}px Arial, sans-serif`;
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
-          ctx.letterSpacing = '4px';
           // Subtle shadow for depth
           ctx.shadowColor = 'rgba(0,0,0,0.25)';
           ctx.shadowBlur = 6;
