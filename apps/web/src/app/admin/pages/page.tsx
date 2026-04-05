@@ -130,9 +130,6 @@ const PAGE_CONTENT_SCHEMAS: Record<string, PageSchema> = {
 /* ── Simple Page Editor ── */
 function SimplePageEditor({ publicPath, onClose }: { publicPath: string; onClose: () => void }) {
   const schema = PAGE_CONTENT_SCHEMAS[publicPath];
-  if (!schema) {
-    return <p className="p-4 text-sm text-slate-500">Bu sayfa için düzenleyici bulunamadı.</p>;
-  }
 
   const [fieldValues, setFieldValues] = useState<Record<string, string>>({});
   const [arrayValues, setArrayValues] = useState<Record<string, Record<string, string>[]>>({});
@@ -141,6 +138,7 @@ function SimplePageEditor({ publicPath, onClose }: { publicPath: string; onClose
   const [loadError, setLoadError] = useState(false);
 
   useEffect(() => {
+    if (!schema) return;
     apiClient.get('/content/site-settings').then(({ data }) => {
       try {
         const raw = data?.[schema.settingsKey];
@@ -204,6 +202,10 @@ function SimplePageEditor({ publicPath, onClose }: { publicPath: string; onClose
       updated[index] = { ...updated[index], [fieldKey]: value };
       return { ...prev, [arrKey]: updated };
     });
+  }
+
+  if (!schema) {
+    return <p className="p-4 text-sm text-slate-500">Bu sayfa için düzenleyici bulunamadı.</p>;
   }
 
   if (loadError) {
