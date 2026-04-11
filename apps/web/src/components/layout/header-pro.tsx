@@ -9,9 +9,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Map, Heart, Shield, User, LogOut, Menu, X, Bell,
   ChevronDown, Phone, Mail, Search,
-  Settings, CreditCard, Gavel,
+  Settings, CreditCard, Gavel, Clock, TrendingUp, ArrowRight,
   Info, Eye, Target, Settings2, Building2, FolderOpen, Star, Newspaper, BookOpen, Headphones,
 } from 'lucide-react';
+import type { Auction } from '@/types';
+import apiClient from '@/lib/api-client';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -77,8 +79,181 @@ const DEFAULT_CORPORATE_ITEMS: NavDropdownItem[] = [
 
 const mainNav = [
   { href: '/parcels', label: 'Arsalar', icon: Map },
-  { href: '/auctions', label: 'İhaleler', icon: Gavel },
 ];
+
+// ─── Auctions Live Dropdown ───────────────────────────────────────────────────
+
+function formatTimeLeft(end: string) {
+  const ms = new Date(end).getTime() - Date.now();
+  if (ms <= 0) return 'Sona erdi';
+  const h = Math.floor(ms / 3600000);
+  const m = Math.floor((ms % 3600000) / 60000);
+  if (h > 24) return `${Math.floor(h / 24)} gün`;
+  if (h > 0) return `${h}s ${m}dk`;
+  return `${m} dakika`;
+}
+
+function AuctionsLiveDropdown({ pathname }: { pathname: string | null }) {
+  const [open, setOpen] = useState(false);
+  const [auctions, setAuctions] = useState<Auction[]>([]);
+  const [loading, setLoading] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const didFetch = useRef(false);
+
+  const fetchAuctions = async () => {
+    setLoading(true);
+    try {
+      const { data } = await apiClient.get<{ data: Auction[] }>('/auctions?limit=6');
+      setAuctions(data.data || []);
+    } catch {
+      setAuctions([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // WebSocket: refresh list on new bids
+  useEffect(() => {
+    if (!open) return;
+    let ws: WebSocket | null = null;
+    try {
+      ws = new WebSocket('wss://nettapu-demo.tunasoft.tech/auction-ws');
+      ws.onmessage = (e) => {
+        try {
+          const msg = JSON.parse(e.data);
+          if (msg.type === 'BID_PLACED' || msg.type === 'AUCTION_STATUS') {
+            didFetch.current = false;
+            fetchAuctions();
+          }
+        } catch {}
+      };
+    } catch {}
+    return () => { ws?.close(); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
+
+  function handleEnter() {
+    if (timerRef.current) clearTimeout(timerRef.current);
+    setOpen(true);
+    if (!didFetch.current) { didFetch.current = true; fetchAuctions(); }
+  }
+  function handleLeave() {
+    timerRef.current = setTimeout(() => setOpen(false), 150);
+  }
+
+  const isActive = pathname?.startsWith('/auctions');
+  const hasLive = auctions.some(a => a.status === 'live');
+
+  return (
+    <div className="relative" onMouseEnter={handleEnter} onMouseLeave={handleLeave}>
+      <button
+        className={`relative flex items-center gap-2 px-4 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 select-none ${
+          isActive || open
+            ? 'text-emerald-600 bg-emerald-50'
+            : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+        }`}
+        aria-expanded={open}
+      >
+        <Gavel className="h-4 w-4" />
+        İhaleler
+        {hasLive && (
+          <span className="flex h-2 w-2 shrink-0">
+            <span className="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-green-400 opacity-75" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500" />
+          </span>
+        )}
+        <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
+      </button>
+
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: -8, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -8, scale: 0.97 }}
+            transition={{ duration: 0.15, ease: 'easeOut' }}
+            className="absolute left-0 top-full mt-2 z-50 w-80"
+          >
+            <div className="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden">
+              {/* Header */}
+              <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 bg-gradient-to-r from-emerald-50 to-white">
+                <div className="flex items-center gap-2">
+                  <Gavel className="h-4 w-4 text-emerald-600" />
+                  <span className="text-sm font-bold text-slate-800">Mevcut İhaleler</span>
+                </div>
+                {hasLive && (
+                  <span className="flex items-center gap-1 rounded-full bg-green-100 px-2 py-0.5 text-[10px] font-bold text-green-700 uppercase tracking-wide">
+                    <span className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" />
+                    Canlı
+                  </span>
+                )}
+              </div>
+
+              {/* List */}
+              <div className="max-h-64 overflow-y-auto divide-y divide-slate-50">
+                {loading ? (
+                  <div className="flex justify-center py-8">
+                    <div className="h-5 w-5 animate-spin rounded-full border-2 border-emerald-500 border-t-transparent" />
+                  </div>
+                ) : auctions.length === 0 ? (
+                  <div className="py-8 text-center">
+                    <Gavel className="h-8 w-8 mx-auto mb-2 text-slate-200" />
+                    <p className="text-sm text-slate-400">Aktif ihale bulunmuyor</p>
+                  </div>
+                ) : (
+                  auctions.map((a) => (
+                    <Link
+                      key={a.id}
+                      href={`/auctions/${a.id}`}
+                      onClick={() => setOpen(false)}
+                      className="flex items-start gap-3 px-4 py-3 hover:bg-slate-50 transition-colors group"
+                    >
+                      <div className="mt-1.5 shrink-0">
+                        {a.status === 'live'
+                          ? <span className="h-2 w-2 rounded-full bg-green-500 block animate-pulse" />
+                          : <span className="h-2 w-2 rounded-full bg-amber-400 block" />}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-slate-800 truncate group-hover:text-emerald-600 transition-colors">
+                          {a.title}
+                        </p>
+                        <div className="flex items-center gap-3 mt-0.5">
+                          <span className="flex items-center gap-1 text-xs text-slate-400">
+                            <TrendingUp className="h-3 w-3" />
+                            {Number(a.currentPrice || a.startingPrice).toLocaleString('tr-TR')} ₺
+                          </span>
+                          {a.status === 'live' && a.scheduledEnd && (
+                            <span className="flex items-center gap-1 text-xs text-green-600 font-semibold">
+                              <Clock className="h-3 w-3" />
+                              {formatTimeLeft(a.scheduledEnd)}
+                            </span>
+                          )}
+                          {a.status === 'scheduled' && (
+                            <span className="text-xs text-amber-600 font-semibold">Yakında</span>
+                          )}
+                        </div>
+                      </div>
+                      <ArrowRight className="h-4 w-4 text-slate-300 group-hover:text-emerald-400 shrink-0 mt-1 transition-colors" />
+                    </Link>
+                  ))
+                )}
+              </div>
+
+              {/* Footer */}
+              <Link
+                href="/auctions"
+                onClick={() => setOpen(false)}
+                className="flex items-center justify-center gap-1.5 py-3 text-xs font-bold text-emerald-600 hover:bg-emerald-50 transition-colors border-t border-slate-100"
+              >
+                Tüm İhaleleri Gör <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
 
 // ─── Corporate Mega Dropdown ──────────────────────────────────────────────────
 
@@ -353,6 +528,9 @@ export function HeaderPro() {
                 </Link>
               );
             })}
+
+            {/* İhaleler live dropdown */}
+            <AuctionsLiveDropdown pathname={pathname} />
 
             {/* Kurumsal dropdown trigger */}
             <div
