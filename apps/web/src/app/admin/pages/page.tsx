@@ -495,6 +495,21 @@ export default function AdminPagesPage() {
                   </svg>
                 </div>
               </Link>
+              <Link href="/admin/real-estate-guide" className="group rounded-xl border border-[var(--border)] p-5 transition-all hover:shadow-md hover:border-brand-200">
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">📖</span>
+                  <div>
+                    <h3 className="font-semibold text-[var(--foreground)] group-hover:text-brand-600 transition-colors">Rehber Makaleleri</h3>
+                    <p className="text-xs text-[var(--muted-foreground)]">Gayrimenkul rehber içerikleri</p>
+                  </div>
+                </div>
+                <div className="mt-3 flex items-center gap-1 text-xs text-brand-500 font-medium">
+                  Yönet
+                  <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
+              </Link>
               <Link href="/admin/references" className="group rounded-xl border border-[var(--border)] p-5 transition-all hover:shadow-md hover:border-brand-200">
                 <div className="flex items-center gap-3">
                   <span className="text-2xl">🏆</span>

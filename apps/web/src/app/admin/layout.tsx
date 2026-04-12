@@ -9,7 +9,7 @@ import {
   LayoutDashboard, BarChart3, Users, ShieldBan, Map, Gavel,
   CreditCard, Landmark, ClipboardList, Phone, CalendarDays,
   HandCoins, FileText, HelpCircle, Trophy, MessageSquare,
-  Target, Handshake, Settings, Bell, Menu, X, ExternalLink,
+  Target, Handshake, Settings, Bell, Menu, X, ExternalLink, BookOpen,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
@@ -42,10 +42,11 @@ const navSections: Array<{
     { href: '/admin/offers',       label: 'Teklifler',          icon: HandCoins },
   ]},
   { title: 'İçerik', items: [
-    { href: '/admin/pages',        label: 'Sayfalar',    icon: FileText },
-    { href: '/admin/faq',          label: 'S.S.S.',      icon: HelpCircle },
-    { href: '/admin/references',   label: 'Referanslar', icon: Trophy },
-    { href: '/admin/testimonials', label: 'Yorumlar',    icon: MessageSquare },
+    { href: '/admin/pages',               label: 'Sayfalar',       icon: FileText },
+    { href: '/admin/faq',                 label: 'S.S.S.',         icon: HelpCircle },
+    { href: '/admin/real-estate-guide',   label: 'Rehber Makaleleri', icon: BookOpen },
+    { href: '/admin/references',          label: 'Referanslar',    icon: Trophy },
+    { href: '/admin/testimonials',        label: 'Yorumlar',       icon: MessageSquare },
   ]},
   { title: 'Pazarlama', items: [
     { href: '/admin/campaigns', label: 'Kampanyalar',         icon: Target },
