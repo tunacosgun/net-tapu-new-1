@@ -21,6 +21,7 @@ import { RefundController } from './controllers/refund.controller';
 import { ReconciliationController } from './controllers/reconciliation.controller';
 import { PosCallbackController } from './controllers/pos-callback.controller';
 import { AdminDepositController } from './controllers/admin-deposit.controller';
+import { AdminFinanceSummaryController } from './controllers/admin-finance-summary.controller';
 
 @Module({
   imports: [
@@ -37,7 +38,7 @@ import { AdminDepositController } from './controllers/admin-deposit.controller';
       ReconciliationRun,
     ]),
   ],
-  controllers: [PaymentController, DepositController, RefundController, ReconciliationController, PosCallbackController, AdminDepositController],
+  controllers: [PaymentController, DepositController, RefundController, ReconciliationController, PosCallbackController, AdminDepositController, AdminFinanceSummaryController],
   providers: [
     PaymentService,
     RefundService,

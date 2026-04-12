@@ -37,21 +37,27 @@ export default function NotificationBell() {
   const [unreadCount, setUnreadCount] = useState(0);
   const ref = useRef<HTMLDivElement>(null);
 
-  async function fetchNotifications() {
-    try {
-      const { data } = await apiClient.get('/notifications', { params: { limit: 20 } });
-      const items: AdminNotification[] = data.data || data || [];
-      setNotifications(items);
-      setUnreadCount(items.filter((n) => !n.isRead && !n.readAt).length);
-    } catch {
-      // silently fail
-    }
-  }
-
   useEffect(() => {
+    let cancelled = false;
+
+    async function fetchNotifications() {
+      try {
+        const { data } = await apiClient.get('/notifications', { params: { limit: 20 } });
+        if (cancelled) return;
+        const items: AdminNotification[] = data.data || data || [];
+        setNotifications(items);
+        setUnreadCount(items.filter((n) => !n.isRead && !n.readAt).length);
+      } catch {
+        // silently fail
+      }
+    }
+
     fetchNotifications();
     const iv = setInterval(fetchNotifications, 60_000);
-    return () => clearInterval(iv);
+    return () => {
+      cancelled = true;
+      clearInterval(iv);
+    };
   }, []);
 
   useEffect(() => {
