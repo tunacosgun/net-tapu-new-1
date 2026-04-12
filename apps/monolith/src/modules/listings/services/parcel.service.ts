@@ -130,6 +130,12 @@ export class ParcelService {
         search: `%${query.search}%`,
       });
     }
+    if (query.zoningStatus) {
+      qb.andWhere('p.zoning_status = :zoningStatus', { zoningStatus: query.zoningStatus });
+    }
+    if (query.roadAccess) {
+      qb.andWhere('p.road_access = :roadAccess', { roadAccess: query.roadAccess });
+    }
 
     // Add favoriteCount subquery
     qb.addSelect(

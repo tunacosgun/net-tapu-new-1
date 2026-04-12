@@ -301,11 +301,18 @@ export default function AdminNewParcelPage() {
             error={errors.price?.message}
             {...register('price')}
           />
-          <FormField
-            label="İmar Durumu"
-            error={errors.zoningStatus?.message}
-            {...register('zoningStatus')}
-          />
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">İmar Durumu</label>
+            <select {...register('zoningStatus')} className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 dark:border-gray-600 dark:bg-gray-800 dark:text-white">
+              <option value="">Belirtilmemiş</option>
+              <option value="İmarlı">İmarlı</option>
+              <option value="İmarsız">İmarsız</option>
+              <option value="Tarla">Tarla</option>
+              <option value="Bağ & Bahçe">Bağ & Bahçe</option>
+              <option value="Konut İmarlı">Konut İmarlı</option>
+              <option value="Ticari İmarlı">Ticari İmarlı</option>
+            </select>
+          </div>
         </div>
         <div className="grid grid-cols-3 gap-4">
           <div>

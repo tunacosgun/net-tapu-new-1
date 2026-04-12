@@ -47,6 +47,14 @@ export class ListParcelsQueryDto {
 
   @IsString()
   @IsOptional()
+  zoningStatus?: string;
+
+  @IsString()
+  @IsOptional()
+  roadAccess?: string;
+
+  @IsString()
+  @IsOptional()
   sortBy?: 'price' | 'areaM2' | 'createdAt' | 'listedAt';
 
   @IsString()
