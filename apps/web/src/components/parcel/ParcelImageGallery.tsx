@@ -28,7 +28,9 @@ export function ParcelImageGallery({ images, wmImages, title, listingNumber }: P
   const [selectedIdx, setSelectedIdx] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
 
-  const currentSrc = wmImages[selectedIdx] || resolveImageUrl(images[selectedIdx]);
+  const currentSrc = images.length > 0 && images[selectedIdx]
+    ? (wmImages[selectedIdx] || resolveImageUrl(images[selectedIdx]))
+    : '';
 
   // Keyboard navigation
   const goNext = useCallback(() => setSelectedIdx((i) => (i + 1) % images.length), [images.length]);
