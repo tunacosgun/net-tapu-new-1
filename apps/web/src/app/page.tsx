@@ -14,9 +14,28 @@ import { VideoPopup } from '@/components/video-popup';
 import {
   Search, ArrowRight, MapPin, Shield, Lock, Headphones, Scale,
   Play, Star, Users, Gavel, Building2, ChevronRight, TrendingUp,
-  Zap, Timer, Sparkles, CheckCircle2, Award, X, History,
+  Zap, Timer, Sparkles, CheckCircle2, Award, X, History, Clock,
 } from 'lucide-react';
 import { useRecentSearches } from '@/hooks/use-recent-searches';
+import { useRef } from 'react';
+
+// Turkish cities + popular districts for autocomplete
+const LOCATION_SUGGESTIONS = [
+  'Adana', 'Adıyaman', 'Afyonkarahisar', 'Ağrı', 'Amasya', 'Ankara', 'Antalya', 'Artvin',
+  'Aydın', 'Balıkesir', 'Bilecik', 'Bingöl', 'Bitlis', 'Bolu', 'Burdur', 'Bursa',
+  'Çanakkale', 'Çankırı', 'Çorum', 'Denizli', 'Diyarbakır', 'Edirne', 'Elazığ',
+  'Erzincan', 'Erzurum', 'Eskişehir', 'Gaziantep', 'Giresun', 'Gümüşhane', 'Hakkari',
+  'Hatay', 'Isparta', 'İçel (Mersin)', 'İstanbul', 'İzmir', 'Kars', 'Kastamonu',
+  'Kayseri', 'Kırklareli', 'Kırşehir', 'Kocaeli', 'Konya', 'Kütahya', 'Malatya',
+  'Manisa', 'Kahramanmaraş', 'Mardin', 'Muğla', 'Muş', 'Nevşehir', 'Niğde',
+  'Ordu', 'Rize', 'Sakarya', 'Samsun', 'Siirt', 'Sinop', 'Sivas', 'Tekirdağ',
+  'Tokat', 'Trabzon', 'Tunceli', 'Şanlıurfa', 'Uşak', 'Van', 'Yozgat', 'Zonguldak',
+  'Aksaray', 'Bayburt', 'Karaman', 'Kırıkkale', 'Batman', 'Şırnak', 'Bartın', 'Ardahan',
+  'Iğdır', 'Yalova', 'Karabük', 'Kilis', 'Osmaniye', 'Düzce',
+  // Popular districts
+  'Belek', 'Kemer', 'Alanya', 'Side', 'Manavgat', 'Kuşadası', 'Bodrum', 'Marmaris',
+  'Fethiye', 'Göcek', 'Dalaman', 'Didim', 'Çeşme', 'Alaçatı', 'Sapanca', 'Abant',
+];
 import type { Parcel, Auction, PaginatedResponse, Reference } from '@/types';
 
 const ParcelMapLazy = dynamic(() => import('@/components/parcel-map-inner'), {
@@ -41,7 +60,19 @@ export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showVideo, setShowVideo] = useState(false);
   const [searchFocused, setSearchFocused] = useState(false);
+  const searchBoxRef = useRef<HTMLDivElement>(null);
   const { searches: recentSearches, save: saveSearch, remove: removeSearchItem, clear: clearSearches } = useRecentSearches();
+
+  // Autocomplete suggestions based on current query
+  const locationMatches = searchQuery.trim().length >= 1
+    ? LOCATION_SUGGESTIONS.filter((s) =>
+        s.toLocaleLowerCase('tr').includes(searchQuery.toLocaleLowerCase('tr'))
+      ).slice(0, 5)
+    : [];
+  const filteredRecent = searchQuery.trim().length >= 1
+    ? recentSearches.filter((s) => s.toLocaleLowerCase('tr').includes(searchQuery.toLocaleLowerCase('tr')))
+    : recentSearches;
+  const showDropdown = searchFocused && (filteredRecent.length > 0 || locationMatches.length > 0);
   const [testimonials, setTestimonials] = useState<Reference[]>([]);
 
   useEffect(() => {
@@ -201,37 +232,82 @@ export default function HomePage() {
                   </button>
                 </div>
 
-                {/* Recent searches dropdown */}
-                {searchFocused && recentSearches.length > 0 && !searchQuery && (
+                {/* Smart autocomplete dropdown */}
+                {showDropdown && (
                   <div className="absolute left-0 right-0 top-full mt-2 z-50 rounded-2xl bg-white shadow-2xl border border-slate-100 overflow-hidden">
-                    <div className="px-4 py-2.5 border-b border-slate-100 flex items-center justify-between">
-                      <span className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Son Aramalar</span>
-                      <button
-                        type="button"
-                        onClick={() => { setRecentSearches([]); localStorage.removeItem('nt_recent_searches'); }}
-                        className="text-xs text-slate-400 hover:text-red-500 transition-colors"
-                      >
-                        Temizle
-                      </button>
-                    </div>
-                    {recentSearches.map((q) => (
-                      <button
-                        key={q}
-                        type="button"
-                        onClick={() => handleRecentClick(q)}
-                        className="flex items-center gap-3 w-full px-4 py-3 text-left hover:bg-slate-50 transition-colors group/item"
-                      >
-                        <Search className="h-4 w-4 text-slate-300 shrink-0" />
-                        <span className="flex-1 text-sm text-slate-700 font-medium">{q}</span>
+                    {/* Recent searches section */}
+                    {filteredRecent.length > 0 && (
+                      <div>
+                        <div className="px-4 pt-3 pb-1.5 flex items-center justify-between">
+                          <span className="flex items-center gap-1.5 text-[11px] font-bold text-slate-400 uppercase tracking-widest">
+                            <History className="h-3 w-3" /> Son Aramalar
+                          </span>
+                          {!searchQuery && (
+                            <button type="button" onClick={clearSearches} className="text-[11px] text-slate-400 hover:text-red-500 transition-colors font-medium">
+                              Temizle
+                            </button>
+                          )}
+                        </div>
+                        {filteredRecent.slice(0, 3).map((q) => (
+                          <div key={q} className="flex items-center group/item hover:bg-slate-50 transition-colors">
+                            <button
+                              type="button"
+                              onClick={() => handleRecentClick(q)}
+                              className="flex-1 flex items-center gap-3 px-4 py-2.5 text-left"
+                            >
+                              <Clock className="h-3.5 w-3.5 text-slate-300 shrink-0" />
+                              <span className="text-sm text-slate-700 font-medium">{q}</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={(e) => removeRecent(q, e)}
+                              className="pr-4 opacity-0 group-hover/item:opacity-100 transition-opacity text-slate-300 hover:text-slate-500 p-1"
+                            >
+                              <X className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Location suggestions section */}
+                    {locationMatches.length > 0 && (
+                      <div className={filteredRecent.length > 0 ? 'border-t border-slate-100' : ''}>
+                        <div className="px-4 pt-3 pb-1.5">
+                          <span className="flex items-center gap-1.5 text-[11px] font-bold text-slate-400 uppercase tracking-widest">
+                            <MapPin className="h-3 w-3" /> Konumlar
+                          </span>
+                        </div>
+                        {locationMatches.map((loc) => (
+                          <button
+                            key={loc}
+                            type="button"
+                            onClick={() => { saveSearch(loc); setSearchQuery(''); setSearchFocused(false); router.push(`/parcels?city=${encodeURIComponent(loc)}`); }}
+                            className="flex items-center gap-3 w-full px-4 py-2.5 text-left hover:bg-emerald-50 transition-colors group/loc"
+                          >
+                            <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600 group-hover/loc:bg-emerald-200 transition-colors">
+                              <MapPin className="h-3 w-3" />
+                            </div>
+                            <span className="text-sm text-slate-800 font-semibold">{loc}</span>
+                            <span className="ml-auto text-xs text-slate-400">İl / İlçe</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Search action footer */}
+                    {searchQuery.trim() && (
+                      <div className="border-t border-slate-100 px-4 py-2.5">
                         <button
-                          type="button"
-                          onClick={(e) => removeRecent(q, e)}
-                          className="opacity-0 group-hover/item:opacity-100 transition-opacity text-slate-300 hover:text-slate-500 p-1"
+                          type="submit"
+                          className="flex items-center gap-2 text-sm font-semibold text-emerald-600 hover:text-emerald-700 transition-colors"
                         >
-                          <X className="h-3.5 w-3.5" />
+                          <Search className="h-3.5 w-3.5" />
+                          &quot;{searchQuery}&quot; için tüm sonuçları gör
+                          <ArrowRight className="h-3.5 w-3.5" />
                         </button>
-                      </button>
-                    ))}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

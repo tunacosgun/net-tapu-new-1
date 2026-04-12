@@ -11,7 +11,7 @@ import {
   ChevronDown, Phone, Mail, Search,
   Settings, CreditCard, Gavel, Clock, TrendingUp, ArrowRight,
   Info, Eye, Target, Settings2, Building2, FolderOpen, Star, Newspaper, BookOpen, Headphones,
-  History,
+  History, HelpCircle, Scale, Undo2, LifeBuoy, MessageCircle,
 } from 'lucide-react';
 import { useRecentSearches } from '@/hooks/use-recent-searches';
 import { useRouter } from 'next/navigation';
@@ -53,6 +53,11 @@ const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   book: BookOpen,
   headphones: Headphones,
   mail: Mail,
+  help: HelpCircle,
+  scale: Scale,
+  undo: Undo2,
+  lifebuoy: LifeBuoy,
+  message: MessageCircle,
 };
 
 function NavIcon({ name, className }: { name?: string; className?: string }) {
@@ -73,8 +78,14 @@ const DEFAULT_CORPORATE_ITEMS: NavDropdownItem[] = [
   { label: 'Projelerimiz', href: '/projects', description: 'Tamamlanan projeler', icon: 'folder' },
   { label: 'Müşteri Yorumları', href: '/testimonials', description: 'Kullanıcı deneyimleri', icon: 'star' },
   { label: 'Basın', href: '/press', description: 'Medyada NetTapu', icon: 'newspaper' },
+];
+
+const DEFAULT_SUPPORT_ITEMS: NavDropdownItem[] = [
+  { label: 'S.S.S.', href: '/faq', description: 'Sık sorulan sorular', icon: 'help' },
   { label: 'Gayrimenkul Rehberi', href: '/real-estate-guide', description: 'Kapsamlı yatırım rehberi', icon: 'book' },
   { label: 'Satış Sonrası', href: '/post-sale', description: 'Destek süreçleri', icon: 'headphones' },
+  { label: 'Yasal Bilgiler', href: '/legal', description: 'Kullanım koşulları & KVKK', icon: 'scale' },
+  { label: 'Cayma Hakkı', href: '/cancellation', description: 'İptal ve iade politikası', icon: 'undo' },
   { label: 'İletişim', href: '/contact', description: 'Bize ulaşın', icon: 'mail' },
 ];
 
@@ -258,16 +269,41 @@ function AuctionsLiveDropdown({ pathname }: { pathname: string | null }) {
   );
 }
 
-// ─── Corporate Mega Dropdown ──────────────────────────────────────────────────
+// ─── Mega Dropdown (shared for Kurumsal & Destek) ────────────────────────────
 
-function CorporateDropdown({
+function MegaDropdown({
   items,
   pathname,
+  accentColor = 'emerald',
+  align = 'left',
 }: {
   items: NavDropdownItem[];
   pathname: string | null;
+  accentColor?: 'emerald' | 'blue';
+  align?: 'left' | 'center' | 'right';
 }) {
-  const cols = items.length > 6 ? 3 : 2;
+  const colorMap = {
+    emerald: {
+      active: 'bg-emerald-50 text-emerald-700',
+      activeBar: 'bg-emerald-500',
+      activeIcon: 'bg-emerald-100 text-emerald-600',
+      hoverIcon: 'group-hover:bg-emerald-50 group-hover:text-emerald-500',
+      hoverBar: 'group-hover:bg-emerald-300',
+      headerGrad: 'from-emerald-50 to-white',
+      headerIcon: 'text-emerald-600',
+    },
+    blue: {
+      active: 'bg-blue-50 text-blue-700',
+      activeBar: 'bg-blue-500',
+      activeIcon: 'bg-blue-100 text-blue-600',
+      hoverIcon: 'group-hover:bg-blue-50 group-hover:text-blue-500',
+      hoverBar: 'group-hover:bg-blue-300',
+      headerGrad: 'from-blue-50 to-white',
+      headerIcon: 'text-blue-600',
+    },
+  };
+  const c = colorMap[accentColor];
+  const alignClass = align === 'center' ? '-translate-x-1/2 left-1/2' : align === 'right' ? 'right-0' : 'left-0';
 
   return (
     <motion.div
@@ -275,61 +311,46 @@ function CorporateDropdown({
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: -8, scale: 0.97 }}
       transition={{ duration: 0.15, ease: 'easeOut' }}
-      className="absolute left-1/2 top-full mt-2 -translate-x-1/2 z-50"
-      style={{ minWidth: cols === 3 ? 680 : 480 }}
+      className={`absolute top-full mt-1 z-[100] ${alignClass}`}
+      style={{ minWidth: 480 }}
     >
-      {/* Arrow */}
-      <div className="flex justify-center">
-        <div className="h-2 w-4 overflow-hidden -mb-px">
-          <div className="h-3 w-3 bg-white border-l border-t border-slate-100 rotate-45 translate-y-1 mx-auto shadow-sm" />
-        </div>
-      </div>
-
-      <div className="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden p-3">
+      <div className="bg-white rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.12)] border border-slate-100/80 overflow-hidden">
         <div
-          className="grid gap-1"
-          style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}
+          className="grid gap-0.5 p-2"
+          style={{ gridTemplateColumns: 'repeat(2, 1fr)' }}
         >
           {items.map((item) => {
-            const isActive = pathname?.startsWith(item.href);
+            const isActive = pathname === item.href || (pathname?.startsWith(item.href) && item.href !== '/');
             return (
               <Link
                 key={item.href}
                 href={item.href}
                 className={`group relative flex items-start gap-3 rounded-xl px-3 py-3 transition-all duration-150 ${
-                  isActive
-                    ? 'bg-emerald-50 text-emerald-700'
-                    : 'hover:bg-slate-50 text-slate-700'
+                  isActive ? c.active : 'hover:bg-slate-50 text-slate-700'
                 }`}
               >
-                {/* Left accent bar on hover */}
-                <div
-                  className={`absolute left-0 top-3 bottom-3 w-0.5 rounded-full transition-all duration-150 ${
-                    isActive ? 'bg-emerald-500' : 'bg-transparent group-hover:bg-emerald-300'
-                  }`}
-                />
+                {/* Left accent */}
+                <div className={`absolute left-0 top-3 bottom-3 w-0.5 rounded-full transition-all duration-150 ${isActive ? c.activeBar : `bg-transparent ${c.hoverBar}`}`} />
 
-                {/* Icon dot */}
-                <div
-                  className={`mt-0.5 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg transition-colors duration-150 ${
-                    isActive
-                      ? 'bg-emerald-100 text-emerald-600'
-                      : 'bg-slate-100 text-slate-500 group-hover:bg-emerald-50 group-hover:text-emerald-500'
-                  }`}
-                >
-                  <NavIcon name={item.icon} className="h-3.5 w-3.5" />
+                {/* Icon */}
+                <div className={`mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-xl transition-colors duration-150 ${
+                  isActive ? c.activeIcon : `bg-slate-100 text-slate-400 ${c.hoverIcon}`
+                }`}>
+                  <NavIcon name={item.icon} className="h-4 w-4" />
                 </div>
 
-                <div className="min-w-0">
-                  <p className={`text-sm font-semibold leading-tight ${isActive ? 'text-emerald-700' : 'text-slate-800'}`}>
+                <div className="min-w-0 flex-1">
+                  <p className={`text-sm font-semibold leading-tight ${isActive ? '' : 'text-slate-800 group-hover:text-slate-900'}`}>
                     {item.label}
                   </p>
                   {item.description && (
-                    <p className="mt-0.5 text-xs text-slate-500 leading-snug">
+                    <p className="mt-0.5 text-xs text-slate-400 leading-snug">
                       {item.description}
                     </p>
                   )}
                 </div>
+
+                <ArrowRight className={`h-3.5 w-3.5 mt-1 shrink-0 transition-all duration-150 opacity-0 group-hover:opacity-100 -translate-x-1 group-hover:translate-x-0 ${isActive ? c.headerIcon : 'text-slate-400'}`} />
               </Link>
             );
           })}
@@ -355,6 +376,9 @@ export function HeaderPro() {
   const [corporateOpen, setCorporateOpen] = useState(false);
   const [mobileCorporateOpen, setMobileCorporateOpen] = useState(false);
   const corporateTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [supportOpen, setSupportOpen] = useState(false);
+  const [mobileSupportOpen, setMobileSupportOpen] = useState(false);
+  const supportTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const searchRef = useRef<HTMLDivElement>(null);
@@ -378,6 +402,8 @@ export function HeaderPro() {
       }
     } catch {}
   }
+
+  const supportItems: NavDropdownItem[] = DEFAULT_SUPPORT_ITEMS;
 
   const resolvedLogo = resolveUploadUrl(s.site_logo as string | undefined);
 
@@ -422,6 +448,7 @@ export function HeaderPro() {
   const isAdmin = user?.roles?.includes('admin') || user?.roles?.includes('superadmin');
 
   const isCorporateActive = corporateItems.some((item) => pathname?.startsWith(item.href));
+  const isSupportActive = supportItems.some((item) => pathname?.startsWith(item.href));
 
   function handleCorporateEnter() {
     if (corporateTimer.current) clearTimeout(corporateTimer.current);
@@ -430,6 +457,14 @@ export function HeaderPro() {
 
   function handleCorporateLeave() {
     corporateTimer.current = setTimeout(() => setCorporateOpen(false), 120);
+  }
+
+  function handleSupportEnter() {
+    if (supportTimer.current) clearTimeout(supportTimer.current);
+    setSupportOpen(true);
+  }
+  function handleSupportLeave() {
+    supportTimer.current = setTimeout(() => setSupportOpen(false), 120);
   }
 
   function openSearch() {
@@ -591,7 +626,36 @@ export function HeaderPro() {
 
               <AnimatePresence>
                 {corporateOpen && (
-                  <CorporateDropdown items={corporateItems} pathname={pathname} />
+                  <MegaDropdown items={corporateItems} pathname={pathname} accentColor="emerald" align="left" />
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* Destek dropdown trigger */}
+            <div
+              className="relative"
+              onMouseEnter={handleSupportEnter}
+              onMouseLeave={handleSupportLeave}
+            >
+              <button
+                className={`relative flex items-center gap-2 px-4 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 select-none ${
+                  isSupportActive || supportOpen
+                    ? 'text-blue-600 bg-blue-50'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                }`}
+                data-testid="nav-support-btn"
+                aria-expanded={supportOpen}
+                aria-haspopup="true"
+              >
+                Destek
+                <ChevronDown
+                  className={`h-3.5 w-3.5 transition-transform duration-200 ${supportOpen ? 'rotate-180' : ''}`}
+                />
+              </button>
+
+              <AnimatePresence>
+                {supportOpen && (
+                  <MegaDropdown items={supportItems} pathname={pathname} accentColor="blue" align="right" />
                 )}
               </AnimatePresence>
             </div>
@@ -917,6 +981,58 @@ export function HeaderPro() {
                                 }`}
                               >
                                 <span className={`flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md ${isActive ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-100 text-slate-400'}`}>
+                                  <NavIcon name={item.icon} className="h-3.5 w-3.5" />
+                                </span>
+                                {item.label}
+                              </Link>
+                            );
+                          })}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+
+                {/* Destek expandable section */}
+                <div>
+                  <button
+                    onClick={() => setMobileSupportOpen(!mobileSupportOpen)}
+                    className={`w-full flex items-center justify-between gap-3 px-4 py-3 text-sm font-semibold rounded-lg transition-colors duration-150 ${
+                      isSupportActive ? 'text-blue-600 bg-blue-50' : 'text-slate-600 hover:bg-slate-50'
+                    }`}
+                    data-testid="mobile-support-toggle"
+                  >
+                    <span className="flex items-center gap-3">
+                      <LifeBuoy className="h-5 w-5" />
+                      Destek
+                    </span>
+                    <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${mobileSupportOpen ? 'rotate-180' : ''}`} />
+                  </button>
+
+                  <AnimatePresence>
+                    {mobileSupportOpen && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.18 }}
+                        className="overflow-hidden"
+                      >
+                        <div className="ml-4 mt-1 border-l-2 border-blue-100 pl-3 space-y-0.5">
+                          {supportItems.map((item) => {
+                            const isActive = pathname?.startsWith(item.href);
+                            return (
+                              <Link
+                                key={item.href}
+                                href={item.href}
+                                onClick={() => { setMobileOpen(false); setMobileSupportOpen(false); }}
+                                className={`flex items-center gap-3 px-3 py-2.5 text-sm rounded-lg transition-colors duration-150 ${
+                                  isActive
+                                    ? 'text-blue-600 bg-blue-50 font-semibold'
+                                    : 'text-slate-600 hover:bg-slate-50 font-medium'
+                                }`}
+                              >
+                                <span className={`flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md ${isActive ? 'bg-blue-100 text-blue-600' : 'bg-slate-100 text-slate-400'}`}>
                                   <NavIcon name={item.icon} className="h-3.5 w-3.5" />
                                 </span>
                                 {item.label}
