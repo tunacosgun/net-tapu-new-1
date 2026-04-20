@@ -12,8 +12,8 @@ const WATERMARK_OPACITY = 0.35;
 const THUMBNAIL_WIDTH = 400;
 const FULL_SIZE_MAX_WIDTH = 1600;
 
-/** Side padding (white bars) as fraction of original width */
-const SIDE_PADDING_RATIO = 0.06; // 6% each side → 12% total added width
+/** Side padding (white bars) — disabled, no side bars */
+const SIDE_PADDING_RATIO = 0; // no side padding
 
 @Injectable()
 export class ImageProcessingService {
@@ -120,16 +120,10 @@ export class ImageProcessingService {
       create: { width: totalW, height: totalH, channels: 3, background: { r: 255, g: 255, b: 255 } },
     }).png().toBuffer();
 
-    // Composite: place resized image in centre (offset by padW from left)
+    // Composite: place resized image in centre
     const compositeOps: sharp.OverlayOptions[] = [
       { input: resizedBuf, left: padW, top: 0 },
     ];
-
-    // --- Parcel number overlay (top-left in left padding area) ---
-    if (listingId) {
-      const labelSvg = this.buildParcelLabelSvg(padW, totalH, listingId);
-      compositeOps.push({ input: Buffer.from(labelSvg), left: 0, top: 0 });
-    }
 
     // --- Diagonal watermark over entire canvas ---
     const logoBuffer = await this.getWatermarkLogo();

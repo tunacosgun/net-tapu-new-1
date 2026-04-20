@@ -146,14 +146,33 @@ export class TkgmService {
       }
 
       if (!parcelData) {
-        throw new BadGatewayException(
-          `TKGM: Parsel bulunamadı — ${dto.city}/${dto.district} Ada:${dto.ada} Parsel:${dto.parsel}`,
-        );
+        // Return empty/not-found cache entry (200 OK) instead of throwing 502
+        responseData = {
+          source: 'tkgm',
+          found: false,
+          ada: dto.ada,
+          parsel: dto.parsel,
+          city: dto.city,
+          district: dto.district,
+          latitude: null,
+          longitude: null,
+          boundary: null,
+          fetchedAt: new Date().toISOString(),
+        };
+
+        const now = new Date();
+        const expiresAt = new Date(now.getTime() + 2 * 60 * 60 * 1000); // cache 2h for not-found
+        const entry = this.cacheRepo.create({
+          ada: dto.ada, parsel: dto.parsel, city: dto.city, district: dto.district,
+          responseData, fetchedAt: now, expiresAt,
+        });
+        return this.cacheRepo.save(entry);
       }
 
       // 3. Extract useful data
       const geometry = parcelData.geometry as Record<string, unknown> | undefined;
-      const properties = parcelData.properties as Record<string, unknown> | undefined;
+      // TKGM sometimes wraps in Feature (parcelData.properties), sometimes returns raw props directly
+      const properties = (parcelData.properties as Record<string, unknown> | undefined) ?? parcelData;
       const alanRaw = properties?.alan ?? parcelData.alan;
       // Parse Turkish number format: "100.301,93" → 100301.93
       const alan = typeof alanRaw === 'string'
@@ -165,31 +184,51 @@ export class TkgmService {
       let longitude: number | null = null;
       let boundary: unknown = null;
 
-      if (geometry && geometry.type === 'Polygon' && Array.isArray(geometry.coordinates)) {
-        boundary = geometry;
-        // Calculate centroid from first ring
-        const ring = (geometry.coordinates as number[][][])[0];
-        if (ring && ring.length > 0) {
-          let sumLat = 0, sumLng = 0;
-          for (const [lng, lat] of ring) {
-            sumLng += lng;
-            sumLat += lat;
+      const extractCentroid = (geom: Record<string, unknown>): { lat: number; lng: number } | null => {
+        if (geom.type === 'Polygon' && Array.isArray(geom.coordinates)) {
+          const ring = (geom.coordinates as number[][][])[0];
+          if (ring?.length > 0) {
+            let sumLat = 0, sumLng = 0;
+            for (const [lng, lat] of ring) { sumLng += lng; sumLat += lat; }
+            return { lat: sumLat / ring.length, lng: sumLng / ring.length };
           }
-          longitude = sumLng / ring.length;
-          latitude = sumLat / ring.length;
         }
-      } else if (geometry && geometry.type === 'MultiPolygon' && Array.isArray(geometry.coordinates)) {
-        boundary = geometry;
-        const ring = (geometry.coordinates as number[][][][])[0]?.[0];
-        if (ring && ring.length > 0) {
-          let sumLat = 0, sumLng = 0;
-          for (const [lng, lat] of ring) {
-            sumLng += lng;
-            sumLat += lat;
+        if (geom.type === 'MultiPolygon' && Array.isArray(geom.coordinates)) {
+          const ring = (geom.coordinates as number[][][][])[0]?.[0];
+          if (ring?.length > 0) {
+            let sumLat = 0, sumLng = 0;
+            for (const [lng, lat] of ring) { sumLng += lng; sumLat += lat; }
+            return { lat: sumLat / ring.length, lng: sumLng / ring.length };
           }
-          longitude = sumLng / ring.length;
-          latitude = sumLat / ring.length;
         }
+        return null;
+      };
+
+      if (geometry && (geometry.type === 'Polygon' || geometry.type === 'MultiPolygon')) {
+        boundary = geometry;
+        const c = extractCentroid(geometry);
+        if (c) { latitude = c.lat; longitude = c.lng; }
+      }
+
+      // Fallback: parse gittigiParselListe (TKGM stores moved parcel geometry here)
+      if (!boundary) {
+        try {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const gpl: any = (properties as any)?.gittigiParselListe;
+          if (gpl) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const raw: any = typeof gpl === 'string' ? JSON.parse(gpl) : gpl;
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const gplFeature: any = Array.isArray(raw?.features) ? raw.features[0] : null;
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const geom: any = gplFeature?.geometry;
+            if (geom && (geom.type === 'Polygon' || geom.type === 'MultiPolygon')) {
+              boundary = geom as Record<string, unknown>;
+              const c = extractCentroid(geom as Record<string, unknown>);
+              if (c) { latitude = c.lat; longitude = c.lng; }
+            }
+          }
+        } catch { /* ignore parse errors */ }
       }
 
       responseData = {

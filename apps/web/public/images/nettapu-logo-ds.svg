@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 64" width="260" height="64">
+  <g>
+    
+    <rect x="2" y="10" width="44" height="44" rx="10" fill="#5c6d28"></rect>
+    <path d="M10 46 L22 30 L30 38 L38 26 L42 30 L42 46 Z" fill="#a9bb72" opacity="0.95"></path>
+    <circle cx="34" cy="22" r="5" fill="#ffffff"></circle>
+    <circle cx="34" cy="22" r="2.2" fill="#5c6d28"></circle>
+  </g>
+  <g font-family="Inter, system-ui, -apple-system, sans-serif" fill="#111827">
+    <text x="58" y="40" font-size="26" font-weight="700" letter-spacing="-0.02em">Net<tspan fill="#5c6d28">Tapu</tspan></text>
+  </g>
+</svg>

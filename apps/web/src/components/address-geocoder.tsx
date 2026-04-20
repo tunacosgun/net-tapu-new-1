@@ -298,7 +298,7 @@ export function AddressGeocoder({
       )}
 
       {/* Mini map */}
-      <div className="relative rounded-lg overflow-hidden border border-[var(--border)]">
+      <div className="relative rounded-lg overflow-hidden border border-[var(--border)]" style={{ isolation: 'isolate', position: 'relative', zIndex: 0 }}>
         <div ref={mapContainerRef} style={{ height, width: '100%' }} />
 
         {!ready && (

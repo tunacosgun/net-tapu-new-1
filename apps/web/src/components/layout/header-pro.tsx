@@ -179,14 +179,9 @@ function AuctionsLiveDropdown({ pathname }: { pathname: string | null }) {
         <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
       </Link>
 
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ opacity: 0, y: -8, scale: 0.97 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -8, scale: 0.97 }}
-            transition={{ duration: 0.15, ease: 'easeOut' }}
-            className="absolute left-0 top-full mt-1 z-[100] w-80"
+      {open && (
+          <div
+            className="absolute left-0 top-full mt-1 z-[100] w-80 animate-in fade-in slide-in-from-top-2 duration-150"
           >
             <div className="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden">
               {/* Header */}
@@ -262,9 +257,8 @@ function AuctionsLiveDropdown({ pathname }: { pathname: string | null }) {
                 Tüm İhaleleri Gör <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          </div>
+      )}
     </div>
   );
 }
@@ -306,12 +300,8 @@ function MegaDropdown({
   const alignClass = align === 'center' ? '-translate-x-1/2 left-1/2' : align === 'right' ? 'right-0' : 'left-0';
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: -8, scale: 0.97 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, y: -8, scale: 0.97 }}
-      transition={{ duration: 0.15, ease: 'easeOut' }}
-      className={`absolute top-full mt-1 z-[100] ${alignClass}`}
+    <div
+      className={`absolute top-full mt-1 z-[100] ${alignClass} animate-in fade-in slide-in-from-top-2 duration-150`}
       style={{ minWidth: 480 }}
     >
       <div className="bg-white rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.12)] border border-slate-100/80 overflow-hidden">
@@ -356,7 +346,7 @@ function MegaDropdown({
           })}
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }
 
@@ -632,11 +622,9 @@ export function HeaderPro() {
                 />
               </button>
 
-              <AnimatePresence>
-                {corporateOpen && (
-                  <MegaDropdown items={corporateItems} pathname={pathname} accentColor="emerald" align="left" />
-                )}
-              </AnimatePresence>
+              {corporateOpen && (
+                <MegaDropdown items={corporateItems} pathname={pathname} accentColor="emerald" align="left" />
+              )}
             </div>
 
             {/* Destek dropdown trigger */}
@@ -661,11 +649,9 @@ export function HeaderPro() {
                 />
               </button>
 
-              <AnimatePresence>
-                {supportOpen && (
-                  <MegaDropdown items={supportItems} pathname={pathname} accentColor="blue" align="right" />
-                )}
-              </AnimatePresence>
+              {supportOpen && (
+                <MegaDropdown items={supportItems} pathname={pathname} accentColor="blue" align="right" />
+              )}
             </div>
           </nav>
 
@@ -681,14 +667,9 @@ export function HeaderPro() {
                 <Search className="h-5 w-5" />
               </button>
 
-              <AnimatePresence>
-                {searchOpen && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -8, scale: 0.97 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: -8, scale: 0.97 }}
-                    transition={{ duration: 0.15, ease: 'easeOut' }}
-                    className="absolute right-0 top-full mt-2 z-[100] w-80"
+              {searchOpen && (
+                  <div
+                    className="absolute right-0 top-full mt-2 z-[100] w-80 animate-in fade-in slide-in-from-top-2 duration-150"
                   >
                     <div className="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden">
                       {/* Search input */}
@@ -749,9 +730,8 @@ export function HeaderPro() {
                         </button>
                       </div>
                     </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                  </div>
+              )}
             </div>
 
             {isAuthenticated ? (
@@ -803,14 +783,9 @@ export function HeaderPro() {
                     )}
                   </button>
 
-                  <AnimatePresence>
-                    {profileOpen && (
-                      <motion.div
-                        initial={{ opacity: 0, y: -10, scale: 0.95 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                        transition={{ duration: 0.15 }}
-                        className="absolute right-0 top-full mt-2 w-64 rounded-xl bg-white shadow-[0_10px_40px_rgba(0,0,0,0.1)] overflow-hidden"
+                  {profileOpen && (
+                      <div
+                        className="absolute right-0 top-full mt-2 w-64 rounded-xl bg-white shadow-[0_10px_40px_rgba(0,0,0,0.1)] overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150 z-[100]"
                         onMouseLeave={() => setProfileOpen(false)}
                         data-testid="profile-dropdown"
                       >
@@ -880,9 +855,8 @@ export function HeaderPro() {
                             <span>Çıkış Yap</span>
                           </button>
                         </div>
-                      </motion.div>
+                      </div>
                     )}
-                  </AnimatePresence>
                 </div>
               </>
             ) : (

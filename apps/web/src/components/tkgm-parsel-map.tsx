@@ -142,7 +142,7 @@ export function TkgmParselMap({ city, district, ada, parsel, height = 'h-80' }: 
   const boundary = result?.boundary ?? rd?.boundary ?? null;
 
   return (
-    <div className="rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+    <div className="rounded-xl border border-slate-200 overflow-hidden shadow-sm" style={{ isolation: 'isolate', position: 'relative', zIndex: 0 }}>
       {/* Header */}
       <div className="flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-emerald-50 to-white border-b border-slate-200">
         <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-100">
