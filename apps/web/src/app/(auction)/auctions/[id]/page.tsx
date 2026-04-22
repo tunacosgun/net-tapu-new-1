@@ -90,6 +90,13 @@ export default function AuctionDetailPage() {
     const st = auctionDetail.status;
     if (st !== 'live' && st !== 'ending' && st !== 'scheduled' && st !== 'deposit_open') return;
 
+    // If end time has already passed, set once to 0 and stop (prevents infinite re-render loop).
+    const initialRemaining = new Date(endTime).getTime() - Date.now();
+    if (initialRemaining <= 0) {
+      if (timeRemainingMs !== 0) setTimeRemaining(0);
+      return;
+    }
+
     const calc = () => {
       const remaining = new Date(endTime).getTime() - Date.now();
       setTimeRemaining(Math.max(0, remaining));
