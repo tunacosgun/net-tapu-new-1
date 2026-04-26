@@ -349,11 +349,9 @@ export default function ParcelDetailClient() {
     let cancelled = false;
     // Generate stable 10-digit numeric listing number from parcel UUID
     const pid = parcel?.id || '';
-    const hashVal = pid.split('').reduce((a: number, c: string) => ((a * 31 + c.charCodeAt(0)) >>> 0), 5381);
-    const listingNumber = String((hashVal % 9000000000) + 1000000000);
     images.forEach((img, idx) => {
       const url = resolveImageUrl(img);
-      getWatermarkedUrl(url, siteName, listingNumber).then((wmUrl) => {
+      getWatermarkedUrl(url, siteName).then((wmUrl) => {
         if (!cancelled) setWmImages((prev) => ({ ...prev, [idx]: wmUrl }));
       });
     });

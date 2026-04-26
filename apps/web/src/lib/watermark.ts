@@ -119,7 +119,7 @@ export function burnWatermark(
 
 /** Cache to avoid re-processing the same image. Version bump forces re-render on deploy. */
 const wmCache = new Map<string, string>();
-const WM_VERSION = 'v8';
+const WM_VERSION = 'v9';
 
 export async function getWatermarkedUrl(
   imageUrl: string,
