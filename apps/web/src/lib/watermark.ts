@@ -64,8 +64,8 @@ export function burnWatermark(
 
           // 3. Listing ID — elegant pill badge, top-left
           if (listingNumber) {
-            const pad = Math.max(16, W * 0.024);
-            const idSize = Math.max(26, W * 0.042);
+            const pad = Math.max(10, W * 0.014);
+            const idSize = Math.max(12, W * 0.018);
             const label = `#${listingNumber}`;
             ctx.save();
             ctx.font = `600 ${idSize}px -apple-system, Arial, sans-serif`;
@@ -119,7 +119,7 @@ export function burnWatermark(
 
 /** Cache to avoid re-processing the same image. Version bump forces re-render on deploy. */
 const wmCache = new Map<string, string>();
-const WM_VERSION = 'v7';
+const WM_VERSION = 'v8';
 
 export async function getWatermarkedUrl(
   imageUrl: string,
