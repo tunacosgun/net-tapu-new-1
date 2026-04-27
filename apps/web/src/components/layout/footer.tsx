@@ -161,7 +161,6 @@ export function Footer() {
               {copyright}
             </p>
             <div className="flex items-center gap-6 text-sm text-slate-400">
-              <span>Eser Group iştirakidir.</span>
               <span className="flex items-center gap-1.5">
                 <Clock className="h-3.5 w-3.5" />
                 7/24 Destek
