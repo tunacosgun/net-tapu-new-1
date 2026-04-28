@@ -377,9 +377,9 @@ export default function HomePage() {
       </section>
 
       {/* ═══════════════════════════════════════════════════════════════
-          TURKEY MAP — PARCEL DISTRIBUTION
+          TURKEY MAP — PARCEL DISTRIBUTION (temporarily disabled)
           ═══════════════════════════════════════════════════════════════ */}
-      <TurkeyParcelMap />
+      {/* <TurkeyParcelMap /> */}
 
       {/* ═══════════════════════════════════════════════════════════════
           FEATURED PARCELS SECTION
