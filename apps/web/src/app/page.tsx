@@ -7,7 +7,6 @@ import dynamic from 'next/dynamic';
 import { motion } from 'framer-motion';
 import apiClient from '@/lib/api-client';
 import { formatPrice } from '@/lib/format';
-import { TurkeyParcelMap } from '@/components/turkey-parcel-map';
 import { useSiteSettings } from '@/hooks/use-site-settings';
 import { ParcelCard } from '@/components/parcel-card';
 import { VideoPopup } from '@/components/video-popup';
@@ -18,6 +17,7 @@ import {
 } from 'lucide-react';
 import { useRecentSearches } from '@/hooks/use-recent-searches';
 import { useRef } from 'react';
+import { TurkeyParcelMap } from '@/components/turkey-parcel-map';
 
 // Turkish cities + popular districts for autocomplete
 const LOCATION_SUGGESTIONS = [
@@ -377,9 +377,9 @@ export default function HomePage() {
       </section>
 
       {/* ═══════════════════════════════════════════════════════════════
-          TURKEY MAP — PARCEL DISTRIBUTION (temporarily disabled)
+          TURKEY MAP — PARCEL DISTRIBUTION
           ═══════════════════════════════════════════════════════════════ */}
-      {/* <TurkeyParcelMap /> */}
+      <TurkeyParcelMap />
 
       {/* ═══════════════════════════════════════════════════════════════
           FEATURED PARCELS SECTION

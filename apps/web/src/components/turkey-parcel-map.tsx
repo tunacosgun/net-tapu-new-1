@@ -1,18 +1,9 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import dynamic from 'next/dynamic';
 import apiClient from '@/lib/api-client';
+import { TURKEY_PROVINCES } from '@/data/turkey-paths';
 import { ChevronLeft, MapPin, TrendingUp } from 'lucide-react';
-
-const MapInner = dynamic(() => import('./turkey-parcel-map-inner').then((m) => m.TurkeyParcelMapInner), {
-  ssr: false,
-  loading: () => (
-    <div className="h-[520px] flex items-center justify-center text-slate-400 text-sm">
-      Harita yükleniyor…
-    </div>
-  ),
-});
 
 type CityStat = { city: string; count: number };
 type DistrictStat = { district: string; count: number };
@@ -25,6 +16,12 @@ const COLOR_STOPS = [
   { min: 20, color: '#15803d' },
   { min: 50, color: '#14532d' },
 ];
+
+function colorFor(count: number): string {
+  let c = COLOR_STOPS[0].color;
+  for (const stop of COLOR_STOPS) if (count >= stop.min) c = stop.color;
+  return c;
+}
 
 function normalizeName(s: string): string {
   return s
@@ -40,13 +37,14 @@ export function TurkeyParcelMap() {
   const [districtStats, setDistrictStats] = useState<DistrictStat[]>([]);
   const [hoveredCity, setHoveredCity] = useState<string | null>(null);
   const [districtLoading, setDistrictLoading] = useState(false);
+  const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number } | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     apiClient
       .get<CityStat[]>('/parcels/stats/by-city')
       .then((r) => {
-        if (!cancelled) setCityStats(r.data || []);
+        if (!cancelled) setCityStats(Array.isArray(r.data) ? r.data : []);
       })
       .catch(() => {
         if (!cancelled) setCityStats([]);
@@ -70,10 +68,12 @@ export function TurkeyParcelMap() {
     setDistrictLoading(true);
     apiClient
       .get<DistrictStat[]>(`/parcels/stats/by-district?city=${encodeURIComponent(city)}`)
-      .then((r) => setDistrictStats(r.data || []))
+      .then((r) => setDistrictStats(Array.isArray(r.data) ? r.data : []))
       .catch(() => setDistrictStats([]))
       .finally(() => setDistrictLoading(false));
   }
+
+  const hoveredCount = hoveredCity ? countByCity.get(normalizeName(hoveredCity)) ?? 0 : 0;
 
   return (
     <section className="py-16 bg-gradient-to-b from-slate-50 to-white">
@@ -93,21 +93,64 @@ export function TurkeyParcelMap() {
 
         <div className="grid lg:grid-cols-12 gap-6">
           <div className="lg:col-span-8 rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-            <div className="h-[520px] relative bg-slate-50">
-              <MapInner
-                countByCity={countByCity}
-                selectedCity={selectedCity}
-                hoveredCity={hoveredCity}
-                onHover={setHoveredCity}
-                onSelect={loadDistricts}
-              />
-              <div className="absolute bottom-4 left-4 z-[400] rounded-lg bg-white/95 backdrop-blur border border-slate-200 shadow-sm px-3 py-2 text-xs">
+            <div className="relative">
+              <svg
+                viewBox="0 0 1005 490"
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-full h-auto select-none"
+                onMouseLeave={() => {
+                  setHoveredCity(null);
+                  setTooltipPos(null);
+                }}
+              >
+                {TURKEY_PROVINCES.map((p) => {
+                  const count = countByCity.get(normalizeName(p.name)) ?? 0;
+                  const isHovered = hoveredCity && normalizeName(hoveredCity) === normalizeName(p.name);
+                  const isSelected = selectedCity && normalizeName(selectedCity) === normalizeName(p.name);
+                  return (
+                    <path
+                      key={p.id}
+                      d={p.d}
+                      fill={colorFor(count)}
+                      stroke={isSelected ? '#0f766e' : isHovered ? '#0d9488' : '#cbd5e1'}
+                      strokeWidth={isSelected ? 1.8 : isHovered ? 1.4 : 0.6}
+                      style={{
+                        cursor: 'pointer',
+                        transition: 'fill 150ms ease, stroke 150ms ease',
+                        filter: isHovered || isSelected ? 'brightness(1.05)' : undefined,
+                      }}
+                      onMouseEnter={(e) => {
+                        setHoveredCity(p.name);
+                        const rect = (e.currentTarget.ownerSVGElement as SVGSVGElement).getBoundingClientRect();
+                        const bbox = (e.currentTarget as SVGPathElement).getBBox();
+                        setTooltipPos({
+                          x: ((bbox.x + bbox.width / 2) / 1005) * rect.width,
+                          y: (bbox.y / 490) * rect.height,
+                        });
+                      }}
+                      onClick={() => loadDistricts(p.name)}
+                    />
+                  );
+                })}
+              </svg>
+
+              {hoveredCity && tooltipPos && (
+                <div
+                  className="pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-full mb-1 px-2.5 py-1.5 rounded-md bg-slate-900 text-white text-xs shadow-lg whitespace-nowrap"
+                  style={{ left: `${tooltipPos.x}px`, top: `${tooltipPos.y}px` }}
+                >
+                  <div className="font-semibold">{hoveredCity}</div>
+                  <div className="text-emerald-300">{hoveredCount} arsa</div>
+                </div>
+              )}
+
+              <div className="absolute bottom-3 left-3 rounded-lg bg-white/95 backdrop-blur border border-slate-200 shadow-sm px-3 py-2 text-xs">
                 <div className="text-slate-500 font-medium mb-1.5">Arsa sayısı</div>
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1.5">
                   {COLOR_STOPS.map((s, i) => (
                     <div key={i} className="flex items-center gap-1">
                       <span
-                        className="inline-block h-3 w-5 rounded-sm border border-slate-200"
+                        className="inline-block h-3 w-4 rounded-sm border border-slate-200"
                         style={{ background: s.color }}
                       />
                       <span className="text-slate-600">{s.min === 0 ? '0' : `${s.min}+`}</span>
@@ -118,7 +161,7 @@ export function TurkeyParcelMap() {
             </div>
           </div>
 
-          <div className="lg:col-span-4 rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden flex flex-col">
+          <div className="lg:col-span-4 rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden flex flex-col min-h-[400px]">
             {!selectedCity ? (
               <>
                 <div className="px-5 py-4 border-b border-slate-100 bg-gradient-to-r from-emerald-50 to-white">
