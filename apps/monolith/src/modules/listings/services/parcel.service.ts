@@ -283,4 +283,29 @@ export class ParcelService {
       await qr.release();
     }
   }
+
+  async getStatsByCity(): Promise<{ city: string; count: number }[]> {
+    const rows = await this.parcelRepo
+      .createQueryBuilder('p')
+      .select('p.city', 'city')
+      .addSelect('COUNT(*)::int', 'count')
+      .where("p.status = 'active'")
+      .groupBy('p.city')
+      .orderBy('count', 'DESC')
+      .getRawMany<{ city: string; count: number }>();
+    return rows;
+  }
+
+  async getStatsByDistrict(city: string): Promise<{ district: string; count: number }[]> {
+    const rows = await this.parcelRepo
+      .createQueryBuilder('p')
+      .select('p.district', 'district')
+      .addSelect('COUNT(*)::int', 'count')
+      .where("p.status = 'active'")
+      .andWhere('LOWER(p.city) = LOWER(:city)', { city })
+      .groupBy('p.district')
+      .orderBy('count', 'DESC')
+      .getRawMany<{ district: string; count: number }>();
+    return rows;
+  }
 }

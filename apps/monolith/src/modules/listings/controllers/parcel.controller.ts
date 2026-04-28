@@ -56,6 +56,17 @@ export class ParcelController {
     });
   }
 
+  @Get('stats/by-city')
+  async statsByCity() {
+    return this.parcelService.getStatsByCity();
+  }
+
+  @Get('stats/by-district')
+  async statsByDistrict(@Query('city') city: string) {
+    if (!city) return [];
+    return this.parcelService.getStatsByDistrict(city);
+  }
+
   @Get(':id')
   async findById(@Param('id', ParseUUIDPipe) id: string) {
     const parcel = await this.parcelService.findById(id);
