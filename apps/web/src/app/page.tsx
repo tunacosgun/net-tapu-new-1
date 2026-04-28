@@ -7,7 +7,7 @@ import dynamic from 'next/dynamic';
 import { motion } from 'framer-motion';
 import apiClient from '@/lib/api-client';
 import { formatPrice } from '@/lib/format';
-import { TurkeyMap } from '@/components/turkey-map';
+import { TurkeyParcelMap } from '@/components/turkey-parcel-map';
 import { useSiteSettings } from '@/hooks/use-site-settings';
 import { ParcelCard } from '@/components/parcel-card';
 import { VideoPopup } from '@/components/video-popup';
@@ -375,6 +375,11 @@ export default function HomePage() {
           })}
         </div>
       </section>
+
+      {/* ═══════════════════════════════════════════════════════════════
+          TURKEY MAP — PARCEL DISTRIBUTION
+          ═══════════════════════════════════════════════════════════════ */}
+      <TurkeyParcelMap />
 
       {/* ═══════════════════════════════════════════════════════════════
           FEATURED PARCELS SECTION
