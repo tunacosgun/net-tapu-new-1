@@ -23,12 +23,107 @@ function colorFor(count: number): string {
   return c;
 }
 
-function normalizeName(s: string): string {
+function stripDiacritics(s: string): string {
   return s
-    .toLocaleLowerCase('tr-TR')
-    .replace(/i̇/g, 'i')
-    .replace(/[\s\-_]+/g, '')
-    .trim();
+    .replace(/ı/g, 'i').replace(/İ/g, 'i').replace(/i̇/g, 'i')
+    .replace(/ş/g, 's').replace(/Ş/g, 's')
+    .replace(/ğ/g, 'g').replace(/Ğ/g, 'g')
+    .replace(/ü/g, 'u').replace(/Ü/g, 'u')
+    .replace(/ö/g, 'o').replace(/Ö/g, 'o')
+    .replace(/ç/g, 'c').replace(/Ç/g, 'c');
+}
+
+function norm(s: string): string {
+  return stripDiacritics(s.toLowerCase()).replace(/[\s\-_.]+/g, '').trim();
+}
+
+// GADM uses partial/alternate names for some provinces; map our DB names → GADM NAME_1
+const GADM_ALIAS: Record<string, string> = {
+  afyonkarahisar: 'Afyon',
+  kahramanmaras: 'K.Maras',
+  sanliurfa: 'Sanliurfa',
+  kirikkale: 'Kinkkale', // GADM typo
+  zonguldak: 'Zinguldak', // GADM typo
+};
+
+function gadmNameFor(city: string): string {
+  return GADM_ALIAS[norm(city)] ?? city;
+}
+
+interface DistrictFeature {
+  type: 'Feature';
+  properties: { NAME_1: string; NAME_2: string };
+  geometry: { type: 'Polygon' | 'MultiPolygon'; coordinates: any };
+}
+
+interface DistrictPath {
+  district: string;
+  d: string;
+  centroidX: number;
+  centroidY: number;
+}
+
+function projectFeatures(features: DistrictFeature[], width: number, height: number, pad = 12) {
+  // Compute bbox
+  let minLng = Infinity, maxLng = -Infinity, minLat = Infinity, maxLat = -Infinity;
+  function visit(coords: any) {
+    if (typeof coords[0] === 'number') {
+      const [lng, lat] = coords;
+      if (lng < minLng) minLng = lng;
+      if (lng > maxLng) maxLng = lng;
+      if (lat < minLat) minLat = lat;
+      if (lat > maxLat) maxLat = lat;
+    } else for (const c of coords) visit(c);
+  }
+  features.forEach((f) => visit(f.geometry.coordinates));
+
+  const w = width - pad * 2;
+  const h = height - pad * 2;
+  const lngSpan = maxLng - minLng || 1;
+  const latSpan = maxLat - minLat || 1;
+  // Compensate for latitude (rough, since cos(lat) shrinks longitude in metric)
+  const midLat = (minLat + maxLat) / 2;
+  const lngScale = Math.cos((midLat * Math.PI) / 180);
+  const aspect = (lngSpan * lngScale) / latSpan;
+  let drawW = w, drawH = h;
+  if (aspect > w / h) drawH = w / aspect;
+  else drawW = h * aspect;
+  const offsetX = pad + (w - drawW) / 2;
+  const offsetY = pad + (h - drawH) / 2;
+
+  function project(lng: number, lat: number): [number, number] {
+    const x = offsetX + ((lng - minLng) / lngSpan) * drawW;
+    const y = offsetY + ((maxLat - lat) / latSpan) * drawH;
+    return [x, y];
+  }
+
+  function ringToPath(ring: any[]): string {
+    return ring
+      .map(([lng, lat]: number[], i: number) => {
+        const [x, y] = project(lng, lat);
+        return `${i === 0 ? 'M' : 'L'}${x.toFixed(2)},${y.toFixed(2)}`;
+      })
+      .join('') + 'Z';
+  }
+
+  const paths: DistrictPath[] = features.map((f) => {
+    const polys: any[][] =
+      f.geometry.type === 'Polygon'
+        ? [f.geometry.coordinates]
+        : f.geometry.coordinates;
+    const d = polys.map((poly) => poly.map(ringToPath).join('')).join('');
+    // Centroid: average all ring vertices
+    let sx = 0, sy = 0, n = 0;
+    function collect(coords: any) {
+      if (typeof coords[0] === 'number') {
+        const [x, y] = project(coords[0], coords[1]);
+        sx += x; sy += y; n++;
+      } else for (const c of coords) collect(c);
+    }
+    collect(f.geometry.coordinates);
+    return { district: f.properties.NAME_2, d, centroidX: sx / n, centroidY: sy / n };
+  });
+  return paths;
 }
 
 export function TurkeyParcelMap() {
@@ -36,8 +131,11 @@ export function TurkeyParcelMap() {
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
   const [districtStats, setDistrictStats] = useState<DistrictStat[]>([]);
   const [hoveredCity, setHoveredCity] = useState<string | null>(null);
+  const [hoveredDistrict, setHoveredDistrict] = useState<string | null>(null);
   const [districtLoading, setDistrictLoading] = useState(false);
   const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number } | null>(null);
+  const [districtsGeo, setDistrictsGeo] = useState<{ features: DistrictFeature[] } | null>(null);
+  const [geoLoading, setGeoLoading] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -49,31 +147,60 @@ export function TurkeyParcelMap() {
       .catch(() => {
         if (!cancelled) setCityStats([]);
       });
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, []);
 
   const countByCity = useMemo(() => {
-    const map = new Map<string, number>();
-    cityStats.forEach((s) => map.set(normalizeName(s.city), s.count));
-    return map;
+    const m = new Map<string, number>();
+    cityStats.forEach((s) => m.set(norm(s.city), s.count));
+    return m;
   }, [cityStats]);
 
   const totalCount = useMemo(() => cityStats.reduce((sum, s) => sum + s.count, 0), [cityStats]);
   const topCities = useMemo(() => [...cityStats].sort((a, b) => b.count - a.count).slice(0, 12), [cityStats]);
 
+  const countByDistrict = useMemo(() => {
+    const m = new Map<string, number>();
+    districtStats.forEach((s) => m.set(norm(s.district), s.count));
+    return m;
+  }, [districtStats]);
+
   function loadDistricts(city: string) {
     setSelectedCity(city);
     setDistrictLoading(true);
+    setHoveredCity(null);
+    setHoveredDistrict(null);
+    setTooltipPos(null);
     apiClient
       .get<DistrictStat[]>(`/parcels/stats/by-district?city=${encodeURIComponent(city)}`)
       .then((r) => setDistrictStats(Array.isArray(r.data) ? r.data : []))
       .catch(() => setDistrictStats([]))
       .finally(() => setDistrictLoading(false));
+
+    if (!districtsGeo && !geoLoading) {
+      setGeoLoading(true);
+      fetch('/geo/tr-districts.json')
+        .then((r) => r.json())
+        .then((g) => setDistrictsGeo(g))
+        .catch(() => {})
+        .finally(() => setGeoLoading(false));
+    }
   }
 
-  const hoveredCount = hoveredCity ? countByCity.get(normalizeName(hoveredCity)) ?? 0 : 0;
+  const districtPaths = useMemo<DistrictPath[]>(() => {
+    if (!selectedCity || !districtsGeo) return [];
+    const target = norm(gadmNameFor(selectedCity));
+    const features = districtsGeo.features.filter(
+      (f) => norm(f.properties.NAME_1) === target,
+    );
+    if (features.length === 0) return [];
+    return projectFeatures(features, 1005, 490);
+  }, [selectedCity, districtsGeo]);
+
+  const hoveredCount = hoveredCity ? countByCity.get(norm(hoveredCity)) ?? 0 : 0;
+  const hoveredDistrictCount = hoveredDistrict ? countByDistrict.get(norm(hoveredDistrict)) ?? 0 : 0;
+
+  const showingDistricts = selectedCity && districtPaths.length > 0;
 
   return (
     <section className="py-16 bg-gradient-to-b from-slate-50 to-white">
@@ -94,53 +221,124 @@ export function TurkeyParcelMap() {
         <div className="grid lg:grid-cols-12 gap-6">
           <div className="lg:col-span-8 rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
             <div className="relative">
+              {showingDistricts && (
+                <div className="absolute top-3 left-3 z-10 flex items-center gap-2">
+                  <button
+                    onClick={() => {
+                      setSelectedCity(null);
+                      setDistrictStats([]);
+                      setHoveredDistrict(null);
+                      setTooltipPos(null);
+                    }}
+                    className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-white border border-slate-200 shadow-sm text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                  >
+                    <ChevronLeft className="h-3.5 w-3.5" /> Türkiye
+                  </button>
+                  <span className="px-3 py-1.5 rounded-lg bg-emerald-600 text-white text-xs font-bold shadow-sm">
+                    {selectedCity}
+                  </span>
+                </div>
+              )}
+
               <svg
                 viewBox="0 0 1005 490"
                 xmlns="http://www.w3.org/2000/svg"
                 className="w-full h-auto select-none"
                 onMouseLeave={() => {
                   setHoveredCity(null);
+                  setHoveredDistrict(null);
                   setTooltipPos(null);
                 }}
               >
-                {TURKEY_PROVINCES.map((p) => {
-                  const count = countByCity.get(normalizeName(p.name)) ?? 0;
-                  const isHovered = hoveredCity && normalizeName(hoveredCity) === normalizeName(p.name);
-                  const isSelected = selectedCity && normalizeName(selectedCity) === normalizeName(p.name);
-                  return (
-                    <path
-                      key={p.id}
-                      d={p.d}
-                      fill={colorFor(count)}
-                      stroke={isSelected ? '#0f766e' : isHovered ? '#0d9488' : '#cbd5e1'}
-                      strokeWidth={isSelected ? 1.8 : isHovered ? 1.4 : 0.6}
+                {!showingDistricts &&
+                  TURKEY_PROVINCES.map((p) => {
+                    const count = countByCity.get(norm(p.name)) ?? 0;
+                    const isHovered = hoveredCity && norm(hoveredCity) === norm(p.name);
+                    const isSelected = selectedCity && norm(selectedCity) === norm(p.name);
+                    return (
+                      <path
+                        key={p.id}
+                        d={p.d}
+                        fill={colorFor(count)}
+                        stroke={isSelected ? '#0f766e' : isHovered ? '#0d9488' : '#cbd5e1'}
+                        strokeWidth={isSelected ? 1.8 : isHovered ? 1.4 : 0.6}
+                        style={{ cursor: 'pointer', transition: 'fill 150ms ease, stroke 150ms ease' }}
+                        onMouseEnter={(e) => {
+                          setHoveredCity(p.name);
+                          const bbox = (e.currentTarget as SVGPathElement).getBBox();
+                          setTooltipPos({ x: bbox.x + bbox.width / 2, y: bbox.y });
+                        }}
+                        onClick={() => loadDistricts(p.name)}
+                      />
+                    );
+                  })}
+
+                {showingDistricts &&
+                  districtPaths.map((p) => {
+                    const count = countByDistrict.get(norm(p.district)) ?? 0;
+                    const isHovered = hoveredDistrict && norm(hoveredDistrict) === norm(p.district);
+                    return (
+                      <path
+                        key={p.district}
+                        d={p.d}
+                        fill={colorFor(count)}
+                        stroke={isHovered ? '#0d9488' : '#94a3b8'}
+                        strokeWidth={isHovered ? 1.4 : 0.7}
+                        style={{ cursor: 'pointer', transition: 'fill 150ms ease, stroke 150ms ease' }}
+                        onMouseEnter={(e) => {
+                          setHoveredDistrict(p.district);
+                          const bbox = (e.currentTarget as SVGPathElement).getBBox();
+                          setTooltipPos({ x: bbox.x + bbox.width / 2, y: bbox.y });
+                        }}
+                        onClick={() => {
+                          if (selectedCity) {
+                            window.location.href = `/parcels?city=${encodeURIComponent(selectedCity)}&district=${encodeURIComponent(p.district)}`;
+                          }
+                        }}
+                      />
+                    );
+                  })}
+
+                {showingDistricts &&
+                  districtPaths.map((p) => (
+                    <text
+                      key={`label-${p.district}`}
+                      x={p.centroidX}
+                      y={p.centroidY}
+                      textAnchor="middle"
+                      dominantBaseline="middle"
                       style={{
-                        cursor: 'pointer',
-                        transition: 'fill 150ms ease, stroke 150ms ease',
-                        filter: isHovered || isSelected ? 'brightness(1.05)' : undefined,
+                        fontSize: 9,
+                        fontWeight: 600,
+                        fill: '#0f172a',
+                        pointerEvents: 'none',
+                        textShadow: '0 0 2px rgba(255,255,255,0.9)',
                       }}
-                      onMouseEnter={(e) => {
-                        setHoveredCity(p.name);
-                        const rect = (e.currentTarget.ownerSVGElement as SVGSVGElement).getBoundingClientRect();
-                        const bbox = (e.currentTarget as SVGPathElement).getBBox();
-                        setTooltipPos({
-                          x: ((bbox.x + bbox.width / 2) / 1005) * rect.width,
-                          y: (bbox.y / 490) * rect.height,
-                        });
-                      }}
-                      onClick={() => loadDistricts(p.name)}
-                    />
-                  );
-                })}
+                    >
+                      {p.district}
+                    </text>
+                  ))}
               </svg>
 
-              {hoveredCity && tooltipPos && (
+              {geoLoading && showingDistricts === false && selectedCity && (
+                <div className="absolute inset-0 flex items-center justify-center bg-white/60 text-slate-500 text-sm">
+                  İlçe haritası yükleniyor…
+                </div>
+              )}
+
+              {(hoveredCity || hoveredDistrict) && tooltipPos && (
                 <div
-                  className="pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-full mb-1 px-2.5 py-1.5 rounded-md bg-slate-900 text-white text-xs shadow-lg whitespace-nowrap"
-                  style={{ left: `${tooltipPos.x}px`, top: `${tooltipPos.y}px` }}
+                  className="pointer-events-none absolute z-10 px-2.5 py-1.5 rounded-md bg-slate-900 text-white text-xs shadow-lg whitespace-nowrap"
+                  style={{
+                    left: `${(tooltipPos.x / 1005) * 100}%`,
+                    top: `${(tooltipPos.y / 490) * 100}%`,
+                    transform: 'translate(-50%, calc(-100% - 6px))',
+                  }}
                 >
-                  <div className="font-semibold">{hoveredCity}</div>
-                  <div className="text-emerald-300">{hoveredCount} arsa</div>
+                  <div className="font-semibold">{hoveredDistrict || hoveredCity}</div>
+                  <div className="text-emerald-300">
+                    {(hoveredDistrict ? hoveredDistrictCount : hoveredCount)} arsa
+                  </div>
                 </div>
               )}
 
@@ -200,6 +398,8 @@ export function TurkeyParcelMap() {
                     onClick={() => {
                       setSelectedCity(null);
                       setDistrictStats([]);
+                      setHoveredDistrict(null);
+                      setTooltipPos(null);
                     }}
                     className="p-1 rounded hover:bg-white text-slate-600"
                     aria-label="Geri"
@@ -228,6 +428,8 @@ export function TurkeyParcelMap() {
                       <a
                         key={d.district}
                         href={`/parcels?city=${encodeURIComponent(selectedCity!)}&district=${encodeURIComponent(d.district)}`}
+                        onMouseEnter={() => setHoveredDistrict(d.district)}
+                        onMouseLeave={() => setHoveredDistrict(null)}
                         className="px-5 py-3 flex items-center justify-between hover:bg-slate-50 transition-colors"
                       >
                         <span className="text-sm font-medium text-slate-800 truncate">{d.district}</span>
