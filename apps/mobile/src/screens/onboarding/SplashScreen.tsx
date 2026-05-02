@@ -175,7 +175,7 @@ export default function SplashScreen() {
 
   return (
     <LinearGradient
-      colors={['#064e3b', '#0f3d3e', '#0c1e3a', '#0a1628']}
+      colors={['#0E1714', '#1A2620', '#3B4710', '#687A26']}
       locations={[0, 0.35, 0.7, 1]}
       start={{ x: 0, y: 0 }}
       end={{ x: 0.5, y: 1 }}
@@ -237,7 +237,7 @@ const styles = StyleSheet.create({
     width: 68,
     height: 68,
     borderRadius: 20,
-    backgroundColor: 'rgba(16,185,129,0.35)',
+    backgroundColor: 'rgba(201,165,94,0.32)',
     alignItems: 'center',
     justifyContent: 'center',
   },

@@ -1,0 +1,47 @@
+name: Mobile CI
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'apps/mobile/**'
+      - '.github/workflows/mobile-ci.yml'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'apps/mobile/**'
+
+concurrency:
+  group: mobile-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint-and-test:
+    name: Lint & Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: apps/mobile/package-lock.json
+
+      - name: Install dependencies (mobile)
+        working-directory: apps/mobile
+        run: npm ci --prefer-offline --no-audit --progress=false
+
+      - name: TypeScript type-check
+        working-directory: apps/mobile
+        run: npx tsc --noEmit
+
+      - name: ESLint
+        working-directory: apps/mobile
+        run: npm run lint
+
+      - name: Jest unit tests
+        working-directory: apps/mobile
+        run: npm test -- --ci --watchAll=false --coverage=false

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Network security config — production hardening.
+  - Cleartext (HTTP) is disabled by default (default-config base-config).
+  - Only allows HTTP for explicitly listed dev/staging hosts when
+    `usesCleartextTraffic=true` (controlled by build flavor).
+  - All other traffic must be HTTPS with valid TLS 1.2+ certs.
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+
+    <!-- Production API host: HTTPS only -->
+    <domain-config cleartextTrafficPermitted="false">
+        <domain includeSubdomains="true">nettapu-2.tunasoft.tech</domain>
+        <domain includeSubdomains="true">tunasoft.tech</domain>
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </domain-config>
+
+    <!-- Local development hosts (only honored when usesCleartextTraffic=true at build time) -->
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">localhost</domain>
+        <domain includeSubdomains="true">10.0.2.2</domain>
+        <domain includeSubdomains="true">127.0.0.1</domain>
+    </domain-config>
+</network-security-config>

@@ -27,6 +27,12 @@ interface ProfileData {
   phone?: string;
 }
 
+interface ProfileStats {
+  favorites: number;
+  offers: number;
+  auctions: number;
+}
+
 /* ── Animated Menu Row ─────────────────────────────── */
 function MenuRow({
   item,
@@ -88,6 +94,7 @@ export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
   const { user, isAuthenticated, clearTokens, avatarUrl } = useAuthStore();
   const [profile, setProfile] = useState<ProfileData | null>(null);
+  const [stats, setStats] = useState<ProfileStats>({ favorites: 0, offers: 0, auctions: 0 });
 
   // Ring rotation
   const ringRotation = useSharedValue(0);
@@ -124,6 +131,26 @@ export default function ProfileScreen() {
   useEffect(() => {
     if (isAuthenticated) {
       apiClient.get('/auth/me').then((res) => setProfile(res.data)).catch(() => {});
+      // Fetch user stats in parallel; tolerate any endpoint missing
+      Promise.allSettled([
+        apiClient.get('/favorites', { params: { limit: 1 } }),
+        apiClient.get('/offers/mine', { params: { limit: 1 } }),
+        apiClient.get('/auctions/mine', { params: { limit: 1 } }),
+      ]).then((results) => {
+        const next: ProfileStats = { favorites: 0, offers: 0, auctions: 0 };
+        const keys: (keyof ProfileStats)[] = ['favorites', 'offers', 'auctions'];
+        results.forEach((r, i) => {
+          if (r.status === 'fulfilled') {
+            const data: any = r.value.data ?? {};
+            const total =
+              data?.meta?.total ??
+              (Array.isArray(data?.data) ? data.data.length : undefined) ??
+              (Array.isArray(data) ? data.length : 0);
+            next[keys[i]] = Number(total) || 0;
+          }
+        });
+        setStats(next);
+      });
     }
   }, [isAuthenticated]);
 
@@ -184,6 +211,7 @@ export default function ProfileScreen() {
         { icon: 'document-text-outline', label: 'Tekliflerim', screen: 'Offers', color: c.warning },
         { icon: 'flash-outline', label: 'İhale Geçmişim', screen: 'Offers', color: c.primary },
         { icon: 'card-outline', label: 'Ödeme Geçmişim', screen: 'Payments', color: c.success },
+        { icon: 'chatbubbles-outline', label: 'Mesajlarım', screen: 'Inbox', color: c.accent },
       ],
     },
     {
@@ -242,9 +270,9 @@ export default function ProfileScreen() {
             style={styles.statsRow}
           >
             {[
-              { value: '12', label: 'Favori' },
-              { value: '3', label: 'Teklif' },
-              { value: '2', label: 'İhale' },
+              { value: String(stats.favorites), label: 'Favori' },
+              { value: String(stats.offers), label: 'Teklif' },
+              { value: String(stats.auctions), label: 'İhale' },
             ].map((stat, i) => (
               <React.Fragment key={stat.label}>
                 {i > 0 && <View style={[styles.statDivider, { backgroundColor: c.border }]} />}
@@ -292,28 +320,28 @@ export default function ProfileScreen() {
                 </Animated.View>
               </View>
 
-              {/* Pro banner after first section */}
+              {/* Pro banner after first section — champagne gold tone */}
               {sIdx === 0 && (
                 <Animated.View
                   entering={FadeInDown.delay(450).duration(450).springify()}
                   style={[styles.proBanner, {
-                    backgroundColor: isDark ? '#1e1b4b' : '#eef2ff',
-                    borderColor: isDark ? '#312e81' : '#c7d2fe',
+                    backgroundColor: isDark ? 'rgba(212,180,119,0.10)' : c.accentBg,
+                    borderColor: isDark ? 'rgba(212,180,119,0.28)' : 'rgba(156,122,61,0.22)',
                   }]}
                 >
-                  <View style={styles.proBadge}>
-                    <Ionicons name="diamond" size={14} color="#fff" />
+                  <View style={[styles.proBadge, { backgroundColor: c.accent }]}>
+                    <Ionicons name="diamond" size={14} color="#FFFFFF" />
                     <Text style={styles.proBadgeText}>PRO</Text>
                   </View>
                   <View style={{ flex: 1, marginLeft: 12 }}>
-                    <Text style={[styles.proTitle, { color: isDark ? '#e0e7ff' : '#312e81' }]}>
+                    <Text style={[styles.proTitle, { color: isDark ? c.accentLight : c.accentDark }]}>
                       NetTapu Pro ile daha fazlası
                     </Text>
-                    <Text style={[styles.proSubtitle, { color: isDark ? '#a5b4fc' : '#6366f1' }]}>
-                      Erken bildirim, detaylı analiz ve oncelikli destek
+                    <Text style={[styles.proSubtitle, { color: isDark ? c.textSecondary : c.accent }]}>
+                      Erken bildirim, detaylı analiz ve öncelikli destek
                     </Text>
                   </View>
-                  <Ionicons name="chevron-forward" size={18} color={isDark ? '#818cf8' : '#6366f1'} />
+                  <Ionicons name="chevron-forward" size={18} color={c.accent} />
                 </Animated.View>
               )}
             </React.Fragment>
@@ -413,7 +441,7 @@ const styles = StyleSheet.create({
   },
   proBadge: {
     flexDirection: 'row', alignItems: 'center', gap: 4,
-    backgroundColor: '#6366f1', paddingHorizontal: 10, paddingVertical: 5,
+    paddingHorizontal: 10, paddingVertical: 5,
     borderRadius: 8,
   },
   proBadgeText: { color: '#fff', fontSize: 11, fontWeight: '800', letterSpacing: 0.5 },

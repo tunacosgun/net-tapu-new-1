@@ -34,25 +34,28 @@ const ICON_SIZE = 120;
 const RING_OUTER = 200;
 const RING_MIDDLE = 170;
 
+// Brand-aligned slides: olive (primary) / champagne gold (accent) / live red.
+// Colors are static here because Onboarding plays before ThemeProvider has access
+// to nav/safearea — they intentionally mirror Colors.light tokens.
 const slides = [
   {
     icon: 'map-outline' as const,
     color: '#687A26',
-    gradient: ['#687A26', '#4F5D1B'] as [string, string],
+    gradient: ['#8FA340', '#4F5D1B'] as [string, string],
     title: 'Arsa & Gayrimenkul',
     desc: 'Türkiye genelinde binlerce arsa ilanını harita üzerinden keşfedin. Lokasyon, fiyat ve imar durumuna göre filtreleyin.',
   },
   {
     icon: 'flash-outline' as const,
-    color: '#dc2626',
-    gradient: ['#dc2626', '#b91c1c'] as [string, string],
+    color: '#9C7A3D',
+    gradient: ['#C9A55E', '#6F5524'] as [string, string],
     title: 'Canlı İhale',
     desc: 'Gerçek zamanlı online ihale sistemimizle en iyi fiyatı yakalayın. Anlık teklif verin, süreyi takip edin.',
   },
   {
     icon: 'shield-checkmark-outline' as const,
-    color: '#2563eb',
-    gradient: ['#2563eb', '#1d4ed8'] as [string, string],
+    color: '#3F4A45',
+    gradient: ['#3F4A45', '#0E1714'] as [string, string],
     title: 'Güvenli Ödeme',
     desc: 'Kaparo ve ödeme işlemleriniz SSL ve 3D Secure ile korunur. Tüm işlemler yasal güvence altındadır.',
   },

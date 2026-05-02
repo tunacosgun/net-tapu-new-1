@@ -85,19 +85,19 @@ function PulsingTimerCard({ isUrgent, isEnded, timeDisplay, extendedUntil, theme
       style={[
         styles.timerCard,
         {
-          backgroundColor: isUrgent ? '#fef2f2' : theme.colors.card,
-          borderColor: isUrgent ? '#fecaca' : theme.colors.borderLight,
+          backgroundColor: isUrgent ? (theme.isDark ? 'rgba(209,67,67,0.10)' : 'rgba(209,67,67,0.06)') : theme.colors.card,
+          borderColor: isUrgent ? (theme.isDark ? 'rgba(209,67,67,0.30)' : 'rgba(209,67,67,0.22)') : theme.colors.borderLight,
         },
         animStyle,
       ]}
     >
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-        {isUrgent && !isEnded && <Ionicons name="flash" size={14} color="#dc2626" />}
-        <Text style={[styles.timerLabel, { color: isUrgent ? '#dc2626' : theme.colors.textSecondary }]}>
+        {isUrgent && !isEnded && <Ionicons name="flash" size={14} color={theme.colors.statusLive} />}
+        <Text style={[styles.timerLabel, { color: isUrgent ? theme.colors.statusLive : theme.colors.textSecondary }]}>
           {isEnded ? 'İhale Tamamlandı' : isUrgent ? 'Son Dakikalar!' : 'Kalan Süre'}
         </Text>
       </View>
-      <Text style={[styles.timerValue, { color: isEnded ? theme.colors.textMuted : isUrgent ? '#dc2626' : theme.colors.text }]}>
+      <Text style={[styles.timerValue, { color: isEnded ? theme.colors.textMuted : isUrgent ? theme.colors.statusLive : theme.colors.text }]}>
         {isEnded ? 'Bitti' : timeDisplay}
       </Text>
       {extendedUntil && !isEnded && (
@@ -129,7 +129,7 @@ function AnimatedPriceCard({ currentPrice, isEnded, bidCount, participantCount, 
     position: 'absolute' as const,
     top: 0, left: 0, right: 0, bottom: 0,
     borderRadius: 16,
-    backgroundColor: `rgba(34, 197, 94, ${flashOpacity.value * 0.15})`,
+    backgroundColor: `rgba(104, 122, 38, ${flashOpacity.value * 0.16})`,
   }));
 
   return (
@@ -277,7 +277,7 @@ function AnimatedQuickBidButton({ label, onPress, theme }: {
   );
 }
 
-function WinnerCard({ winnerIdMasked, finalPrice }: { winnerIdMasked: string; finalPrice: string | null }) {
+function WinnerCard({ winnerIdMasked, finalPrice, theme }: { winnerIdMasked: string; finalPrice: string | null; theme: any }) {
   const trophyBounce = useSharedValue(0);
 
   useEffect(() => {
@@ -296,22 +296,25 @@ function WinnerCard({ winnerIdMasked, finalPrice }: { winnerIdMasked: string; fi
   }));
 
   return (
-    <Animated.View entering={BounceIn.duration(800)} style={styles.winnerCard}>
+    <Animated.View
+      entering={BounceIn.duration(800)}
+      style={[styles.winnerCard, { backgroundColor: theme.colors.successBg, borderColor: theme.colors.success + '40' }]}
+    >
       <Animated.View style={trophyStyle}>
-        <Ionicons name="trophy" size={48} color="#f59e0b" />
+        <Ionicons name="trophy" size={48} color={theme.colors.accent} />
       </Animated.View>
-      <Text style={styles.winnerTitle}>İhale Tamamlandı!</Text>
-      <Text style={styles.winnerDetail}>
+      <Text style={[styles.winnerTitle, { color: theme.colors.success }]}>İhale Tamamlandı!</Text>
+      <Text style={[styles.winnerDetail, { color: theme.colors.textSecondary }]}>
         Kazanan: {winnerIdMasked}
       </Text>
-      <Text style={styles.winnerPrice}>
+      <Text style={[styles.winnerPrice, { color: theme.colors.primary }]}>
         {finalPrice ? formatPrice(finalPrice) : ''}
       </Text>
     </Animated.View>
   );
 }
 
-function RejectionCard({ lastRejection }: { lastRejection: any }) {
+function RejectionCard({ lastRejection, theme }: { lastRejection: any; theme: any }) {
   const shakeX = useSharedValue(0);
 
   useEffect(() => {
@@ -331,13 +334,19 @@ function RejectionCard({ lastRejection }: { lastRejection: any }) {
   }));
 
   return (
-    <Animated.View style={[styles.rejectionCard, { borderColor: '#fecaca' }, animStyle]}>
+    <Animated.View
+      style={[
+        styles.rejectionCard,
+        { backgroundColor: theme.colors.errorBg, borderColor: theme.colors.error + '30' },
+        animStyle,
+      ]}
+    >
       <View style={styles.rejectionIcon}>
-        <Ionicons name="close-circle" size={22} color="#dc2626" />
+        <Ionicons name="close-circle" size={22} color={theme.colors.error} />
       </View>
       <View style={{ flex: 1 }}>
-        <Text style={styles.rejectionTitle}>Teklif Reddedildi</Text>
-        <Text style={styles.rejectionReason}>
+        <Text style={[styles.rejectionTitle, { color: theme.colors.error }]}>Teklif Reddedildi</Text>
+        <Text style={[styles.rejectionReason, { color: theme.colors.error, opacity: 0.8 }]}>
           {formatRejectionMessage(lastRejection.message || lastRejection.reason || 'Teklifiniz kabul edilmedi.')}
         </Text>
       </View>
@@ -381,12 +390,18 @@ function ConnectionDot({ connectionStatus, connectionColor }: { connectionStatus
   );
 }
 
-function ExtensionBanner({ addedMinutes }: { addedMinutes: number }) {
+function ExtensionBanner({ addedMinutes, theme }: { addedMinutes: number; theme: any }) {
   return (
-    <Animated.View entering={SlideInUp.springify().damping(14).stiffness(150)} style={styles.extensionBanner}>
+    <Animated.View
+      entering={SlideInUp.springify().damping(14).stiffness(150)}
+      style={[
+        styles.extensionBanner,
+        { backgroundColor: theme.colors.infoBg, borderWidth: StyleSheet.hairlineWidth, borderColor: theme.colors.borderLight },
+      ]}
+    >
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-        <Ionicons name="time-outline" size={16} color="#2563eb" />
-        <Text style={styles.extensionText}>
+        <Ionicons name="time-outline" size={16} color={theme.colors.primary} />
+        <Text style={[styles.extensionText, { color: theme.colors.primary }]}>
           Süre {addedMinutes} dakika uzatıldı!
         </Text>
       </View>
@@ -541,9 +556,9 @@ export default function LiveAuctionScreen() {
   const isEnded = status === 'ended' || status === 'settled';
   const timeInfo = formatTime(timeRemainingMs);
 
-  const connectionColor = connectionStatus === 'connected' ? '#22c55e'
-    : connectionStatus === 'connecting' || connectionStatus === 'reconnecting' ? '#eab308'
-    : '#ef4444';
+  const connectionColor = connectionStatus === 'connected' ? theme.colors.success
+    : connectionStatus === 'connecting' || connectionStatus === 'reconnecting' ? theme.colors.warning
+    : theme.colors.error;
 
   const connectionLabel = connectionStatus === 'connected' ? 'Bağlı'
     : connectionStatus === 'connecting' ? 'Bağlanıyor...'
@@ -592,7 +607,7 @@ export default function LiveAuctionScreen() {
         >
           {/* ── Time Extension Animation ───────── */}
           {timeExtensionAnimation && (
-            <ExtensionBanner addedMinutes={timeExtensionAnimation.addedMinutes} />
+            <ExtensionBanner addedMinutes={timeExtensionAnimation.addedMinutes} theme={theme} />
           )}
 
           {/* ── Timer Card ────────────────────── */}
@@ -616,23 +631,34 @@ export default function LiveAuctionScreen() {
 
           {/* ── Announcements ─────────────────── */}
           {announcements.length > 0 && (
-            <Animated.View entering={FadeInDown.duration(400)} style={[styles.announcementCard, { borderColor: '#fde68a' }]}>
+            <Animated.View
+              entering={FadeInDown.duration(400)}
+              style={[
+                styles.announcementCard,
+                {
+                  backgroundColor: theme.colors.warningBg,
+                  borderColor: theme.colors.warning + '40',
+                },
+              ]}
+            >
               <View style={styles.announcementHeader}>
-                <Ionicons name="megaphone-outline" size={16} color="#92400e" />
-                <Text style={styles.announcementTitle}>Duyuru</Text>
+                <Ionicons name="megaphone-outline" size={16} color={theme.colors.warning} />
+                <Text style={[styles.announcementTitle, { color: theme.colors.warning }]}>Duyuru</Text>
               </View>
-              <Text style={styles.announcementText}>{announcements[0].message}</Text>
+              <Text style={[styles.announcementText, { color: theme.colors.warning, opacity: 0.9 }]}>
+                {announcements[0].message}
+              </Text>
             </Animated.View>
           )}
 
           {/* ── Winner Banner ─────────────────── */}
           {isEnded && winnerIdMasked && (
-            <WinnerCard winnerIdMasked={winnerIdMasked} finalPrice={finalPrice} />
+            <WinnerCard winnerIdMasked={winnerIdMasked} finalPrice={finalPrice} theme={theme} />
           )}
 
           {/* ── Rejection Banner ──────────────── */}
           {lastRejection && (
-            <RejectionCard lastRejection={lastRejection} />
+            <RejectionCard lastRejection={lastRejection} theme={theme} />
           )}
 
           {/* ── Bid Feed ──────────────────────── */}
@@ -725,8 +751,8 @@ export default function LiveAuctionScreen() {
             ) : hasPendingDeposit ? (
               <View style={styles.bidBarCenter}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                  <Ionicons name="hourglass-outline" size={20} color="#d97706" />
-                  <Text style={[styles.depositMsg, { color: '#d97706', fontWeight: '700' }]}>
+                  <Ionicons name="hourglass-outline" size={20} color={theme.colors.warning} />
+                  <Text style={[styles.depositMsg, { color: theme.colors.warning, fontWeight: '700' }]}>
                     Havale/EFT Onay Bekliyor
                   </Text>
                 </View>
@@ -751,7 +777,7 @@ export default function LiveAuctionScreen() {
               </View>
             ) : connectionStatus !== 'connected' ? (
               <View style={styles.bidBarCenter}>
-                <Text style={[styles.depositMsg, { color: '#eab308' }]}>
+                <Text style={[styles.depositMsg, { color: theme.colors.warning }]}>
                   Bağlantı bekleniyor... Teklif verebilmek için bağlanmanız gerekiyor.
                 </Text>
               </View>
@@ -829,13 +855,12 @@ const styles = StyleSheet.create({
 
   // Extension banner
   extensionBanner: {
-    backgroundColor: '#eff6ff',
     borderRadius: 12,
     padding: 12,
     marginBottom: 12,
     alignItems: 'center',
   },
-  extensionText: { color: '#2563eb', fontWeight: '600', fontSize: 14 },
+  extensionText: { fontWeight: '600', fontSize: 14 },
 
   // Timer
   timerCard: {
@@ -868,33 +893,29 @@ const styles = StyleSheet.create({
 
   // Announcement
   announcementCard: {
-    backgroundColor: '#fefce8',
     borderRadius: 12,
     borderWidth: 1,
     padding: 14,
     marginBottom: 12,
   },
   announcementHeader: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 6 },
-  announcementTitle: { fontWeight: '700', color: '#92400e', fontSize: 14 },
-  announcementText: { color: '#78350f', fontSize: 14, lineHeight: 20 },
+  announcementTitle: { fontWeight: '700', fontSize: 14 },
+  announcementText: { fontSize: 14, lineHeight: 20 },
 
   // Winner
   winnerCard: {
-    backgroundColor: '#f0fdf4',
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: '#bbf7d0',
     padding: 24,
     alignItems: 'center',
     marginBottom: 12,
   },
-  winnerTitle: { fontSize: 20, fontWeight: '800', color: '#15803d', marginBottom: 4 },
-  winnerDetail: { fontSize: 15, color: '#166534', marginBottom: 4 },
-  winnerPrice: { fontSize: 24, fontWeight: '800', color: '#16a34a' },
+  winnerTitle: { fontSize: 20, fontWeight: '800', marginBottom: 4 },
+  winnerDetail: { fontSize: 15, marginBottom: 4 },
+  winnerPrice: { fontSize: 24, fontWeight: '800' },
 
   // Rejection
   rejectionCard: {
-    backgroundColor: '#fef2f2',
     borderRadius: 12,
     borderWidth: 1,
     padding: 14,
@@ -904,8 +925,8 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   rejectionIcon: { width: 28, alignItems: 'center', justifyContent: 'center' },
-  rejectionTitle: { fontWeight: '700', color: '#dc2626', fontSize: 14 },
-  rejectionReason: { color: '#991b1b', fontSize: 13, marginTop: 2 },
+  rejectionTitle: { fontWeight: '700', fontSize: 14 },
+  rejectionReason: { fontSize: 13, marginTop: 2 },
 
   // Feed
   feedCard: {

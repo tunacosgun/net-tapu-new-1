@@ -1,6 +1,6 @@
 /**
- * AnimatedHeader — Reusable animated screen header with back button
- * Professional entrance animation with gradient background
+ * AnimatedHeader — Reusable animated screen header with back button.
+ * Uses brand olive/champagne gradient and theme-aware tokens.
  */
 import React from 'react';
 import { View, Text, StyleSheet, Platform, TouchableOpacity } from 'react-native';
@@ -8,13 +8,18 @@ import Animated, { FadeInDown, FadeInLeft } from 'react-native-reanimated';
 import LinearGradient from 'react-native-linear-gradient';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../../theme';
 
 interface AnimatedHeaderProps {
   title: string;
   subtitle?: string;
   showBack?: boolean;
+  /** When true uses brand emerald-olive gradient. Defaults to true. */
   gradient?: boolean;
+  /** Optional right-side actions */
+  rightAction?: React.ReactNode;
+  testID?: string;
 }
 
 export function AnimatedHeader({
@@ -22,105 +27,127 @@ export function AnimatedHeader({
   subtitle,
   showBack = true,
   gradient = true,
+  rightAction,
+  testID,
 }: AnimatedHeaderProps) {
   const navigation = useNavigation();
-  const { isDark, colors: c } = useTheme();
+  const { colors: c, isDark, typography: typo } = useTheme();
+  const insets = useSafeAreaInsets();
 
-  const content = (
-    <View style={styles.inner}>
-      {showBack && (
-        <Animated.View entering={FadeInLeft.delay(100).springify()}>
-          <TouchableOpacity
-            onPress={() => navigation.goBack()}
-            style={styles.backBtn}
-            hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
-          >
-            <Ionicons name="chevron-back" size={22} color="#fff" />
-          </TouchableOpacity>
-        </Animated.View>
-      )}
-      <Animated.Text
-        entering={FadeInDown.delay(150).springify()}
-        style={styles.title}
-      >
-        {title}
-      </Animated.Text>
-      {subtitle && (
+  const gradientColors = gradient
+    ? (c.gradientHero as unknown as string[])
+    : [c.surface, c.surface];
+
+  return (
+    <LinearGradient
+      colors={gradientColors}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={[styles.container, { paddingTop: insets.top + 12 }]}
+      testID={testID ?? 'animated-header'}
+    >
+      <View style={styles.inner}>
+        <View style={styles.topRow}>
+          {showBack ? (
+            <Animated.View entering={FadeInLeft.delay(80).springify()}>
+              <TouchableOpacity
+                onPress={() => navigation.goBack()}
+                style={[styles.iconBtn, { backgroundColor: 'rgba(255,255,255,0.16)', borderColor: 'rgba(255,255,255,0.22)' }]}
+                hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+                testID="header-back-btn"
+                accessibilityRole="button"
+                accessibilityLabel="Geri"
+              >
+                <Ionicons name="chevron-back" size={22} color="#fff" />
+              </TouchableOpacity>
+            </Animated.View>
+          ) : (
+            <View style={{ width: 40 }} />
+          )}
+          {rightAction ? (
+            <Animated.View entering={FadeInLeft.delay(120).springify()}>{rightAction}</Animated.View>
+          ) : null}
+        </View>
+
         <Animated.Text
-          entering={FadeInDown.delay(250).springify()}
-          style={styles.subtitle}
+          entering={FadeInDown.delay(160).springify()}
+          style={[
+            typo.h1,
+            styles.title,
+            { color: '#FFFFFF' },
+          ]}
+          numberOfLines={2}
         >
-          {subtitle}
+          {title}
         </Animated.Text>
-      )}
-      <View style={styles.circle} />
-      <View style={styles.circle2} />
-    </View>
+
+        {subtitle ? (
+          <Animated.Text
+            entering={FadeInDown.delay(220).springify()}
+            style={[typo.bodySmall, styles.subtitle]}
+            numberOfLines={2}
+          >
+            {subtitle}
+          </Animated.Text>
+        ) : null}
+
+        {/* Decorative softening orbs (very low opacity) */}
+        <View pointerEvents="none" style={[styles.orb, styles.orbA]} />
+        <View pointerEvents="none" style={[styles.orb, styles.orbB]} />
+      </View>
+    </LinearGradient>
   );
-
-  if (gradient) {
-    return (
-      <LinearGradient
-        colors={isDark ? ['#052e16', '#0f172a'] : ['#15803d', '#16a34a']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.container}
-      >
-        {content}
-      </LinearGradient>
-    );
-  }
-
-  return <View style={[styles.container, { backgroundColor: c.primary }]}>{content}</View>;
 }
 
 const styles = StyleSheet.create({
   container: {
-    paddingTop: Platform.OS === 'ios' ? 60 : 40,
-    paddingBottom: 40,
+    paddingBottom: 36,
     overflow: 'hidden',
     position: 'relative',
   },
   inner: {
     paddingHorizontal: 24,
   },
-  backBtn: {
+  topRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 18,
+  },
+  iconBtn: {
     width: 40,
     height: 40,
-    borderRadius: 12,
-    backgroundColor: 'rgba(255,255,255,0.15)',
+    borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 16,
+    borderWidth: StyleSheet.hairlineWidth,
   },
   title: {
-    fontSize: 28,
+    color: '#FFFFFF',
     fontWeight: '800',
-    color: '#fff',
     letterSpacing: -0.5,
-    marginBottom: 6,
   },
   subtitle: {
-    fontSize: 14,
-    color: 'rgba(255,255,255,0.7)',
+    color: 'rgba(255,255,255,0.78)',
+    marginTop: 6,
     lineHeight: 20,
   },
-  circle: {
+  orb: {
     position: 'absolute',
-    width: 180,
-    height: 180,
-    borderRadius: 90,
+    borderRadius: 9999,
     backgroundColor: 'rgba(255,255,255,0.06)',
-    top: -40,
-    right: -50,
   },
-  circle2: {
-    position: 'absolute',
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: 'rgba(255,255,255,0.04)',
-    bottom: -20,
-    left: -30,
+  orbA: {
+    width: 220,
+    height: 220,
+    top: -90,
+    right: -70,
+  },
+  orbB: {
+    width: 110,
+    height: 110,
+    bottom: -45,
+    left: -25,
+    backgroundColor: 'rgba(201, 165, 94, 0.10)',
   },
 });

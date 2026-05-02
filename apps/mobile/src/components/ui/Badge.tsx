@@ -1,48 +1,89 @@
+/**
+ * StatusBadge — theme-aware, dark-mode-safe pill badge.
+ * Uses Colors.status* tokens so dark/light variants behave consistently.
+ */
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, type ViewStyle } from 'react-native';
+import { useTheme } from '../../theme';
 
-const STATUS_CONFIG: Record<string, { bg: string; text: string; dot: string; label: string }> = {
-  active: { bg: '#f0fdf4', text: '#166534', dot: '#22c55e', label: 'Satışta' },
-  sold: { bg: '#fef2f2', text: '#991b1b', dot: '#ef4444', label: 'Satıldı' },
-  deposit_taken: { bg: '#fffbeb', text: '#92400e', dot: '#f59e0b', label: 'Kaparo Alındı' },
-  reserved: { bg: '#faf5ff', text: '#6b21a8', dot: '#a855f7', label: 'Ayırtıldı' },
-  draft: { bg: '#f8fafc', text: '#64748b', dot: '#94a3b8', label: 'Taslak' },
-  withdrawn: { bg: '#f8fafc', text: '#94a3b8', dot: '#cbd5e1', label: 'Geri Çekildi' },
-  live: { bg: '#fef2f2', text: '#dc2626', dot: '#ef4444', label: 'Canlı' },
-  scheduled: { bg: '#f0f9ff', text: '#0369a1', dot: '#38bdf8', label: 'Planlandı' },
-  deposit_open: { bg: '#fffbeb', text: '#92400e', dot: '#f59e0b', label: 'Kaparo Açık' },
-  ended: { bg: '#f8fafc', text: '#64748b', dot: '#94a3b8', label: 'Bitti' },
-  settled: { bg: '#f0fdf4', text: '#166534', dot: '#22c55e', label: 'Tamamlandı' },
-  ending: { bg: '#fef2f2', text: '#dc2626', dot: '#ef4444', label: 'Bitiyor' },
-};
+type StatusKey =
+  | 'active'
+  | 'sold'
+  | 'deposit_taken'
+  | 'reserved'
+  | 'draft'
+  | 'withdrawn'
+  | 'live'
+  | 'scheduled'
+  | 'deposit_open'
+  | 'ended'
+  | 'settled'
+  | 'ending';
 
 interface BadgeProps {
   status: string;
   size?: 'sm' | 'md';
+  style?: ViewStyle;
+  testID?: string;
 }
 
-export function StatusBadge({ status, size = 'sm' }: BadgeProps) {
-  const config = STATUS_CONFIG[status] || STATUS_CONFIG.draft;
+interface StatusVisual {
+  label: string;
+  /** Hue token from theme.colors */
+  tone: 'primary' | 'gold' | 'live' | 'reserved' | 'muted' | 'success' | 'sold';
+}
+
+const STATUS_VISUAL: Record<StatusKey, StatusVisual> = {
+  active:        { label: 'Satışta',      tone: 'primary' },
+  sold:          { label: 'Satıldı',      tone: 'sold'    },
+  deposit_taken: { label: 'Kaparo Alındı',tone: 'gold'    },
+  reserved:      { label: 'Ayırtıldı',    tone: 'reserved'},
+  draft:         { label: 'Taslak',       tone: 'muted'   },
+  withdrawn:     { label: 'Geri Çekildi', tone: 'muted'   },
+  live:          { label: 'Canlı',        tone: 'live'    },
+  scheduled:     { label: 'Planlandı',    tone: 'primary' },
+  deposit_open:  { label: 'Kaparo Açık',  tone: 'gold'    },
+  ended:         { label: 'Bitti',        tone: 'muted'   },
+  settled:       { label: 'Tamamlandı',   tone: 'success' },
+  ending:        { label: 'Bitiyor',      tone: 'live'    },
+};
+
+function resolveTone(tone: StatusVisual['tone'], colors: ReturnType<typeof useTheme>['colors']) {
+  switch (tone) {
+    case 'primary':  return { fg: colors.primary,        bg: colors.primaryBg,  dot: colors.primary };
+    case 'gold':     return { fg: colors.accent,         bg: colors.accentBg,   dot: colors.accent };
+    case 'live':     return { fg: colors.statusLive,     bg: 'rgba(209,67,67,0.10)', dot: colors.statusLive };
+    case 'reserved': return { fg: colors.statusReserved, bg: 'rgba(91,58,142,0.12)', dot: colors.statusReserved };
+    case 'success':  return { fg: colors.success,        bg: colors.successBg,  dot: colors.success };
+    case 'sold':     return { fg: colors.error,          bg: colors.errorBg,    dot: colors.error };
+    case 'muted':
+    default:         return { fg: colors.textMuted,      bg: colors.scrim,      dot: colors.textMuted };
+  }
+}
+
+export function StatusBadge({ status, size = 'sm', style, testID }: BadgeProps) {
+  const { colors } = useTheme();
+  const visual = STATUS_VISUAL[status as StatusKey] ?? STATUS_VISUAL.draft;
+  const palette = resolveTone(visual.tone, colors);
   const isSmall = size === 'sm';
 
   return (
-    <View style={[styles.badge, { backgroundColor: config.bg }, isSmall && styles.small]}>
-      <View style={[styles.dot, { backgroundColor: config.dot }, isSmall && styles.dotSmall]} />
-      <Text style={[styles.text, { color: config.text }, isSmall && styles.smallText]}>
-        {config.label}
+    <View
+      style={[styles.badge, { backgroundColor: palette.bg }, isSmall && styles.small, style]}
+      testID={testID ?? `status-badge-${status}`}
+    >
+      <View style={[styles.dot, { backgroundColor: palette.dot }, isSmall && styles.dotSmall]} />
+      <Text style={[styles.text, { color: palette.fg }, isSmall && styles.smallText]} numberOfLines={1}>
+        {visual.label}
       </Text>
     </View>
   );
 }
 
-export function parcelStatusColor(status: string): string {
-  switch (status) {
-    case 'active': return '#166534';
-    case 'sold': return '#991b1b';
-    case 'deposit_taken': return '#92400e';
-    case 'reserved': return '#6b21a8';
-    default: return '#64748b';
-  }
+export function parcelStatusColor(status: string, colors?: ReturnType<typeof useTheme>['colors']): string {
+  if (!colors) return '#76837C';
+  const v = STATUS_VISUAL[status as StatusKey] ?? STATUS_VISUAL.draft;
+  return resolveTone(v.tone, colors).fg;
 }
 
 const styles = StyleSheet.create({
@@ -51,14 +92,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 10,
     paddingVertical: 5,
-    borderRadius: 20,
+    borderRadius: 999,
     alignSelf: 'flex-start',
-    gap: 5,
+    gap: 6,
   },
   small: {
     paddingHorizontal: 8,
     paddingVertical: 4,
-    gap: 4,
+    gap: 5,
   },
   dot: {
     width: 6,
@@ -72,9 +113,10 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: 12,
-    fontWeight: '600',
+    fontWeight: '700',
+    letterSpacing: 0.1,
   },
   smallText: {
-    fontSize: 10,
+    fontSize: 10.5,
   },
 });

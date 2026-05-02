@@ -1,0 +1,190 @@
+# NetTapu Mobile — Fastlane configuration
+# Run from `apps/mobile` directory:
+#   bundle exec fastlane ios beta
+#   bundle exec fastlane android beta
+#
+# Required environment variables (do NOT commit):
+#   APP_STORE_CONNECT_API_KEY_ID, APP_STORE_CONNECT_API_KEY_ISSUER_ID,
+#   APP_STORE_CONNECT_API_KEY_CONTENT (base64 of .p8 file)
+#   MATCH_PASSWORD, MATCH_GIT_URL, FASTLANE_USER, FASTLANE_PASSWORD
+#   ANDROID_KEYSTORE_BASE64, ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS,
+#   ANDROID_KEY_PASSWORD, GOOGLE_PLAY_JSON_KEY (path or content)
+
+default_platform(:ios)
+
+# Path constants
+WORKSPACE = "ios/NetTapu.xcworkspace"
+SCHEME    = "NetTapu"
+APPLE_BUNDLE_ID = ENV["APPLE_BUNDLE_ID"] || "tech.tunasoft.nettapu"
+ANDROID_PACKAGE = ENV["ANDROID_PACKAGE"] || "tech.tunasoft.nettapu"
+
+before_all do
+  ensure_bundle_exec
+end
+
+# -------------------------------------------------------------------------
+# iOS
+# -------------------------------------------------------------------------
+platform :ios do
+  desc "Sync code-signing assets (read-only) for CI"
+  lane :certificates do
+    setup_ci if is_ci
+    match(
+      type: "appstore",
+      readonly: true,
+      app_identifier: APPLE_BUNDLE_ID,
+      git_url: ENV["MATCH_GIT_URL"],
+      api_key: app_store_connect_api_key_from_env
+    )
+  end
+
+  desc "Build and upload to TestFlight"
+  lane :beta do
+    setup_ci if is_ci
+
+    # Bump build number from latest TestFlight
+    api_key = app_store_connect_api_key_from_env
+    latest_build = latest_testflight_build_number(
+      app_identifier: APPLE_BUNDLE_ID,
+      api_key: api_key
+    )
+    increment_build_number(
+      build_number: latest_build + 1,
+      xcodeproj: "ios/NetTapu.xcodeproj"
+    )
+
+    match(
+      type: "appstore",
+      readonly: true,
+      app_identifier: APPLE_BUNDLE_ID,
+      git_url: ENV["MATCH_GIT_URL"],
+      api_key: api_key
+    )
+
+    build_app(
+      workspace: WORKSPACE,
+      scheme: SCHEME,
+      configuration: "Release",
+      export_method: "app-store",
+      clean: true,
+      output_directory: "build/ios",
+      output_name: "NetTapu.ipa",
+      include_symbols: true,
+      include_bitcode: false
+    )
+
+    upload_to_testflight(
+      api_key: api_key,
+      app_identifier: APPLE_BUNDLE_ID,
+      ipa: "build/ios/NetTapu.ipa",
+      skip_waiting_for_build_processing: true,
+      changelog: ENV["TESTFLIGHT_CHANGELOG"] || "Profesyonel mobil deneyim ve performans iyileştirmeleri."
+    )
+  end
+
+  desc "Build a release archive locally without uploading"
+  lane :build_release do
+    match(
+      type: "appstore",
+      readonly: true,
+      app_identifier: APPLE_BUNDLE_ID,
+      git_url: ENV["MATCH_GIT_URL"]
+    )
+    build_app(
+      workspace: WORKSPACE,
+      scheme: SCHEME,
+      configuration: "Release",
+      export_method: "app-store",
+      output_directory: "build/ios"
+    )
+  end
+end
+
+def app_store_connect_api_key_from_env
+  app_store_connect_api_key(
+    key_id: ENV["APP_STORE_CONNECT_API_KEY_ID"],
+    issuer_id: ENV["APP_STORE_CONNECT_API_KEY_ISSUER_ID"],
+    key_content: ENV["APP_STORE_CONNECT_API_KEY_CONTENT"],
+    is_key_content_base64: true,
+    in_house: false
+  )
+end
+
+# -------------------------------------------------------------------------
+# Android
+# -------------------------------------------------------------------------
+platform :android do
+  desc "Build a signed release AAB and upload to Play Internal Testing"
+  lane :beta do
+    decode_keystore_from_env
+
+    # Bump versionCode based on Play store latest
+    json_key = ENV["GOOGLE_PLAY_JSON_KEY_PATH"] || "fastlane/play-key.json"
+    track    = "internal"
+    latest = google_play_track_version_codes(
+      track: track,
+      package_name: ANDROID_PACKAGE,
+      json_key: json_key
+    ).max || 0
+
+    increment_version_code(
+      gradle_file_path: "android/app/build.gradle",
+      version_code: latest + 1
+    )
+
+    gradle(
+      project_dir: "android",
+      task: "bundleRelease",
+      properties: {
+        "android.injected.signing.store.file"    => ENV["ANDROID_KEYSTORE_PATH"] || "release.keystore",
+        "android.injected.signing.store.password"=> ENV["ANDROID_KEYSTORE_PASSWORD"],
+        "android.injected.signing.key.alias"     => ENV["ANDROID_KEY_ALIAS"],
+        "android.injected.signing.key.password"  => ENV["ANDROID_KEY_PASSWORD"]
+      }
+    )
+
+    upload_to_play_store(
+      track: track,
+      json_key: json_key,
+      package_name: ANDROID_PACKAGE,
+      aab: "android/app/build/outputs/bundle/release/app-release.aab",
+      release_status: "draft",
+      skip_upload_apk: true,
+      skip_upload_changelogs: false
+    )
+  end
+
+  desc "Promote internal track build to production"
+  lane :promote_to_production do
+    json_key = ENV["GOOGLE_PLAY_JSON_KEY_PATH"] || "fastlane/play-key.json"
+    upload_to_play_store(
+      track: "internal",
+      track_promote_to: "production",
+      package_name: ANDROID_PACKAGE,
+      json_key: json_key,
+      skip_upload_apk: true,
+      skip_upload_aab: true,
+      skip_upload_metadata: true,
+      skip_upload_changelogs: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true
+    )
+  end
+
+  desc "Build a signed AAB locally"
+  lane :build_release do
+    decode_keystore_from_env
+    gradle(
+      project_dir: "android",
+      task: "bundleRelease"
+    )
+  end
+end
+
+# Extract base64 keystore from CI env into a file the gradle build can sign with.
+def decode_keystore_from_env
+  base64 = ENV["ANDROID_KEYSTORE_BASE64"]
+  next unless base64
+  destination = ENV["ANDROID_KEYSTORE_PATH"] || "release.keystore"
+  sh("echo \"#{base64}\" | base64 --decode > #{destination}", log: false)
+end

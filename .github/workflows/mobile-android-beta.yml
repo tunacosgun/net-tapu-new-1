@@ -1,0 +1,68 @@
+name: Mobile · Android Beta
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'mobile-android-v*'
+
+permissions:
+  contents: read
+
+jobs:
+  android-beta:
+    name: Build & Upload AAB to Play Internal
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    environment: mobile-release
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: apps/mobile/package-lock.json
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+          bundler-cache: true
+          working-directory: apps/mobile
+
+      - name: Install JS dependencies
+        working-directory: apps/mobile
+        run: npm ci --prefer-offline --no-audit --progress=false
+
+      - name: Decode Play service-account key
+        working-directory: apps/mobile
+        run: |
+          mkdir -p fastlane
+          echo "$GOOGLE_PLAY_JSON_KEY" > fastlane/play-key.json
+        env:
+          GOOGLE_PLAY_JSON_KEY: ${{ secrets.GOOGLE_PLAY_JSON_KEY }}
+
+      - name: Run Fastlane Android beta
+        working-directory: apps/mobile
+        run: bundle exec fastlane android beta
+        env:
+          ANDROID_PACKAGE: ${{ vars.ANDROID_PACKAGE || 'tech.tunasoft.nettapu' }}
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PATH: ${{ github.workspace }}/apps/mobile/release.keystore
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          GOOGLE_PLAY_JSON_KEY_PATH: ${{ github.workspace }}/apps/mobile/fastlane/play-key.json
+
+      - name: Upload AAB artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: nettapu-android-aab
+          path: apps/mobile/android/app/build/outputs/bundle/release/app-release.aab
+          retention-days: 14

@@ -20,6 +20,8 @@ import OffersScreen from '../screens/profile/OffersScreen';
 import PaymentsScreen from '../screens/profile/PaymentsScreen';
 import SettingsScreen from '../screens/profile/SettingsScreen';
 import NotificationsScreen from '../screens/profile/NotificationsScreen';
+import InboxListScreen from '../screens/inbox/InboxListScreen';
+import ConversationScreen from '../screens/inbox/ConversationScreen';
 
 export type RootStackParamList = {
   Splash: undefined;
@@ -39,6 +41,8 @@ export type RootStackParamList = {
   Payments: undefined;
   Settings: undefined;
   Notifications: undefined;
+  Inbox: undefined;
+  Conversation: { conversationId: string; counterpartName?: string };
 };
 
 import { useSettingsStore } from '../stores/settings-store';
@@ -90,6 +94,8 @@ export default function RootNavigator() {
           <Stack.Screen name="Payments" component={PaymentsScreen} />
           <Stack.Screen name="Settings" component={SettingsScreen} />
           <Stack.Screen name="Notifications" component={NotificationsScreen} />
+          <Stack.Screen name="Inbox" component={InboxListScreen} />
+          <Stack.Screen name="Conversation" component={ConversationScreen} />
         </Stack.Group>
       )}
     </Stack.Navigator>

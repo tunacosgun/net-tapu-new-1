@@ -1,0 +1,12 @@
+# NetTapu — Fastlane Appfile
+# Apple Developer / App Store Connect identifiers shared by all iOS lanes.
+# Override per-environment via env vars (FASTLANE_*).
+
+app_identifier(ENV["APPLE_BUNDLE_ID"] || "tech.tunasoft.nettapu")
+apple_id(ENV["APPLE_ID"]) # email used for App Store Connect
+team_id(ENV["APPLE_TEAM_ID"])
+itc_team_id(ENV["APP_STORE_CONNECT_TEAM_ID"]) if ENV["APP_STORE_CONNECT_TEAM_ID"]
+
+# Android (used by supply / upload_to_play_store)
+json_key_file(ENV["GOOGLE_PLAY_JSON_KEY_PATH"] || "fastlane/play-key.json")
+package_name(ENV["ANDROID_PACKAGE"] || "tech.tunasoft.nettapu")

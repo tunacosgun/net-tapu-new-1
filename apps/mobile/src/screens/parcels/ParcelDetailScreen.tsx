@@ -163,6 +163,26 @@ export default function ParcelDetailScreen() {
     Linking.openURL(url).catch(() => Alert.alert('Hata', 'WhatsApp açılamadı.'));
   }
 
+  async function handleSendMessage() {
+    if (!parcel) return;
+    try {
+      // Try to start a conversation tied to this parcel.
+      const { sendMessage } = await import('../../api/messages');
+      const msg = await sendMessage({
+        parcelId: parcel.id,
+        body: `Merhaba, ${parcel.title} (${parcel.listingId}) hakkında bilgi almak istiyorum.`,
+      });
+      (navigation as any).navigate('Conversation', {
+        conversationId: msg.conversationId,
+        counterpartName: consultant ? `${consultant.firstName ?? ''} ${consultant.lastName ?? ''}`.trim() || 'Danışman' : 'Danışman',
+      });
+    } catch {
+      // Service not yet active — fall back to inbox screen which gracefully
+      // surfaces the unavailable state.
+      (navigation as any).navigate('Inbox');
+    }
+  }
+
   function handleCall() {
     const phone = consultant?.phone || '';
     if (!phone) {
@@ -578,6 +598,25 @@ export default function ParcelDetailScreen() {
           <View style={[StyleSheet.absoluteFill, { backgroundColor: isDark ? 'rgba(26,39,64,0.98)' : '#ffffff' }]} />
         )}
         <SafeAreaView edges={['bottom']} style={{ flexDirection: 'row', paddingHorizontal: 16, paddingTop: 12, paddingBottom: 8, gap: 10 }}>
+          <TouchableOpacity
+            onPress={handleSendMessage}
+            style={[
+              styles.bottomBtn,
+              {
+                backgroundColor: c.surface,
+                borderWidth: StyleSheet.hairlineWidth,
+                borderColor: c.borderStrong,
+                flexBasis: 56,
+                flexGrow: 0,
+                borderRadius: br.xl,
+              },
+            ]}
+            activeOpacity={0.85}
+            testID="parcel-detail-message-btn"
+            accessibilityLabel="Mesaj gönder"
+          >
+            <Ionicons name="chatbubble-ellipses-outline" size={20} color={c.text} />
+          </TouchableOpacity>
           <TouchableOpacity
             onPress={handleCall}
             style={[
