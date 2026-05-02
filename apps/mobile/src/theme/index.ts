@@ -2,7 +2,7 @@ import React, { createContext, useContext, useMemo } from 'react';
 import { useColorScheme } from 'react-native';
 import { Colors, type ThemeColors } from './colors';
 import { Typography } from './typography';
-import { Spacing, BorderRadius, Shadows } from './spacing';
+import { Spacing, BorderRadius, Shadows, Motion, Hairline } from './spacing';
 
 export type ThemeMode = 'light' | 'dark';
 
@@ -12,6 +12,8 @@ export interface Theme {
   spacing: typeof Spacing;
   borderRadius: typeof BorderRadius;
   shadows: typeof Shadows;
+  motion: typeof Motion;
+  hairline: typeof Hairline;
   isDark: boolean;
 }
 
@@ -22,6 +24,8 @@ export function createTheme(mode: ThemeMode): Theme {
     spacing: Spacing,
     borderRadius: BorderRadius,
     shadows: Shadows,
+    motion: Motion,
+    hairline: Hairline,
     isDark: mode === 'dark',
   };
 }
@@ -38,4 +42,4 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   return React.createElement(ThemeContext.Provider, { value: theme }, children);
 }
 
-export { Colors, Typography, Spacing, BorderRadius, Shadows };
+export { Colors, Typography, Spacing, BorderRadius, Shadows, Motion, Hairline };

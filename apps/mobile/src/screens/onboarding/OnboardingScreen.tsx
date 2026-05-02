@@ -19,6 +19,7 @@ import Animated, {
   runOnJS,
   useDerivedValue,
 } from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   GestureDetector,
   Gesture,
@@ -36,8 +37,8 @@ const RING_MIDDLE = 170;
 const slides = [
   {
     icon: 'map-outline' as const,
-    color: '#16a34a',
-    gradient: ['#16a34a', '#059669'] as [string, string],
+    color: '#687A26',
+    gradient: ['#687A26', '#4F5D1B'] as [string, string],
     title: 'Arsa & Gayrimenkul',
     desc: 'Türkiye genelinde binlerce arsa ilanını harita üzerinden keşfedin. Lokasyon, fiyat ve imar durumuna göre filtreleyin.',
   },
@@ -169,6 +170,7 @@ export default function OnboardingScreen() {
   const buttonScale = useSharedValue(1);
   const navigation = useNavigation<Nav>();
   const theme = useTheme();
+  const insets = useSafeAreaInsets();
 
   // Title/desc parallax values
   const titleTranslateX = useSharedValue(0);
@@ -263,7 +265,7 @@ export default function OnboardingScreen() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <GestureDetector gesture={panGesture}>
-        <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+        <View style={[styles.container, { backgroundColor: theme.colors.background, paddingBottom: Math.max(insets.bottom + 16, 32) }]}>
           {/* Skip button */}
           <TouchableOpacity onPress={handleSkip} style={styles.skipBtn} activeOpacity={0.6}>
             <Text style={[styles.skipText, { color: theme.colors.textMuted }]}>Atla</Text>
@@ -319,7 +321,7 @@ export default function OnboardingScreen() {
                 activeOpacity={1}
               >
                 <LinearGradient
-                  colors={['#16a34a', '#15803d']}
+                  colors={[theme.colors.primary, theme.colors.primaryDark]}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 0 }}
                   style={styles.nextBtn}
@@ -331,7 +333,7 @@ export default function OnboardingScreen() {
                     <Ionicons
                       name={currentIndex === slides.length - 1 ? 'checkmark' : 'arrow-forward'}
                       size={18}
-                      color="#16a34a"
+                      color={theme.colors.primary}
                     />
                   </View>
                 </LinearGradient>
@@ -350,7 +352,7 @@ export default function OnboardingScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, paddingBottom: Platform.OS === 'ios' ? 50 : 30 },
+  container: { flex: 1 },
   skipBtn: {
     position: 'absolute',
     top: Platform.OS === 'ios' ? 60 : 40,
@@ -361,13 +363,13 @@ const styles = StyleSheet.create({
   },
   skipText: { fontSize: 15, fontWeight: '600' },
 
-  contentArea: { flex: 1, justifyContent: 'center' },
+  contentArea: { flex: 1, justifyContent: 'center', minHeight: 0 },
 
   // Icon layer — stacked absolutely
   iconLayer: {
     height: RING_OUTER + 20,
     width: '100%',
-    marginBottom: 40,
+    marginBottom: 24,
   },
   iconCentered: {
     flex: 1,
@@ -433,15 +435,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
 
-  dots: { flexDirection: 'row', justifyContent: 'center', gap: 6, marginBottom: 28 },
+  dots: { flexDirection: 'row', justifyContent: 'center', gap: 6, marginBottom: 20 },
   dot: { height: 8, borderRadius: 4 },
 
-  bottomRow: { paddingHorizontal: 24 },
+  bottomRow: { paddingHorizontal: 24, marginBottom: 12 },
   nextBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 18,
+    height: 58,
     gap: 10,
   },
   nextText: { color: '#fff', fontSize: 17, fontWeight: '700' },

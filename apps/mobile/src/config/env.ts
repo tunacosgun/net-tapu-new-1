@@ -1,7 +1,7 @@
 // Toggle DEV_USE_DEMO to test against the remote demo server from Simulator
 const DEV_USE_DEMO = true;
 
-const DEMO_URL = 'https://nettapu-demo.tunasoft.tech';
+const DEMO_URL = 'https://nettapu-2.tunasoft.tech';
 const LOCAL_API = 'http://localhost:8080';
 const LOCAL_WS = 'http://localhost:3001';
 

@@ -218,41 +218,43 @@ export default function RegisterScreen() {
           showsVerticalScrollIndicator={false}
         >
           {/* Compact Header */}
-          <LinearGradient
-            colors={isDark ? [theme.colors.primaryDark, '#0f172a'] : [theme.colors.primary, theme.colors.primaryLight]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.header}
-          >
+          <View style={[styles.header, { backgroundColor: theme.colors.background }]}>
             <TouchableOpacity
               onPress={() => navigation.goBack()}
-              style={styles.backBtn}
+              style={[styles.backBtn, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}
               hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
             >
-              <Ionicons name="chevron-back" size={22} color="#fff" />
+              <Ionicons name="chevron-back" size={22} color={theme.colors.text} />
             </TouchableOpacity>
 
-            {settings?.site_logo && (
-              <Image
-                source={{ uri: settings.site_logo }}
-                style={{ width: 140, height: 40, resizeMode: 'contain', marginBottom: 16 }}
-              />
-            )}
+            <View style={styles.heroCenter}>
+              {settings?.site_logo ? (
+                <Image
+                  source={{ uri: settings.site_logo }}
+                  style={{ width: 140, height: 40, resizeMode: 'contain', marginBottom: 16 }}
+                />
+              ) : (
+                <View style={styles.brandWordmark}>
+                  <View style={[styles.brandNetBox, { borderColor: theme.colors.text }]}>
+                    <Text style={[styles.brandNetText, { color: theme.colors.primary }]}>NET</Text>
+                  </View>
+                  <Text style={[styles.brandTapuText, { color: theme.colors.text }]}>TAPU</Text>
+                </View>
+              )}
 
-            <Text style={styles.headerTitle}>Hesap Oluşturun</Text>
-            <Text style={styles.headerSubtitle}>
-              Hemen ücretsiz üye olun ve ihalelere katılın
-            </Text>
-            {/* Decorative circle */}
-            <Animated.View style={[styles.headerCircle, circleAnimStyle]} />
-          </LinearGradient>
+              <Text style={[styles.headerTitle, { color: theme.colors.text }]}>Aramıza Katılın</Text>
+              <Text style={[styles.headerSubtitle, { color: theme.colors.textMuted }]}>
+                Ücretsiz üye olun, ihalelere katılın
+              </Text>
+            </View>
+          </View>
 
           {/* Form Card */}
           <Animated.View
             entering={FadeInDown.springify()}
             style={[styles.formCard, {
               backgroundColor: theme.colors.card,
-              shadowColor: isDark ? '#000' : '#16a34a',
+              shadowColor: theme.colors.primary,
             }]}
           >
             {/* Social Signup */}
@@ -264,7 +266,7 @@ export default function RegisterScreen() {
                 <TouchableOpacity
                   style={[styles.socialBtn, {
                     borderColor: isDark ? theme.colors.border : '#e5e7eb',
-                    backgroundColor: isDark ? theme.colors.surface : '#fff',
+                    backgroundColor: theme.colors.card,
                   }]}
                   onPress={handleGoogleRegister}
                   onPressIn={() => { googleBtnScale.value = withTiming(0.97, { duration: 100 }); }}
@@ -324,24 +326,16 @@ export default function RegisterScreen() {
                 control={control}
                 name="username"
                 render={({ field: { onChange, value } }) => (
-                  <View>
-                    <Input
-                      label="Kullanıcı Adı"
-                      placeholder="ornek_kullanici"
-                      leftIcon="at-outline"
-                      autoCapitalize="none"
-                      autoCorrect={false}
-                      value={value}
-                      onChangeText={onChange}
-                      error={errors.username?.message}
-                    />
-                    <View style={[styles.hintRow, { backgroundColor: theme.colors.primaryBg }]}>
-                      <Ionicons name="information-circle-outline" size={14} color={theme.colors.primary} />
-                      <Text style={[styles.hintText, { color: theme.colors.primary }]}>
-                        İhalelerde diğer kullanıcılar bu adı görecek
-                      </Text>
-                    </View>
-                  </View>
+                  <Input
+                    label="Kullanıcı Adı"
+                    placeholder="ornek_kullanici"
+                    leftIcon="at-outline"
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    value={value}
+                    onChangeText={onChange}
+                    error={errors.username?.message}
+                  />
                 )}
               />
             </Animated.View>
@@ -427,62 +421,53 @@ export default function RegisterScreen() {
               />
             </Animated.View>
 
-            {/* Legal Consents */}
+            {/* Combined Legal Consent */}
             <Animated.View entering={FadeInDown.delay((fieldIndex++) * 60)}>
-              <View style={[styles.legalBox, {
-                backgroundColor: isDark ? theme.colors.surface : '#f8fafc',
-                borderColor: theme.colors.border,
-              }]}>
-                <Controller
-                  control={control}
-                  name="acceptTerms"
-                  render={({ field: { onChange, value } }) => (
-                    <View style={styles.checkRow}>
-                      <Switch
-                        value={value}
-                        onValueChange={onChange}
-                        trackColor={{ false: theme.colors.border, true: theme.colors.primary }}
-                        thumbColor="#fff"
-                        style={Platform.OS === 'ios' ? { transform: [{ scaleX: 0.8 }, { scaleY: 0.8 }] } : undefined}
-                      />
-                      <Text style={[styles.checkText, { color: theme.colors.text }]}>
-                        <Text style={[styles.linkText, { color: theme.colors.primary }]}>Kullanım Koşulları</Text>
-                        {' ve '}
-                        <Text style={[styles.linkText, { color: theme.colors.primary }]}>Mesafeli Satış Sözleşmesi</Text>
-                        {"'ni okudum ve kabul ediyorum."}
-                      </Text>
-                    </View>
-                  )}
-                />
-                {errors.acceptTerms && (
-                  <Text style={styles.errorText}>{errors.acceptTerms.message}</Text>
+              <Controller
+                control={control}
+                name="acceptTerms"
+                render={({ field: { onChange: onChangeTerms, value: valueTerms } }) => (
+                  <Controller
+                    control={control}
+                    name="acceptKvkk"
+                    render={({ field: { onChange: onChangeKvkk, value: valueKvkk } }) => {
+                      const both = valueTerms && valueKvkk;
+                      const toggle = (next: boolean) => {
+                        onChangeTerms(next);
+                        onChangeKvkk(next);
+                      };
+                      return (
+                        <TouchableOpacity
+                          activeOpacity={0.85}
+                          onPress={() => toggle(!both)}
+                          style={[styles.consentRow, {
+                            backgroundColor: both ? theme.colors.primaryBg : theme.colors.surface,
+                            borderColor: both ? theme.colors.primary : theme.colors.border,
+                          }]}
+                        >
+                          <View style={[styles.consentBox, {
+                            backgroundColor: both ? theme.colors.primary : 'transparent',
+                            borderColor: both ? theme.colors.primary : theme.colors.borderStrong,
+                          }]}>
+                            {both && <Ionicons name="checkmark" size={16} color="#fff" />}
+                          </View>
+                          <Text style={[styles.consentText, { color: theme.colors.text }]}>
+                            <Text style={[styles.linkText, { color: theme.colors.primary }]}>Kullanım Koşulları</Text>
+                            {', '}
+                            <Text style={[styles.linkText, { color: theme.colors.primary }]}>Mesafeli Satış Sözleşmesi</Text>
+                            {' ve '}
+                            <Text style={[styles.linkText, { color: theme.colors.primary }]}>KVKK Aydınlatma Metni</Text>
+                            {"'ni okudum, kabul ediyorum."}
+                          </Text>
+                        </TouchableOpacity>
+                      );
+                    }}
+                  />
                 )}
-
-                <View style={[styles.legalDivider, { backgroundColor: theme.colors.borderLight }]} />
-
-                <Controller
-                  control={control}
-                  name="acceptKvkk"
-                  render={({ field: { onChange, value } }) => (
-                    <View style={styles.checkRow}>
-                      <Switch
-                        value={value}
-                        onValueChange={onChange}
-                        trackColor={{ false: theme.colors.border, true: theme.colors.primary }}
-                        thumbColor="#fff"
-                        style={Platform.OS === 'ios' ? { transform: [{ scaleX: 0.8 }, { scaleY: 0.8 }] } : undefined}
-                      />
-                      <Text style={[styles.checkText, { color: theme.colors.text }]}>
-                        <Text style={[styles.linkText, { color: theme.colors.primary }]}>KVKK Aydınlatma Metni</Text>
-                        {"'ni okudum ve kişisel verilerimin işlenmesini kabul ediyorum."}
-                      </Text>
-                    </View>
-                  )}
-                />
-                {errors.acceptKvkk && (
-                  <Text style={styles.errorText}>{errors.acceptKvkk.message}</Text>
-                )}
-              </View>
+              />
+              {(errors.acceptTerms || errors.acceptKvkk) && (
+                <Text style={styles.errorText}>Lütfen sözleşmeleri kabul edin</Text>
+              )}
             </Animated.View>
 
             {/* Submit */}
@@ -532,52 +517,70 @@ export default function RegisterScreen() {
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
+    paddingBottom: 48,
   },
   header: {
-    paddingTop: Platform.OS === 'ios' ? 60 : 40,
-    paddingBottom: 40,
+    paddingTop: Platform.OS === 'ios' ? 56 : 36,
+    paddingBottom: 24,
     paddingHorizontal: 24,
-    overflow: 'hidden',
-    position: 'relative',
   },
-  backBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 10,
-    backgroundColor: 'rgba(255,255,255,0.15)',
+  heroCenter: {
     alignItems: 'center',
-    justifyContent: 'center',
+    marginTop: 28,
+  },
+  brandWordmark: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
     marginBottom: 16,
   },
-  headerTitle: {
+  brandNetBox: {
+    borderWidth: 2,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 4,
+  },
+  brandNetText: {
     fontSize: 26,
+    fontWeight: '900',
+    letterSpacing: 1,
+    lineHeight: 30,
+  },
+  brandTapuText: {
+    fontSize: 26,
+    fontWeight: '300',
+    letterSpacing: 1,
+    lineHeight: 30,
+  },
+  backBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  headerTitle: {
+    fontSize: 24,
     fontWeight: '800',
-    color: '#fff',
-    letterSpacing: -0.5,
-    marginBottom: 6,
+    letterSpacing: -0.4,
+    marginBottom: 4,
+    marginTop: 4,
   },
   headerSubtitle: {
-    fontSize: 14,
-    color: 'rgba(255,255,255,0.7)',
-  },
-  headerCircle: {
-    position: 'absolute',
-    width: 160,
-    height: 160,
-    borderRadius: 80,
-    backgroundColor: 'rgba(255,255,255,0.06)',
-    top: -30,
-    right: -40,
+    fontSize: 13.5,
+    fontWeight: '500',
+    letterSpacing: 0.2,
   },
   formCard: {
-    marginTop: -20,
+    marginTop: 8,
     marginHorizontal: 16,
-    borderRadius: 20,
+    borderRadius: 22,
     padding: 22,
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.08,
     shadowRadius: 24,
-    elevation: 8,
+    elevation: 6,
   },
   socialBtn: {
     flexDirection: 'row',
@@ -631,30 +634,33 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 12,
   },
-  legalBox: {
+  consentRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 14,
     borderRadius: 14,
     borderWidth: 1,
-    padding: 16,
     marginTop: 4,
     marginBottom: 20,
   },
-  checkRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 10,
+  consentBox: {
+    width: 22,
+    height: 22,
+    borderRadius: 6,
+    borderWidth: 1.5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 1,
   },
-  checkText: {
+  consentText: {
     fontSize: 12.5,
     lineHeight: 18,
     flex: 1,
-    paddingTop: 2,
   },
   linkText: {
-    fontWeight: '600',
-  },
-  legalDivider: {
-    height: 1,
-    marginVertical: 12,
+    fontWeight: '700',
   },
   errorText: {
     color: '#ef4444',
@@ -666,8 +672,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 16,
+    height: 56,
     gap: 10,
+    marginTop: 4,
   },
   submitText: {
     color: '#fff',

@@ -7,6 +7,7 @@ import { useRoute, useNavigation } from '@react-navigation/native';
 import type { RouteProp } from '@react-navigation/native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import LinearGradient from 'react-native-linear-gradient';
 import Animated, {
   useSharedValue, useAnimatedStyle, withSpring, withTiming, withRepeat,
   withSequence, withDelay, FadeInLeft, FadeIn, SlideInUp, BounceIn,
@@ -222,12 +223,18 @@ function AnimatedSubmitButton({ onPress, disabled, submitting, theme }: {
       <Animated.View
         style={[
           styles.bidSubmitBtn,
-          { backgroundColor: theme.colors.primary },
+          { overflow: 'hidden', ...theme.shadows.glowGold },
           (submitting || disabled) && { opacity: 0.5 },
           animStyle,
         ]}
       >
-        <Text style={styles.bidSubmitText}>
+        <LinearGradient
+          colors={theme.colors.gradientGold as unknown as string[]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={StyleSheet.absoluteFill}
+        />
+        <Text style={[styles.bidSubmitText, { color: '#1B1308' }]}>
           {submitting ? '...' : 'Teklif Ver'}
         </Text>
       </Animated.View>

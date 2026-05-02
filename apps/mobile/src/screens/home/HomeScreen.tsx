@@ -237,10 +237,15 @@ function SpotlightParcelCard({ parcel, onPress }: { parcel: Parcel; onPress: () 
           style={S.spotlightGradient}
         />
         <View style={S.spotlightCopy}>
-          <View style={[S.spotlightBadge, { backgroundColor: 'rgba(255,255,255,0.18)' }]}>
-            <Ionicons name="star" size={12} color="#fbbf24" />
-            <Text style={{ color: '#fff', fontSize: 10, fontWeight: '800', letterSpacing: 0.8 }}>ÖNE ÇIKAN</Text>
-          </View>
+          <LinearGradient
+            colors={c.gradientGold as unknown as string[]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={S.spotlightBadge}
+          >
+            <Ionicons name="star" size={12} color="#1B1308" />
+            <Text style={{ color: '#1B1308', fontSize: 10, fontWeight: '800', letterSpacing: 1 }}>ÖNE ÇIKAN</Text>
+          </LinearGradient>
           <Text style={[typo.h3, { color: '#fff', marginTop: 10, lineHeight: 24, letterSpacing: -0.4 }]} numberOfLines={2}>
             {parcel.title}
           </Text>
@@ -428,16 +433,16 @@ export default function HomeScreen() {
     return 'İyi akşamlar';
   };
 
-  const canvas = isDark ? c.background : c.skeleton;
+  const canvas = c.background;
   const surface = c.card;
   const heroGradient = isDark
-    ? [c.background, '#121a2e', c.surface]
-    : [c.primaryBg, '#e8f5ec', '#f1f5f9'];
+    ? [c.background, '#0F1B17', c.surface]
+    : ['#F2F6F2', '#EAEFE8', '#FAF8F4'];
   const showSpotlight = !loading && featured.length > 0;
   const vitrinList = showSpotlight ? featured.slice(1) : featured;
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: canvas }} edges={['top']}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: canvas }}>
       <ScrollView
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={c.primary} />}
         showsVerticalScrollIndicator={false}
@@ -450,7 +455,7 @@ export default function HomeScreen() {
             end={{ x: 1, y: 1 }}
             style={{ paddingBottom: 32 }}
           >
-            <View style={{ paddingHorizontal: PX, paddingTop: Platform.select({ ios: 6, default: 8 }) }}>
+            <View style={{ paddingHorizontal: PX, paddingTop: insets.top + 8 }}>
               <View style={[S.header, { paddingTop: 2 }]}>
                 <TouchableOpacity onPress={() => navigation.navigate('Profile' as any)} activeOpacity={0.85}>
                   <View

@@ -145,8 +145,8 @@ function AnimatedTabBar({ state, navigation, descriptors }: BottomTabBarProps) {
     transform: [{ translateX: indicatorX.value }],
   }));
 
-  const mutedColor = isDark ? 'rgba(255,255,255,0.45)' : '#94a3b8';
-  const bgColor = isDark ? 'rgba(15,15,20,0.85)' : 'rgba(255,255,255,0.92)';
+  const mutedColor = c.textMuted;
+  const bgColor = c.tabBar;
 
   const barContent = (
     <>
@@ -211,7 +211,7 @@ function AnimatedTabBar({ state, navigation, descriptors }: BottomTabBarProps) {
           style={StyleSheet.absoluteFill}
           blurType={isDark ? 'dark' : 'light'}
           blurAmount={24}
-          reducedTransparencyFallbackColor={isDark ? '#0f0f14' : '#ffffff'}
+          reducedTransparencyFallbackColor={isDark ? '#0B100E' : '#FFFFFF'}
         />
       ) : null}
 
@@ -221,7 +221,7 @@ function AnimatedTabBar({ state, navigation, descriptors }: BottomTabBarProps) {
           StyleSheet.absoluteFill,
           {
             backgroundColor: Platform.OS === 'ios'
-              ? (isDark ? 'rgba(15,15,20,0.4)' : 'rgba(255,255,255,0.3)')
+              ? (isDark ? 'rgba(11,16,14,0.45)' : 'rgba(250,248,244,0.35)')
               : bgColor,
           },
         ]}
@@ -231,7 +231,7 @@ function AnimatedTabBar({ state, navigation, descriptors }: BottomTabBarProps) {
       <View
         style={[
           styles.topBorder,
-          { backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)' },
+          { backgroundColor: c.tabBarBorder },
         ]}
       />
 
@@ -286,8 +286,17 @@ const styles = StyleSheet.create({
     left: 0,
     width: INDICATOR_WIDTH,
     height: INDICATOR_HEIGHT,
-    borderBottomLeftRadius: 2,
-    borderBottomRightRadius: 2,
+    borderBottomLeftRadius: 3,
+    borderBottomRightRadius: 3,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#687A26',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.6,
+        shadowRadius: 6,
+      },
+      android: { elevation: 4 },
+    }),
   },
   tabRow: {
     flexDirection: 'row',

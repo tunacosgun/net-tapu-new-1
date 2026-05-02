@@ -583,15 +583,22 @@ export default function ParcelDetailScreen() {
             style={[
               styles.bottomBtn,
               {
-                backgroundColor: c.primary,
                 flex: 1,
-                borderRadius: Platform.select({ ios: br.xl, default: br.md }),
+                borderRadius: br.xl,
+                overflow: 'hidden',
+                ...shadows.glowEmerald,
               },
             ]}
-            activeOpacity={0.88}
+            activeOpacity={0.92}
           >
-            <Ionicons name="call" size={19} color={c.textInverse} />
-            <Text style={[styles.bottomBtnText, { color: c.textInverse }]}>Ara</Text>
+            <LinearGradient
+              colors={[c.primary, c.primaryDark]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={StyleSheet.absoluteFill}
+            />
+            <Ionicons name="call" size={19} color="#FFFFFF" />
+            <Text style={[styles.bottomBtnText, { color: '#FFFFFF' }]}>Ara</Text>
           </TouchableOpacity>
           <TouchableOpacity
             onPress={handleWhatsApp}

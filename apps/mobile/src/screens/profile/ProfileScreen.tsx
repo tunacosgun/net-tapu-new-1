@@ -3,7 +3,7 @@ import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Alert,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Animated, {
   FadeInDown,
@@ -85,6 +85,7 @@ function MenuRow({
 export default function ProfileScreen() {
   const navigation = useNavigation<any>();
   const { colors: c, isDark, shadows, borderRadius: br, spacing: sp } = useTheme();
+  const insets = useSafeAreaInsets();
   const { user, isAuthenticated, clearTokens, avatarUrl } = useAuthStore();
   const [profile, setProfile] = useState<ProfileData | null>(null);
 
@@ -198,17 +199,17 @@ export default function ProfileScreen() {
   let globalMenuIndex = 0;
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: c.background }} edges={['top']}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: c.background }}>
       <ScrollView contentContainerStyle={{ paddingBottom: 110 }} showsVerticalScrollIndicator={false}>
 
         {/* ── Profile Header ── */}
-        <Animated.View entering={FadeInDown.delay(50).duration(500).springify()} style={styles.header}>
+        <Animated.View entering={FadeInDown.delay(50).duration(500).springify()} style={[styles.header, { paddingTop: insets.top + 8 }]}>
           <TouchableOpacity activeOpacity={0.8} style={{ position: 'relative', alignItems: 'center' }}>
             {/* Gradient ring */}
             <Animated.View style={[styles.avatarRing, ringStyle, {
-              borderColor: c.primary,
-              borderTopColor: isDark ? '#6366f1' : '#818cf8',
-              borderRightColor: isDark ? '#a78bfa' : '#c084fc',
+              borderColor: c.primaryMuted,
+              borderTopColor: c.primary,
+              borderRightColor: c.primaryLight,
             }]} />
             {avatarUrl ? (
               <Image source={{ uri: avatarUrl }} style={[styles.avatar, { borderColor: c.background }]} />

@@ -5,7 +5,7 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Animated, {
   useSharedValue, useAnimatedStyle, withSpring, withTiming,
@@ -125,6 +125,7 @@ function MapButton({ onPress, colors, isDark }: { onPress: () => void; colors: a
 export default function ParcelsListScreen() {
   const navigation = useNavigation<Nav>();
   const theme = useTheme();
+  const insets = useSafeAreaInsets();
   const isDark = theme.isDark;
   const c = theme.colors;
   const [parcels, setParcels] = useState<Parcel[]>([]);
@@ -186,10 +187,13 @@ export default function ParcelsListScreen() {
   }));
 
   return (
-    <SafeAreaView style={[styles.safe, { backgroundColor: c.background }]} edges={['top']}>
+    <SafeAreaView style={[styles.safe, { backgroundColor: c.background }]}>
       {/* Header */}
-      <Animated.View entering={SlideInLeft.duration(400).springify().damping(20)} style={styles.titleBar}>
-        <Text style={[styles.screenTitle, { color: c.text }]}>İlanlar</Text>
+      <Animated.View entering={SlideInLeft.duration(400).springify().damping(20)} style={[styles.titleBar, { paddingTop: insets.top + 8 }]}>
+        <View style={{ flex: 1 }}>
+          <Text style={[styles.screenOverline, { color: c.primary }]}>KEŞFET</Text>
+          <Text style={[styles.screenTitle, { color: c.text }]}>İlanlar</Text>
+        </View>
         <MapButton onPress={() => navigation.navigate('ParcelMap')} colors={c} isDark={isDark} />
       </Animated.View>
 
@@ -197,7 +201,7 @@ export default function ParcelsListScreen() {
       <View style={styles.searchSection}>
         <Animated.View style={[
           styles.searchBar,
-          { backgroundColor: isDark ? c.surface : '#fff', shadowColor: isDark ? '#000' : '#94a3b8' },
+          { backgroundColor: c.card, shadowColor: isDark ? '#000' : '#94a3b8' },
           searchBarAnimStyle,
         ]}>
           <Ionicons name="search-outline" size={18} color={c.textMuted} />
@@ -272,7 +276,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
     paddingHorizontal: 20, paddingTop: 12, paddingBottom: 12,
   },
-  screenTitle: { fontSize: 28, fontWeight: '800', letterSpacing: -0.5 },
+  screenOverline: { fontSize: 11, fontWeight: '700', letterSpacing: 1.5, marginBottom: 2 },
+  screenTitle: { fontSize: 30, fontWeight: '800', letterSpacing: -0.6 },
   mapButton: {
     flexDirection: 'row', alignItems: 'center', gap: 5,
     paddingHorizontal: 14, paddingVertical: 8, borderRadius: 12,

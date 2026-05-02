@@ -12,3 +12,4 @@ load-tests/results/
 .next
 apps/web/.next
 apps/web/.next.zip
+.claude/scheduled_tasks.lock

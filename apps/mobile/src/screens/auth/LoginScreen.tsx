@@ -212,7 +212,7 @@ export default function LoginScreen() {
   const c = theme.colors;
 
   return (
-    <View style={[styles.root, { backgroundColor: isDark ? '#0a0f1a' : '#f8faf9' }]}>
+    <View style={[styles.root, { backgroundColor: c.background }]}>
       <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
       <KeyboardAvoidingView
         style={{ flex: 1 }}
@@ -241,18 +241,13 @@ export default function LoginScreen() {
                 />
               ) : (
                 <>
-                  <LinearGradient
-                    colors={isDark ? [c.primaryLight, c.primary] : [c.primary, c.primaryDark]}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 1 }}
-                    style={styles.logoGradient}
-                  >
-                    <Ionicons name="business-outline" size={26} color="#fff" />
-                  </LinearGradient>
-                  <Text style={[styles.brandName, { color: c.text }]}>
-                    {settings?.site_title ? settings.site_title : <>Net<Text style={{ color: c.primary }}>Tapu</Text></>}
-                  </Text>
-                  <Text style={[styles.tagline, { color: c.textMuted }]}>
+                  <View style={styles.brandWordmark}>
+                    <View style={[styles.brandNetBox, { borderColor: c.text }]}>
+                      <Text style={[styles.brandNetText, { color: c.primary }]}>NET</Text>
+                    </View>
+                    <Text style={[styles.brandTapuText, { color: c.text }]}>TAPU</Text>
+                  </View>
+                  <Text style={[styles.tagline, { color: c.textMuted, marginTop: 12 }]}>
                     Arsa & Açık Artırma Platformu
                   </Text>
                 </>
@@ -283,8 +278,8 @@ export default function LoginScreen() {
                 .stiffness(SPRING.smooth.stiffness)
                 .mass(SPRING.smooth.mass)}
               style={[styles.formContainer, {
-                backgroundColor: isDark ? c.card : '#ffffff',
-                borderColor: isDark ? c.border : '#e8ebe9',
+                backgroundColor: c.card,
+                borderColor: c.border,
               }]}
             >
               {/* Social Buttons */}
@@ -298,8 +293,8 @@ export default function LoginScreen() {
                 <Animated.View style={[googleBtnAnimStyle, { flex: 1 }]}>
                   <TouchableOpacity
                     style={[styles.socialBtn, {
-                      backgroundColor: isDark ? c.surface : '#ffffff',
-                      borderColor: isDark ? c.border : '#e2e5e3',
+                      backgroundColor: c.surface,
+                      borderColor: c.border,
                     }]}
                     onPress={handleGoogleLogin}
                     onPressIn={onGooglePressIn}
@@ -350,11 +345,11 @@ export default function LoginScreen() {
                 entering={FadeIn.delay(FORM_DELAY + FIELD_STAGGER * 1).duration(300)}
               >
                 <View style={styles.separator}>
-                  <View style={[styles.separatorLine, { backgroundColor: isDark ? c.border : '#edf0ee' }]} />
-                  <View style={[styles.separatorPill, { backgroundColor: isDark ? c.card : '#ffffff' }]}>
+                  <View style={[styles.separatorLine, { backgroundColor: c.border }]} />
+                  <View style={[styles.separatorPill, { backgroundColor: c.card }]}>
                     <Text style={[styles.separatorText, { color: c.textMuted }]}>veya</Text>
                   </View>
-                  <View style={[styles.separatorLine, { backgroundColor: isDark ? c.border : '#edf0ee' }]} />
+                  <View style={[styles.separatorLine, { backgroundColor: c.border }]} />
                 </View>
               </Animated.View>
 
@@ -518,7 +513,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 14,
-    shadowColor: '#16a34a',
+    shadowColor: '#687A26',
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.3,
     shadowRadius: 12,
@@ -528,6 +523,29 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: '800',
     letterSpacing: -0.5,
+  },
+  brandWordmark: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  brandNetBox: {
+    borderWidth: 2,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 4,
+  },
+  brandNetText: {
+    fontSize: 30,
+    fontWeight: '900',
+    letterSpacing: 1,
+    lineHeight: 34,
+  },
+  brandTapuText: {
+    fontSize: 30,
+    fontWeight: '300',
+    letterSpacing: 1,
+    lineHeight: 34,
   },
   tagline: {
     fontSize: 13,

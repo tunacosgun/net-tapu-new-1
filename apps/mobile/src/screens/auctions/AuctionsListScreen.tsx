@@ -3,7 +3,7 @@ import {
   View, Text, StyleSheet, FlatList, TouchableOpacity, RefreshControl, Image, Dimensions,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Animated, {
@@ -401,6 +401,7 @@ function TabBar({ tabItems, tab, setTab, colors: c, isDark }: {
 export default function AuctionsListScreen() {
   const navigation = useNavigation<any>();
   const { colors: c, isDark, shadows, borderRadius: br, spacing: sp } = useTheme();
+  const insets = useSafeAreaInsets();
   const [auctions, setAuctions] = useState<Auction[]>([]);
   const [tab, setTab] = useState<TabKey>('active');
   const [refreshing, setRefreshing] = useState(false);
@@ -437,11 +438,12 @@ export default function AuctionsListScreen() {
   ), [c, isDark, shadows, navigation]);
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: c.background }]} edges={['top']}>
-      <View style={styles.titleBar}>
-        <Text style={[styles.screenTitle, { color: c.text }]}>
-          İhaleler
-        </Text>
+    <SafeAreaView style={[styles.container, { backgroundColor: c.background }]}>
+      <View style={[styles.titleBar, { paddingTop: insets.top + 8 }]}>
+        <View style={{ flex: 1 }}>
+          <Text style={[styles.screenOverline, { color: c.primary }]}>CANLI AÇIK ARTIRMALAR</Text>
+          <Text style={[styles.screenTitle, { color: c.text }]}>İhaleler</Text>
+        </View>
       </View>
 
       {/* Tabs */}
@@ -471,8 +473,9 @@ export default function AuctionsListScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  titleBar: { paddingHorizontal: 20, paddingTop: 12, paddingBottom: 8 },
-  screenTitle: { fontSize: 28, fontWeight: '700', letterSpacing: -0.5 },
+  titleBar: { paddingHorizontal: 20, paddingTop: 12, paddingBottom: 12 },
+  screenOverline: { fontSize: 11, fontWeight: '700', letterSpacing: 1.5, marginBottom: 2 },
+  screenTitle: { fontSize: 30, fontWeight: '800', letterSpacing: -0.6 },
 
   tabBar: {
     flexDirection: 'row', marginHorizontal: 20, marginBottom: 8, borderRadius: 14, padding: 4,

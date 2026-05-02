@@ -54,41 +54,41 @@ export default function ForgotPasswordScreen() {
 
   return (
     <>
-      <StatusBar barStyle="light-content" />
+      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
       <KeyboardAvoidingView
         style={{ flex: 1, backgroundColor: theme.colors.background }}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled" bounces={false}>
-          {/* Header */}
-          <Animated.View entering={FadeInDown.duration(500).springify()}>
-            <LinearGradient
-              colors={isDark ? ['#052e16', '#0f172a'] : ['#15803d', '#16a34a']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.header}
+          <View style={styles.header}>
+            <TouchableOpacity
+              onPress={() => navigation.goBack()}
+              style={[styles.backBtn, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}
+              hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
             >
-              <TouchableOpacity
-                onPress={() => navigation.goBack()}
-                style={styles.backBtn}
-                hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
-              >
-                <Ionicons name="chevron-back" size={22} color="#fff" />
-              </TouchableOpacity>
-              <Text style={styles.headerTitle}>Şifremi Unuttum</Text>
-              <Text style={styles.headerSubtitle}>
-                Şifre sıfırlama bağlantısı göndereceğiz
-              </Text>
-              <View style={styles.headerCircle} />
-            </LinearGradient>
-          </Animated.View>
+              <Ionicons name="chevron-back" size={22} color={theme.colors.text} />
+            </TouchableOpacity>
 
-          {/* Content Card */}
+            <View style={styles.heroCenter}>
+              <View style={styles.brandWordmark}>
+                <View style={[styles.brandNetBox, { borderColor: theme.colors.text }]}>
+                  <Text style={[styles.brandNetText, { color: theme.colors.primary }]}>NET</Text>
+                </View>
+                <Text style={[styles.brandTapuText, { color: theme.colors.text }]}>TAPU</Text>
+              </View>
+              <Text style={[styles.headerTitle, { color: theme.colors.text }]}>Şifremi Unuttum</Text>
+              <Text style={[styles.headerSubtitle, { color: theme.colors.textMuted }]}>
+                Kayıtlı e-posta adresinize sıfırlama bağlantısı gönderelim
+              </Text>
+            </View>
+          </View>
+
           <Animated.View
             entering={FadeInDown.delay(150).duration(500).springify()}
             style={[styles.card, {
               backgroundColor: theme.colors.card,
-              shadowColor: isDark ? '#000' : '#16a34a',
+              shadowColor: theme.colors.primary,
+              borderColor: theme.colors.borderLight,
             }]}
           >
             {sent ? (
@@ -104,33 +104,30 @@ export default function ForgotPasswordScreen() {
                   onPress={() => navigation.goBack()}
                   style={{ borderRadius: 14, overflow: 'hidden', alignSelf: 'stretch', marginTop: 20 }}
                 >
-                  <LinearGradient colors={['#16a34a', '#15803d']} style={styles.submitBtn}>
+                  <LinearGradient colors={[theme.colors.primary, theme.colors.primaryDark]} style={styles.submitBtn}>
                     <Text style={styles.submitText}>Giriş Sayfasına Dön</Text>
                   </LinearGradient>
                 </TouchableOpacity>
               </View>
             ) : (
               <>
-                <View style={[styles.infoBox, { backgroundColor: isDark ? theme.colors.surface : '#f0fdf4' }]}>
-                  <Ionicons name="information-circle-outline" size={18} color={theme.colors.primary} />
-                  <Text style={[styles.infoText, { color: theme.colors.primary }]}>
-                    Kayıtlı e-posta adresinizi girin
-                  </Text>
-                </View>
                 <Input
                   label="E-posta Adresi"
                   placeholder="ornek@email.com"
+                  leftIcon="mail-outline"
                   keyboardType="email-address"
                   autoCapitalize="none"
+                  autoCorrect={false}
                   value={email}
                   onChangeText={setEmail}
                 />
                 <TouchableOpacity
                   onPress={handleSubmit}
                   disabled={loading || !email}
-                  style={{ borderRadius: 14, overflow: 'hidden', opacity: !email ? 0.5 : 1 }}
+                  activeOpacity={0.9}
+                  style={{ borderRadius: 14, overflow: 'hidden', opacity: !email ? 0.5 : 1, marginTop: 8 }}
                 >
-                  <LinearGradient colors={['#16a34a', '#15803d']} style={styles.submitBtn}>
+                  <LinearGradient colors={[theme.colors.primary, theme.colors.primaryDark]} start={{x:0,y:0}} end={{x:1,y:0}} style={styles.submitBtn}>
                     {loading ? (
                       <ActivityIndicator size="small" color="#fff" />
                     ) : (
@@ -151,51 +148,73 @@ export default function ForgotPasswordScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flexGrow: 1 },
+  container: { flexGrow: 1, paddingBottom: 32 },
   header: {
-    paddingTop: Platform.OS === 'ios' ? 60 : 40,
-    paddingBottom: 40,
+    paddingTop: Platform.OS === 'ios' ? 56 : 36,
+    paddingBottom: 24,
     paddingHorizontal: 24,
-    overflow: 'hidden',
-    position: 'relative',
   },
-  backBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 10,
-    backgroundColor: 'rgba(255,255,255,0.15)',
+  heroCenter: {
     alignItems: 'center',
-    justifyContent: 'center',
+    marginTop: 28,
+  },
+  brandWordmark: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
     marginBottom: 16,
   },
-  headerTitle: {
+  brandNetBox: {
+    borderWidth: 2,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 4,
+  },
+  brandNetText: {
     fontSize: 26,
+    fontWeight: '900',
+    letterSpacing: 1,
+    lineHeight: 30,
+  },
+  brandTapuText: {
+    fontSize: 26,
+    fontWeight: '300',
+    letterSpacing: 1,
+    lineHeight: 30,
+  },
+  backBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  headerTitle: {
+    fontSize: 24,
     fontWeight: '800',
-    color: '#fff',
+    letterSpacing: -0.4,
     marginBottom: 6,
+    marginTop: 4,
+    textAlign: 'center',
   },
   headerSubtitle: {
-    fontSize: 14,
-    color: 'rgba(255,255,255,0.7)',
-  },
-  headerCircle: {
-    position: 'absolute',
-    width: 160,
-    height: 160,
-    borderRadius: 80,
-    backgroundColor: 'rgba(255,255,255,0.06)',
-    top: -30,
-    right: -40,
+    fontSize: 13.5,
+    fontWeight: '500',
+    letterSpacing: 0.2,
+    textAlign: 'center',
+    paddingHorizontal: 16,
   },
   card: {
-    marginTop: -20,
+    marginTop: 8,
     marginHorizontal: 16,
-    borderRadius: 20,
-    padding: 24,
+    borderRadius: 22,
+    padding: 22,
+    borderWidth: 1,
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.08,
     shadowRadius: 24,
-    elevation: 8,
+    elevation: 6,
   },
   infoBox: {
     flexDirection: 'row',
@@ -210,7 +229,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 16,
+    height: 56,
     gap: 8,
   },
   submitText: { color: '#fff', fontSize: 16, fontWeight: '700' },
